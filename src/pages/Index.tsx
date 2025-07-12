@@ -1,12 +1,35 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import GreetingBar from "@/components/GreetingBar";
+import PlayerStatsCard from "@/components/PlayerStatsCard";
+import ActionCards from "@/components/ActionCards";
+import InsightsCarousel from "@/components/InsightsCarousel";
 
 const Index = () => {
+  // Mock data - in a real app, this would come from your data store
+  const playerStats = {
+    gamesPlayed: 42,
+    gamesWon: 28,
+    winRate: 67
+  };
+
+  const userName = "Vignesh";
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-gray-50 font-inter">
+      {/* Top Greeting Bar */}
+      <GreetingBar userName={userName} />
+      
+      {/* Player Stats Section */}
+      <PlayerStatsCard stats={playerStats} />
+      
+      {/* Action Cards */}
+      <ActionCards />
+      
+      {/* Fun Insights Carousel */}
+      <InsightsCarousel />
+      
+      {/* Bottom spacing */}
+      <div className="h-8"></div>
     </div>
   );
 };
