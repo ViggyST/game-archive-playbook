@@ -1,13 +1,16 @@
 
+import { useNavigate } from "react-router-dom";
 import { BarChart3, Dice6 } from "lucide-react";
 
 const ActionCards = () => {
+  const navigate = useNavigate();
+  
   const handleTrackGames = () => {
     console.log("Navigate to analytics/tracking section");
   };
 
   const handleLogGame = () => {
-    console.log("Navigate to log game flow");
+    navigate("/log-game");
   };
 
   return (
