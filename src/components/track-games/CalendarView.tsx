@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, Crown, Clock, MapPin } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -5,9 +6,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 
-// Mock data for game sessions
+// Actual data from knowledge base
 const mockSessions = {
-  "2024-12-05": [
+  "2025-06-05": [
     {
       id: 1,
       game: "Azul",
@@ -22,7 +23,7 @@ const mockSessions = {
       highlights: "Shwetha maxed tile synergy."
     }
   ],
-  "2024-12-07": [
+  "2025-06-07": [
     {
       id: 2,
       game: "Codenames",
@@ -37,7 +38,7 @@ const mockSessions = {
       highlights: "Perfect streak with no wrong guesses."
     }
   ],
-  "2024-12-09": [
+  "2025-06-09": [
     {
       id: 3,
       game: "Terraforming Mars",
@@ -51,7 +52,7 @@ const mockSessions = {
       highlights: "Close match with two engine builds."
     }
   ],
-  "2024-12-12": [
+  "2025-06-12": [
     {
       id: 4,
       game: "Jaipur",
@@ -64,11 +65,96 @@ const mockSessions = {
       location: "Home",
       highlights: "Shwetha stays undefeated in Jaipur."
     }
+  ],
+  "2025-06-14": [
+    {
+      id: 5,
+      game: "Wingspan",
+      category: "Medium",
+      players: [
+        { name: "Vignesh", score: 88, winner: true },
+        { name: "Vishnu", score: 72, winner: false }
+      ],
+      duration: 55,
+      location: "Game Cafe",
+      highlights: "High scoring combo using birds of prey."
+    }
+  ],
+  "2025-06-17": [
+    {
+      id: 6,
+      game: "7 Wonders Duel",
+      category: "Medium",
+      players: [
+        { name: "Vignesh", score: 81, winner: false },
+        { name: "Shwetha", score: 91, winner: true }
+      ],
+      duration: 40,
+      location: "Cafe",
+      highlights: "Military victory avoided last second."
+    }
+  ],
+  "2025-06-20": [
+    {
+      id: 7,
+      game: "Carcassonne",
+      category: "Medium",
+      players: [
+        { name: "Vignesh", score: 74, winner: false },
+        { name: "Vishnu", score: 80, winner: true }
+      ],
+      duration: 50,
+      location: "Home",
+      highlights: "Vishnu claimed all the monasteries."
+    }
+  ],
+  "2025-06-23": [
+    {
+      id: 8,
+      game: "Patchwork",
+      category: "Light",
+      players: [
+        { name: "Vignesh", score: 65, winner: true },
+        { name: "Shwetha", score: 56, winner: false }
+      ],
+      duration: 25,
+      location: "Home",
+      highlights: "Efficient time token usage."
+    }
+  ],
+  "2025-06-25": [
+    {
+      id: 9,
+      game: "Scythe",
+      category: "Heavy",
+      players: [
+        { name: "Vignesh", score: 100, winner: true },
+        { name: "Vishnu", score: 85, winner: false }
+      ],
+      duration: 90,
+      location: "Online",
+      highlights: "Dominated factory and objective points."
+    }
+  ],
+  "2025-06-28": [
+    {
+      id: 10,
+      game: "The Crew",
+      category: "Light",
+      players: [
+        { name: "Vignesh", score: 0, winner: true },
+        { name: "Shwetha", score: 0, winner: true },
+        { name: "Vishnu", score: 0, winner: false }
+      ],
+      duration: 35,
+      location: "Cafe",
+      highlights: "Perfect team communication."
+    }
   ]
 };
 
 const CalendarView = () => {
-  const [currentMonth, setCurrentMonth] = useState(new Date(2024, 11)); // December 2024
+  const [currentMonth, setCurrentMonth] = useState(new Date(2025, 5)); // June 2025
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -147,7 +233,7 @@ const CalendarView = () => {
           <div className="flex items-center justify-between">
             <button
               onClick={() => navigateMonth('prev')}
-              className="p-2 rounded-full hover:bg-white/20 transition-colors"
+              className="p-3 rounded-full hover:bg-white/20 transition-all duration-200 hover:scale-110"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
@@ -158,7 +244,7 @@ const CalendarView = () => {
             
             <button
               onClick={() => navigateMonth('next')}
-              className="p-2 rounded-full hover:bg-white/20 transition-colors"
+              className="p-3 rounded-full hover:bg-white/20 transition-all duration-200 hover:scale-110"
             >
               <ChevronRight className="h-5 w-5" />
             </button>
@@ -167,22 +253,22 @@ const CalendarView = () => {
       </Card>
 
       {/* Calendar Grid */}
-      <Card className="shadow-lg border-border/40">
-        <CardContent className="p-4">
+      <Card className="shadow-xl border-border/40 overflow-hidden bg-gradient-to-br from-background to-muted/30">
+        <CardContent className="p-6">
           {/* Day Headers */}
-          <div className="grid grid-cols-7 gap-1 mb-4">
+          <div className="grid grid-cols-7 gap-1 mb-6">
             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-              <div key={day} className="text-center text-sm font-inter font-medium text-muted-foreground py-2">
+              <div key={day} className="text-center text-sm font-inter font-semibold text-muted-foreground py-3">
                 {day}
               </div>
             ))}
           </div>
 
           {/* Calendar Days */}
-          <div className="grid grid-cols-7 gap-1">
+          <div className="grid grid-cols-7 gap-2">
             {days.map((day, index) => {
               if (day === null) {
-                return <div key={index} className="h-12" />;
+                return <div key={index} className="h-14" />;
               }
 
               const dateKey = getDateKey(day);
@@ -194,24 +280,30 @@ const CalendarView = () => {
                   key={day}
                   onClick={() => handleDateClick(day)}
                   className={`
-                    h-12 rounded-lg flex flex-col items-center justify-center relative
-                    transition-all duration-200 hover:scale-105
+                    h-14 rounded-2xl flex flex-col items-center justify-center relative
+                    transition-all duration-300 transform-gpu
                     ${hasGames 
-                      ? 'bg-muted/50 hover:bg-muted text-foreground font-medium' 
-                      : 'hover:bg-muted/30 text-muted-foreground'
+                      ? 'bg-gradient-to-br from-muted/80 to-muted/60 hover:from-muted hover:to-muted/80 text-foreground font-semibold shadow-lg hover:shadow-xl hover:scale-105 active:scale-95' 
+                      : 'hover:bg-muted/40 text-muted-foreground hover:text-foreground hover:scale-102'
                     }
+                    hover:-translate-y-1 active:translate-y-0
+                    ${hasGames ? 'ring-1 ring-border/20' : ''}
                   `}
                 >
-                  <span className="text-sm">{day}</span>
+                  <span className="text-sm font-medium">{day}</span>
                   {hasGames && (
-                    <div className="flex gap-1 mt-1">
+                    <div className="flex gap-1 mt-1.5 absolute bottom-1.5">
                       {sessions.map((session, idx) => (
                         <div
                           key={idx}
-                          className={`w-2 h-2 rounded-full ${getCategoryColor(session.category)}`}
+                          className={`w-1.5 h-1.5 rounded-full ${getCategoryColor(session.category)} shadow-sm animate-pulse`}
+                          style={{ animationDelay: `${idx * 200}ms` }}
                         />
                       ))}
                     </div>
+                  )}
+                  {hasGames && (
+                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-transparent via-transparent to-white/10 pointer-events-none" />
                   )}
                 </button>
               );
@@ -221,21 +313,21 @@ const CalendarView = () => {
       </Card>
 
       {/* Legend */}
-      <Card className="shadow-lg border-border/40">
-        <CardContent className="p-4">
-          <h3 className="font-poppins font-medium text-sm mb-3 text-muted-foreground">Game Categories</h3>
-          <div className="flex gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-emerald-500" />
-              <span className="text-sm font-inter">Light</span>
+      <Card className="shadow-lg border-border/40 bg-gradient-to-r from-background to-muted/20">
+        <CardContent className="p-5">
+          <h3 className="font-poppins font-semibold text-sm mb-4 text-muted-foreground">Game Categories</h3>
+          <div className="flex gap-6">
+            <div className="flex items-center gap-3">
+              <div className="w-4 h-4 rounded-full bg-emerald-500 shadow-lg ring-2 ring-emerald-500/20" />
+              <span className="text-sm font-inter font-medium">Light</span>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-sky-blue-500" />
-              <span className="text-sm font-inter">Medium</span>
+            <div className="flex items-center gap-3">
+              <div className="w-4 h-4 rounded-full bg-sky-blue-500 shadow-lg ring-2 ring-sky-blue-500/20" />
+              <span className="text-sm font-inter font-medium">Medium</span>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-red-500" />
-              <span className="text-sm font-inter">Heavy</span>
+            <div className="flex items-center gap-3">
+              <div className="w-4 h-4 rounded-full bg-red-500 shadow-lg ring-2 ring-red-500/20" />
+              <span className="text-sm font-inter font-medium">Heavy</span>
             </div>
           </div>
         </CardContent>

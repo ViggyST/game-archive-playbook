@@ -5,11 +5,11 @@ import ActionCards from "@/components/ActionCards";
 import InsightsCarousel from "@/components/InsightsCarousel";
 
 const Index = () => {
-  // Mock data - in a real app, this would come from your data store
+  // Real stats based on knowledge base data (10 games, Vignesh won 6)
   const playerStats = {
-    gamesPlayed: 42,
-    gamesWon: 28,
-    winRate: 67
+    gamesPlayed: 10,
+    gamesWon: 6,
+    winRate: 60
   };
 
   const userName = "Vignesh";

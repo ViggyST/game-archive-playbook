@@ -1,75 +1,86 @@
 
-import { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Lightbulb } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { Lightbulb, ChevronLeft, ChevronRight } from "lucide-react";
 
 const InsightsCarousel = () => {
-  const insights = [
-    "You've never lost a game of Jaipur 🏆",
-    "100% win rate against Shwetha in Terraforming Mars 🚀",
-    "Most played game: Codenames (14 sessions) 🕵️",
-    "You've played 7 different game genres this month 🎲",
-    "Your longest winning streak was 5 games in a row 🔥"
-  ];
+  const [currentInsight, setCurrentInsight] = useState(0);
 
-  const [currentIndex, setCurrentIndex] = useState(0);
+  // Insights based on actual data from knowledge base
+  const insights = [
+    "Shwetha has never lost in Jaipur! 🏆",
+    "You've played most games on weekends 📅",
+    "Your longest session was 100min in Terraforming Mars ⏰",
+    "Vishnu claimed all monasteries in Carcassonne 🏰",
+    "Perfect team communication led to victory in The Crew 🚀",
+    "Most games played at Home vs Cafe locations 🏠"
+  ];
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % insights.length);
+      setCurrentInsight((prev) => (prev + 1) % insights.length);
     }, 4000);
 
     return () => clearInterval(timer);
   }, [insights.length]);
 
-  const goToPrevious = () => {
-    setCurrentIndex((prev) => (prev - 1 + insights.length) % insights.length);
+  const nextInsight = () => {
+    setCurrentInsight((prev) => (prev + 1) % insights.length);
   };
 
-  const goToNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % insights.length);
+  const prevInsight = () => {
+    setCurrentInsight((prev) => (prev - 1 + insights.length) % insights.length);
   };
 
   return (
     <div className="px-6 py-4">
-      <div className="flex items-center gap-2 mb-4">
-        <Lightbulb className="h-5 w-5 text-meeple-gold-600" />
-        <h2 className="font-poppins font-semibold text-navy text-lg">Did You Know?</h2>
-      </div>
-      
-      <div className="relative bg-gradient-to-r from-sky-blue-50 to-meeple-gold-50 rounded-2xl p-6 shadow-sm border border-gray-100">
-        <div className="flex items-center justify-between">
-          <button
-            onClick={goToPrevious}
-            className="p-2 rounded-full hover:bg-white/50 transition-colors"
-          >
-            <ChevronLeft className="h-5 w-5 text-navy" />
-          </button>
-          
-          <div className="flex-1 text-center px-4">
-            <p 
-              key={currentIndex}
-              className="font-inter text-navy text-sm sm:text-base animate-fade-in"
-            >
-              {insights[currentIndex]}
-            </p>
+      <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 shadow-lg animate-slide-up" style={{ animationDelay: '0.4s' }}>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="bg-purple-100 rounded-full p-2">
+              <Lightbulb className="h-4 w-4 text-purple-600" />
+            </div>
+            <h3 className="font-poppins font-semibold text-gray-900">Did You Know?</h3>
           </div>
           
-          <button
-            onClick={goToNext}
-            className="p-2 rounded-full hover:bg-white/50 transition-colors"
-          >
-            <ChevronRight className="h-5 w-5 text-navy" />
-          </button>
+          <div className="flex gap-1">
+            <button
+              onClick={prevInsight}
+              className="p-1 rounded-full hover:bg-white/50 transition-colors"
+            >
+              <ChevronLeft className="h-4 w-4 text-gray-600" />
+            </button>
+            <button
+              onClick={nextInsight}
+              className="p-1 rounded-full hover:bg-white/50 transition-colors"
+            >
+              <ChevronRight className="h-4 w-4 text-gray-600" />
+            </button>
+          </div>
         </div>
         
-        {/* Dots indicator */}
-        <div className="flex justify-center mt-4 gap-2">
+        <div className="relative overflow-hidden h-8">
+          <div 
+            className="flex transition-transform duration-500 ease-in-out"
+            style={{ transform: `translateX(-${currentInsight * 100}%)` }}
+          >
+            {insights.map((insight, index) => (
+              <div
+                key={index}
+                className="w-full flex-shrink-0 font-inter text-sm text-gray-700"
+              >
+                {insight}
+              </div>
+            ))}
+          </div>
+        </div>
+        
+        <div className="flex justify-center mt-4 gap-1">
           {insights.map((_, index) => (
             <button
               key={index}
-              onClick={() => setCurrentIndex(index)}
-              className={`w-2 h-2 rounded-full transition-colors ${
-                index === currentIndex ? 'bg-navy' : 'bg-gray-300'
+              onClick={() => setCurrentInsight(index)}
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                index === currentInsight ? 'bg-purple-400 w-4' : 'bg-purple-200'
               }`}
             />
           ))}
