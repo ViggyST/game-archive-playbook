@@ -6,7 +6,7 @@ const ActionCards = () => {
   const navigate = useNavigate();
   
   const handleTrackGames = () => {
-    console.log("Navigate to analytics/tracking section");
+    navigate("/track-games");
   };
 
   const handleLogGame = () => {
