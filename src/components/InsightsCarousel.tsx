@@ -1,26 +1,60 @@
 
 import { useState, useEffect } from "react";
 import { Lightbulb, ChevronLeft, ChevronRight } from "lucide-react";
+import { usePlayerStats } from "@/hooks/usePlayerStats";
+import { useMostPlayedGame } from "@/hooks/useMostPlayedGame";
 
-const InsightsCarousel = () => {
+interface InsightsCarouselProps {
+  playerName: string;
+}
+
+const InsightsCarousel = ({ playerName }: InsightsCarouselProps) => {
   const [currentInsight, setCurrentInsight] = useState(0);
+  const { data: playerStats } = usePlayerStats(playerName);
+  const { data: mostPlayed } = useMostPlayedGame();
 
-  // Insights based on actual data from knowledge base
-  const insights = [
-    "Shwetha has never lost in Jaipur! 🏆",
-    "You've played most games on weekends 📅",
-    "Your longest session was 100min in Terraforming Mars ⏰",
-    "Vishnu claimed all monasteries in Carcassonne 🏰",
-    "Perfect team communication led to victory in The Crew 🚀",
-    "Most games played at Home vs Cafe locations 🏠"
-  ];
+  // Generate dynamic insights based on real data
+  const generateInsights = () => {
+    const insights = [];
+    
+    if (playerStats) {
+      if (playerStats.win_rate >= 70) {
+        insights.push(`Amazing! You have a ${playerStats.win_rate}% win rate! 🏆`);
+      } else if (playerStats.win_rate >= 50) {
+        insights.push(`You're doing great with a ${playerStats.win_rate}% win rate! 📈`);
+      }
+      
+      if (playerStats.games_played >= 20) {
+        insights.push(`You're a gaming veteran with ${playerStats.games_played} games played! 🎮`);
+      } else if (playerStats.games_played >= 10) {
+        insights.push(`You've played ${playerStats.games_played} games so far! 🎯`);
+      }
+    }
+    
+    if (mostPlayed) {
+      insights.push(`${mostPlayed.name} is your favorite with ${mostPlayed.times_played} plays! 🎲`);
+    }
+
+    // Add some general insights if we don't have enough dynamic ones
+    if (insights.length < 3) {
+      insights.push("Track more games to unlock personalized insights! 📊");
+      insights.push("Every game tells a story worth remembering 📚");
+      insights.push("Your board game journey is just getting started! 🚀");
+    }
+
+    return insights;
+  };
+
+  const insights = generateInsights();
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentInsight((prev) => (prev + 1) % insights.length);
-    }, 4000);
+    if (insights.length > 1) {
+      const timer = setInterval(() => {
+        setCurrentInsight((prev) => (prev + 1) % insights.length);
+      }, 4000);
 
-    return () => clearInterval(timer);
+      return () => clearInterval(timer);
+    }
   }, [insights.length]);
 
   const nextInsight = () => {
@@ -30,6 +64,8 @@ const InsightsCarousel = () => {
   const prevInsight = () => {
     setCurrentInsight((prev) => (prev - 1 + insights.length) % insights.length);
   };
+
+  if (insights.length === 0) return null;
 
   return (
     <div className="px-6 py-4">
@@ -42,20 +78,22 @@ const InsightsCarousel = () => {
             <h3 className="font-poppins font-semibold text-gray-900">Did You Know?</h3>
           </div>
           
-          <div className="flex gap-1">
-            <button
-              onClick={prevInsight}
-              className="p-1 rounded-full hover:bg-white/50 transition-colors"
-            >
-              <ChevronLeft className="h-4 w-4 text-gray-600" />
-            </button>
-            <button
-              onClick={nextInsight}
-              className="p-1 rounded-full hover:bg-white/50 transition-colors"
-            >
-              <ChevronRight className="h-4 w-4 text-gray-600" />
-            </button>
-          </div>
+          {insights.length > 1 && (
+            <div className="flex gap-1">
+              <button
+                onClick={prevInsight}
+                className="p-1 rounded-full hover:bg-white/50 transition-colors"
+              >
+                <ChevronLeft className="h-4 w-4 text-gray-600" />
+              </button>
+              <button
+                onClick={nextInsight}
+                className="p-1 rounded-full hover:bg-white/50 transition-colors"
+              >
+                <ChevronRight className="h-4 w-4 text-gray-600" />
+              </button>
+            </div>
+          )}
         </div>
         
         <div className="relative overflow-hidden h-8">
@@ -74,17 +112,19 @@ const InsightsCarousel = () => {
           </div>
         </div>
         
-        <div className="flex justify-center mt-4 gap-1">
-          {insights.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentInsight(index)}
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                index === currentInsight ? 'bg-purple-400 w-4' : 'bg-purple-200'
-              }`}
-            />
-          ))}
-        </div>
+        {insights.length > 1 && (
+          <div className="flex justify-center mt-4 gap-1">
+            {insights.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentInsight(index)}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  index === currentInsight ? 'bg-purple-400 w-4' : 'bg-purple-200'
+                }`}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -5,158 +5,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-
-// Actual data from knowledge base
-const mockSessions = {
-  "2025-06-05": [
-    {
-      id: 1,
-      game: "Azul",
-      category: "Medium",
-      players: [
-        { name: "Vignesh", score: 82, winner: false },
-        { name: "Shwetha", score: 97, winner: true },
-        { name: "Vishnu", score: 76, winner: false }
-      ],
-      duration: 45,
-      location: "Home",
-      highlights: "Shwetha maxed tile synergy."
-    }
-  ],
-  "2025-06-07": [
-    {
-      id: 2,
-      game: "Codenames",
-      category: "Light",
-      players: [
-        { name: "Vignesh", score: 0, winner: true },
-        { name: "Vishnu", score: 0, winner: true },
-        { name: "Shwetha", score: 0, winner: false }
-      ],
-      duration: 30,
-      location: "Cafe",
-      highlights: "Perfect streak with no wrong guesses."
-    }
-  ],
-  "2025-06-09": [
-    {
-      id: 3,
-      game: "Terraforming Mars",
-      category: "Heavy",
-      players: [
-        { name: "Vignesh", score: 95, winner: true },
-        { name: "Vishnu", score: 89, winner: false }
-      ],
-      duration: 100,
-      location: "Online",
-      highlights: "Close match with two engine builds."
-    }
-  ],
-  "2025-06-12": [
-    {
-      id: 4,
-      game: "Jaipur",
-      category: "Light",
-      players: [
-        { name: "Vignesh", score: 104, winner: false },
-        { name: "Shwetha", score: 118, winner: true }
-      ],
-      duration: 20,
-      location: "Home",
-      highlights: "Shwetha stays undefeated in Jaipur."
-    }
-  ],
-  "2025-06-14": [
-    {
-      id: 5,
-      game: "Wingspan",
-      category: "Medium",
-      players: [
-        { name: "Vignesh", score: 88, winner: true },
-        { name: "Vishnu", score: 72, winner: false }
-      ],
-      duration: 55,
-      location: "Game Cafe",
-      highlights: "High scoring combo using birds of prey."
-    }
-  ],
-  "2025-06-17": [
-    {
-      id: 6,
-      game: "7 Wonders Duel",
-      category: "Medium",
-      players: [
-        { name: "Vignesh", score: 81, winner: false },
-        { name: "Shwetha", score: 91, winner: true }
-      ],
-      duration: 40,
-      location: "Cafe",
-      highlights: "Military victory avoided last second."
-    }
-  ],
-  "2025-06-20": [
-    {
-      id: 7,
-      game: "Carcassonne",
-      category: "Medium",
-      players: [
-        { name: "Vignesh", score: 74, winner: false },
-        { name: "Vishnu", score: 80, winner: true }
-      ],
-      duration: 50,
-      location: "Home",
-      highlights: "Vishnu claimed all the monasteries."
-    }
-  ],
-  "2025-06-23": [
-    {
-      id: 8,
-      game: "Patchwork",
-      category: "Light",
-      players: [
-        { name: "Vignesh", score: 65, winner: true },
-        { name: "Shwetha", score: 56, winner: false }
-      ],
-      duration: 25,
-      location: "Home",
-      highlights: "Efficient time token usage."
-    }
-  ],
-  "2025-06-25": [
-    {
-      id: 9,
-      game: "Scythe",
-      category: "Heavy",
-      players: [
-        { name: "Vignesh", score: 100, winner: true },
-        { name: "Vishnu", score: 85, winner: false }
-      ],
-      duration: 90,
-      location: "Online",
-      highlights: "Dominated factory and objective points."
-    }
-  ],
-  "2025-06-28": [
-    {
-      id: 10,
-      game: "The Crew",
-      category: "Light",
-      players: [
-        { name: "Vignesh", score: 0, winner: true },
-        { name: "Shwetha", score: 0, winner: true },
-        { name: "Vishnu", score: 0, winner: false }
-      ],
-      duration: 35,
-      location: "Cafe",
-      highlights: "Perfect team communication."
-    }
-  ]
-};
+import { useCalendarSessions, useSessionsByDate } from "@/hooks/useCalendarSessions";
 
 const CalendarView = () => {
   const [currentMonth, setCurrentMonth] = useState(new Date(2025, 5)); // June 2025
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const { data: calendarSessions = {} } = useCalendarSessions();
+  const { data: selectedSessions = [] } = useSessionsByDate(selectedDate || '');
 
   const monthNames = [
     "January", "February", "March", "April", "May", "June",
@@ -193,8 +50,8 @@ const CalendarView = () => {
     return date.toISOString().split('T')[0];
   };
 
-  const getCategoryColor = (category: string) => {
-    switch (category) {
+  const getCategoryColor = (weight: string) => {
+    switch (weight) {
       case "Light": return "bg-emerald-500";
       case "Medium": return "bg-sky-blue-500";
       case "Heavy": return "bg-red-500";
@@ -204,7 +61,7 @@ const CalendarView = () => {
 
   const handleDateClick = (day: number) => {
     const dateKey = getDateKey(day);
-    if (mockSessions[dateKey]) {
+    if (calendarSessions[dateKey]) {
       setSelectedDate(dateKey);
       setIsDialogOpen(true);
     }
@@ -223,7 +80,25 @@ const CalendarView = () => {
   };
 
   const days = getDaysInMonth(currentMonth);
-  const selectedSessions = selectedDate ? mockSessions[selectedDate] || [] : [];
+
+  // Group selected sessions by game
+  const groupedSessions = selectedSessions.reduce((acc, session) => {
+    if (!acc[session.game_name]) {
+      acc[session.game_name] = {
+        game_name: session.game_name,
+        location: session.location,
+        duration_minutes: session.duration_minutes,
+        highlights: session.highlights,
+        players: []
+      };
+    }
+    acc[session.game_name].players.push({
+      name: session.player_name,
+      score: session.score,
+      is_winner: session.is_winner
+    });
+    return acc;
+  }, {} as Record<string, any>);
 
   return (
     <div className="space-y-6">
@@ -272,8 +147,8 @@ const CalendarView = () => {
               }
 
               const dateKey = getDateKey(day);
-              const sessions = mockSessions[dateKey];
-              const hasGames = sessions && sessions.length > 0;
+              const sessionData = calendarSessions[dateKey];
+              const hasGames = sessionData && sessionData.sessions > 0;
 
               return (
                 <button
@@ -293,13 +168,9 @@ const CalendarView = () => {
                   <span className="text-sm font-medium">{day}</span>
                   {hasGames && (
                     <div className="flex gap-1 mt-1.5 absolute bottom-1.5">
-                      {sessions.map((session, idx) => (
-                        <div
-                          key={idx}
-                          className={`w-1.5 h-1.5 rounded-full ${getCategoryColor(session.category)} shadow-sm animate-pulse`}
-                          style={{ animationDelay: `${idx * 200}ms` }}
-                        />
-                      ))}
+                      <div
+                        className={`w-1.5 h-1.5 rounded-full ${getCategoryColor(sessionData.weight)} shadow-sm animate-pulse`}
+                      />
                     </div>
                   )}
                   {hasGames && (
@@ -348,21 +219,18 @@ const CalendarView = () => {
           </DialogHeader>
           
           <div className="space-y-4">
-            {selectedSessions.map((session) => (
-              <Card key={session.id} className="border-border/40">
+            {Object.values(groupedSessions).map((session: any, index) => (
+              <Card key={index} className="border-border/40">
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between mb-3">
                     <div>
-                      <h4 className="font-poppins font-semibold text-lg">{session.game}</h4>
-                      <Badge variant="secondary" className="mt-1">
-                        {session.category}
-                      </Badge>
+                      <h4 className="font-poppins font-semibold text-lg">{session.game_name}</h4>
                     </div>
                   </div>
 
                   {/* Players and Scores */}
                   <div className="space-y-2 mb-4">
-                    {session.players.map((player, idx) => (
+                    {session.players.map((player: any, idx: number) => (
                       <div key={idx} className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <Avatar className="h-6 w-6">
@@ -371,7 +239,7 @@ const CalendarView = () => {
                             </AvatarFallback>
                           </Avatar>
                           <span className="font-inter text-sm">{player.name}</span>
-                          {player.winner && <Crown className="h-4 w-4 text-meeple-gold-500" />}
+                          {player.is_winner && <Crown className="h-4 w-4 text-meeple-gold-500" />}
                         </div>
                         <span className="font-mono text-sm">{player.score}</span>
                       </div>
@@ -382,7 +250,7 @@ const CalendarView = () => {
                   <div className="flex items-center gap-4 text-xs text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <Clock className="h-3 w-3" />
-                      <span>{session.duration}min</span>
+                      <span>{session.duration_minutes}min</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <MapPin className="h-3 w-3" />

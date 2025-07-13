@@ -3,15 +3,9 @@ import GreetingBar from "@/components/GreetingBar";
 import PlayerStatsCard from "@/components/PlayerStatsCard";
 import ActionCards from "@/components/ActionCards";
 import InsightsCarousel from "@/components/InsightsCarousel";
+import MostPlayedGameCard from "@/components/MostPlayedGameCard";
 
 const Index = () => {
-  // Real stats based on knowledge base data (10 games, Vignesh won 6)
-  const playerStats = {
-    gamesPlayed: 10,
-    gamesWon: 6,
-    winRate: 60
-  };
-
   const userName = "Vignesh";
 
   return (
@@ -20,13 +14,16 @@ const Index = () => {
       <GreetingBar userName={userName} />
       
       {/* Player Stats Section */}
-      <PlayerStatsCard stats={playerStats} />
+      <PlayerStatsCard playerName={userName} />
+      
+      {/* Most Played Game Card */}
+      <MostPlayedGameCard />
       
       {/* Action Cards */}
       <ActionCards />
       
       {/* Fun Insights Carousel */}
-      <InsightsCarousel />
+      <InsightsCarousel playerName={userName} />
       
       {/* Bottom spacing */}
       <div className="h-8"></div>
