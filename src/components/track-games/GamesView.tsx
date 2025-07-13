@@ -83,104 +83,89 @@ const GamesView = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header Stats */}
-      <Card className="bg-gradient-to-r from-meeple-gold-500/10 to-sky-blue-500/10 border-none shadow-lg">
-        <CardContent className="p-6">
-          <div className="grid grid-cols-3 gap-4 text-center">
-            <div>
-              <div className="text-2xl font-poppins font-bold text-foreground">
+      {/* Header Stats - Modern Style */}
+      <div className="bg-gradient-to-r from-meeple-gold-500/5 via-sky-blue-500/5 to-emerald-500/5 rounded-3xl border border-border/20 shadow-xl backdrop-blur-sm overflow-hidden">
+        <div className="p-8">
+          <div className="grid grid-cols-3 gap-6 text-center">
+            <div className="space-y-2">
+              <div className="text-3xl font-poppins font-bold text-foreground">
                 {games.length}
               </div>
-              <div className="text-sm font-inter text-muted-foreground">Games Played</div>
+              <div className="text-sm font-inter font-medium text-muted-foreground tracking-wide">Games</div>
             </div>
-            <div>
-              <div className="text-2xl font-poppins font-bold text-foreground">
+            <div className="space-y-2 border-x border-border/20">
+              <div className="text-3xl font-poppins font-bold text-foreground">
                 {Math.round(games.reduce((sum, game) => sum + game.plays, 0) / games.length)}
               </div>
-              <div className="text-sm font-inter text-muted-foreground">Avg Sessions</div>
+              <div className="text-sm font-inter font-medium text-muted-foreground tracking-wide">Avg Sessions</div>
             </div>
-            <div>
-              <div className="text-2xl font-poppins font-bold text-foreground">
+            <div className="space-y-2">
+              <div className="text-3xl font-poppins font-bold text-foreground">
                 {Math.round(games.reduce((sum, game) => sum + game.win_rate, 0) / games.length)}%
               </div>
-              <div className="text-sm font-inter text-muted-foreground">Avg Win Rate</div>
+              <div className="text-sm font-inter font-medium text-muted-foreground tracking-wide">Win Rate</div>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      {/* Games Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {/* Games Grid - Premium Cards */}
+      <div className="grid grid-cols-1 gap-6">
         {games.map((game) => (
-          <Card 
+          <div
             key={game.name}
-            className="cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-lg border-border/40 overflow-hidden"
+            className="group cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl"
             onClick={() => handleGameClick(game)}
           >
-            <CardContent className="p-0">
-              {/* Game Cover */}
-              <div className="h-24 bg-gradient-to-br from-muted/30 to-muted/50 flex items-center justify-center relative">
-                <div className="text-4xl">🎲</div>
+            <div className="bg-gradient-to-br from-background/80 to-muted/20 backdrop-blur-xl rounded-3xl border border-border/30 overflow-hidden shadow-xl hover:shadow-2xl hover:border-border/60 transition-all duration-300">
+              {/* Game Header */}
+              <div className="relative h-20 bg-gradient-to-br from-muted/20 via-muted/30 to-muted/40 flex items-center justify-center">
+                <div className="text-5xl opacity-80 group-hover:scale-110 transition-transform duration-300">🎲</div>
                 <Badge 
                   variant={getCategoryBadgeVariant(game.weight)}
-                  className="absolute top-3 right-3"
+                  className="absolute top-4 right-4 shadow-lg"
                 >
                   {game.weight}
                 </Badge>
               </div>
 
-              {/* Game Info */}
-              <div className="p-4">
-                <h3 className="font-poppins font-semibold text-lg mb-2 truncate">
-                  {game.name}
-                </h3>
-
-                <div className="grid grid-cols-2 gap-3 mb-4">
-                  <div className="flex items-center gap-2">
-                    <BarChart3 className="h-4 w-4 text-muted-foreground" />
-                    <div>
-                      <div className="font-mono text-sm font-medium">{game.plays}</div>
-                      <div className="text-xs text-muted-foreground">Plays</div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <Trophy className="h-4 w-4 text-meeple-gold-500" />
-                    <div>
-                      <div className="font-mono text-sm font-medium">{game.win_rate}%</div>
-                      <div className="text-xs text-muted-foreground">Win Rate</div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
-                    <div>
-                      <div className="font-mono text-sm font-medium">{game.avg_duration}m</div>
-                      <div className="text-xs text-muted-foreground">Avg Time</div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <TrendingUp className="h-4 w-4 text-sky-blue-500" />
-                    <div>
-                      <div className="font-mono text-sm font-medium">{game.weight}</div>
-                      <div className="text-xs text-muted-foreground">Complexity</div>
-                    </div>
-                  </div>
+              {/* Game Content */}
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="font-poppins font-bold text-xl text-foreground group-hover:text-foreground/90 transition-colors">
+                    {game.name}
+                  </h3>
+                  <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-foreground group-hover:translate-x-1 transition-all duration-200" />
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1">
-                    <Users className="h-3 w-3 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground">
-                      {game.plays} session{game.plays !== 1 ? 's' : ''}
-                    </span>
+                <div className="grid grid-cols-4 gap-4">
+                  <div className="text-center p-3 bg-muted/20 rounded-2xl">
+                    <BarChart3 className="h-5 w-5 text-sky-blue-500 mx-auto mb-2" />
+                    <div className="font-mono text-lg font-bold text-foreground">{game.plays}</div>
+                    <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Plays</div>
                   </div>
-                  <ArrowRight className="h-4 w-4 text-muted-foreground" />
+
+                  <div className="text-center p-3 bg-muted/20 rounded-2xl">
+                    <Trophy className="h-5 w-5 text-meeple-gold-500 mx-auto mb-2" />
+                    <div className="font-mono text-lg font-bold text-foreground">{game.win_rate}%</div>
+                    <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Win</div>
+                  </div>
+
+                  <div className="text-center p-3 bg-muted/20 rounded-2xl">
+                    <Clock className="h-5 w-5 text-muted-foreground mx-auto mb-2" />
+                    <div className="font-mono text-lg font-bold text-foreground">{game.avg_duration}m</div>
+                    <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Time</div>
+                  </div>
+
+                  <div className="text-center p-3 bg-muted/20 rounded-2xl">
+                    <TrendingUp className="h-5 w-5 text-emerald-500 mx-auto mb-2" />
+                    <div className="font-mono text-sm font-bold text-foreground">{game.weight}</div>
+                    <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Level</div>
+                  </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         ))}
       </div>
 

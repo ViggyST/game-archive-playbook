@@ -6,7 +6,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import CalendarView from "@/components/track-games/CalendarView";
 import GamesView from "@/components/track-games/GamesView";
 import PlayersView from "@/components/track-games/PlayersView";
-import DynamicStatsCard from "@/components/track-games/DynamicStatsCard";
+
 
 const TrackGames = () => {
   const navigate = useNavigate();
@@ -31,10 +31,6 @@ const TrackGames = () => {
         </div>
       </div>
 
-      {/* Dynamic Stats Card */}
-      <div className="px-4 py-4">
-        <DynamicStatsCard />
-      </div>
 
       {/* Enhanced Tab Navigation */}
       <div className="px-4 py-2">

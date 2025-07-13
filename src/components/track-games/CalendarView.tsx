@@ -104,48 +104,51 @@ const CalendarView = () => {
 
   return (
     <div className="space-y-6">
-      {/* Month Navigation - Apple Style */}
-      <Card className="bg-gradient-to-r from-background via-muted/30 to-background border-none shadow-2xl overflow-hidden">
-        <CardContent className="p-0">
-          <div className="flex items-center justify-between px-6 py-5 bg-gradient-to-r from-muted/20 to-muted/10">
-            <button
-              onClick={() => navigateMonth('prev')}
-              className="p-3 rounded-full hover:bg-background/60 transition-all duration-200 hover:scale-110 active:scale-95 shadow-lg"
-            >
-              <ChevronLeft className="h-6 w-6" />
-            </button>
-            
-            <h2 className="font-poppins font-bold text-2xl text-center bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
-              {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
+      {/* Month Navigation - Modern Minimalist */}
+      <div className="bg-background/60 backdrop-blur-xl rounded-3xl border border-border/30 shadow-2xl overflow-hidden">
+        <div className="flex items-center justify-between px-8 py-6">
+          <button
+            onClick={() => navigateMonth('prev')}
+            className="group p-4 rounded-2xl hover:bg-muted/40 transition-all duration-300 hover:scale-110 active:scale-95 shadow-lg hover:shadow-xl"
+          >
+            <ChevronLeft className="h-6 w-6 text-muted-foreground group-hover:text-foreground transition-colors" />
+          </button>
+          
+          <div className="text-center">
+            <h2 className="font-poppins font-bold text-3xl tracking-tight bg-gradient-to-r from-foreground via-foreground to-muted-foreground bg-clip-text text-transparent">
+              {monthNames[currentMonth.getMonth()]}
             </h2>
-            
-            <button
-              onClick={() => navigateMonth('next')}
-              className="p-3 rounded-full hover:bg-background/60 transition-all duration-200 hover:scale-110 active:scale-95 shadow-lg"
-            >
-              <ChevronRight className="h-6 w-6" />
-            </button>
+            <p className="font-inter text-lg font-medium text-muted-foreground mt-1">
+              {currentMonth.getFullYear()}
+            </p>
           </div>
-        </CardContent>
-      </Card>
+          
+          <button
+            onClick={() => navigateMonth('next')}
+            className="group p-4 rounded-2xl hover:bg-muted/40 transition-all duration-300 hover:scale-110 active:scale-95 shadow-lg hover:shadow-xl"
+          >
+            <ChevronRight className="h-6 w-6 text-muted-foreground group-hover:text-foreground transition-colors" />
+          </button>
+        </div>
+      </div>
 
-      {/* Calendar Grid - Apple Style */}
-      <Card className="shadow-2xl border-none overflow-hidden bg-gradient-to-br from-background via-muted/10 to-background">
-        <CardContent className="p-6">
+      {/* Calendar Grid - Modern iOS Style */}
+      <div className="bg-background/80 backdrop-blur-xl rounded-3xl border border-border/20 shadow-2xl overflow-hidden">
+        <div className="p-8">
           {/* Day Headers */}
-          <div className="grid grid-cols-7 gap-2 mb-6">
+          <div className="grid grid-cols-7 gap-1 mb-8">
             {dayNames.map(day => (
-              <div key={day} className="text-center text-sm font-poppins font-bold text-muted-foreground py-3 uppercase tracking-wide">
+              <div key={day} className="text-center text-xs font-inter font-bold text-muted-foreground/80 py-4 uppercase tracking-widest">
                 {day}
               </div>
             ))}
           </div>
 
           {/* Calendar Days */}
-          <div className="grid grid-cols-7 gap-2">
+          <div className="grid grid-cols-7 gap-1">
             {days.map((day, index) => {
               if (day === null) {
-                return <div key={index} className="h-16" />;
+                return <div key={index} className="h-14" />;
               }
 
               const dateKey = getDateKey(day);
@@ -157,53 +160,50 @@ const CalendarView = () => {
                   key={day}
                   onClick={() => handleDateClick(day)}
                   className={`
-                    h-16 rounded-2xl flex flex-col items-center justify-center relative
-                    transition-all duration-300 transform-gpu font-poppins font-semibold
+                    group h-14 rounded-2xl flex flex-col items-center justify-center relative
+                    transition-all duration-300 transform-gpu font-inter font-semibold
                     ${hasGames 
-                      ? 'bg-gradient-to-br from-background to-muted/40 hover:from-muted/60 hover:to-muted/40 text-foreground shadow-xl hover:shadow-2xl hover:scale-110 active:scale-95 border-2 border-muted/30 hover:border-muted/60' 
-                      : 'hover:bg-muted/30 text-muted-foreground hover:text-foreground hover:scale-105 hover:shadow-md'
+                      ? 'bg-gradient-to-br from-muted/20 to-muted/40 hover:from-muted/40 hover:to-muted/60 text-foreground shadow-lg hover:shadow-xl hover:scale-110 active:scale-95 border border-border/30 hover:border-border/60' 
+                      : 'hover:bg-muted/20 text-muted-foreground hover:text-foreground hover:scale-105 hover:shadow-sm'
                     }
-                    hover:-translate-y-1 active:translate-y-0
+                    hover:-translate-y-0.5 active:translate-y-0
                   `}
                 >
-                  <span className="text-base mb-1">{day}</span>
+                  <span className="text-sm font-medium group-hover:font-semibold transition-all">{day}</span>
                   {hasGames && (
-                    <div className="absolute bottom-2">
+                    <div className="absolute bottom-1.5 left-1/2 transform -translate-x-1/2">
                       <div
-                        className={`w-2 h-2 rounded-full ${getCategoryColor(sessionData.weight)} shadow-lg animate-pulse`}
+                        className={`w-1.5 h-1.5 rounded-full ${getCategoryColor(sessionData.weight)} shadow-sm group-hover:w-2 group-hover:h-2 transition-all duration-200`}
                       />
                     </div>
-                  )}
-                  {hasGames && (
-                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-transparent via-transparent to-white/10 pointer-events-none" />
                   )}
                 </button>
               );
             })}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      {/* Legend */}
-      <Card className="shadow-lg border-none bg-gradient-to-r from-background to-muted/20">
-        <CardContent className="p-5">
-          <h3 className="font-poppins font-bold text-sm mb-4 text-muted-foreground uppercase tracking-wide">Game Complexity</h3>
-          <div className="flex gap-6">
-            <div className="flex items-center gap-3">
-              <div className="w-4 h-4 rounded-full bg-emerald-400 shadow-lg ring-2 ring-emerald-400/30" />
-              <span className="text-sm font-inter font-semibold">Light</span>
+      {/* Legend - Minimalist */}
+      <div className="bg-background/60 backdrop-blur-xl rounded-2xl border border-border/20 shadow-lg overflow-hidden">
+        <div className="p-6">
+          <h3 className="font-inter font-semibold text-sm mb-4 text-muted-foreground uppercase tracking-wider">Complexity</h3>
+          <div className="flex justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-emerald-400 shadow-sm" />
+              <span className="text-xs font-medium text-muted-foreground">Light</span>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="w-4 h-4 rounded-full bg-sky-blue-400 shadow-lg ring-2 ring-sky-blue-400/30" />
-              <span className="text-sm font-inter font-semibold">Medium</span>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-sky-blue-400 shadow-sm" />
+              <span className="text-xs font-medium text-muted-foreground">Medium</span>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="w-4 h-4 rounded-full bg-red-400 shadow-lg ring-2 ring-red-400/30" />
-              <span className="text-sm font-inter font-semibold">Heavy</span>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-red-400 shadow-sm" />
+              <span className="text-xs font-medium text-muted-foreground">Heavy</span>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Game Sessions Drawer - Bottom Sheet Style */}
       <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>

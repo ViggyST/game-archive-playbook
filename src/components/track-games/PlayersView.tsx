@@ -101,96 +101,112 @@ const PlayersView = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header Stats */}
-      <Card className="bg-gradient-to-r from-meeple-gold-500/10 to-sky-blue-500/10 border-none shadow-lg">
-        <CardContent className="p-6">
-          <div className="grid grid-cols-3 gap-4 text-center">
-            <div>
-              <div className="text-2xl font-poppins font-bold text-foreground">
+      {/* Header Stats - Modern Style */}
+      <div className="bg-gradient-to-r from-emerald-500/5 via-sky-blue-500/5 to-meeple-gold-500/5 rounded-3xl border border-border/20 shadow-xl backdrop-blur-sm overflow-hidden">
+        <div className="p-8">
+          <div className="grid grid-cols-3 gap-6 text-center">
+            <div className="space-y-2">
+              <div className="text-3xl font-poppins font-bold text-foreground">
                 {players.length}
               </div>
-              <div className="text-sm font-inter text-muted-foreground">Active Players</div>
+              <div className="text-sm font-inter font-medium text-muted-foreground tracking-wide">Players</div>
             </div>
-            <div>
-              <div className="text-2xl font-poppins font-bold text-foreground">
+            <div className="space-y-2 border-x border-border/20">
+              <div className="text-3xl font-poppins font-bold text-foreground">
                 {Math.round(players.reduce((sum, p) => sum + p.games_played, 0) / players.length)}
               </div>
-              <div className="text-sm font-inter text-muted-foreground">Avg Games</div>
+              <div className="text-sm font-inter font-medium text-muted-foreground tracking-wide">Avg Games</div>
             </div>
-            <div>
-              <div className="text-2xl font-poppins font-bold text-foreground">
+            <div className="space-y-2">
+              <div className="text-3xl font-poppins font-bold text-foreground">
                 {Math.round(players.reduce((sum, p) => sum + p.win_rate, 0) / players.length)}%
               </div>
-              <div className="text-sm font-inter text-muted-foreground">Avg Win Rate</div>
+              <div className="text-sm font-inter font-medium text-muted-foreground tracking-wide">Win Rate</div>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      {/* Players Grid */}
-      <div className="grid grid-cols-1 gap-4">
+      {/* Players Grid - Enhanced Cards */}
+      <div className="grid grid-cols-1 gap-6">
         {players.map((player, index) => {
           const badges = generateBadges(player);
           
           return (
-            <Card 
+            <div
               key={player.name}
-              className="cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-lg border-border/40"
+              className="group cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl"
               onClick={() => handlePlayerClick({...player, badges})}
             >
-              <CardContent className="p-6">
-                <div className="flex items-center gap-4">
-                  {/* Avatar */}
-                  <div className="relative">
-                    <Avatar className={`h-16 w-16 ${getPlayerColor(index)} text-white`}>
-                      <AvatarFallback className="bg-transparent text-white font-poppins font-semibold text-lg">
-                        {player.name.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                    {player.win_rate >= 60 && (
-                      <div className="absolute -top-1 -right-1 bg-meeple-gold-500 rounded-full p-1">
-                        <Crown className="h-3 w-3 text-white" />
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Player Info */}
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-poppins font-semibold text-xl">{player.name}</h3>
-                      <div className="flex gap-1">
-                        {badges.slice(0, 2).map((badge, idx) => (
-                          <span key={idx} className="text-lg">{badge.icon}</span>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-4">
-                      <div>
-                        <div className="font-mono text-lg font-bold">{player.games_played}</div>
-                        <div className="text-xs text-muted-foreground">Games</div>
-                      </div>
-                      <div>
-                        <div className={`font-mono text-lg font-bold ${getPerformanceColor(player.win_rate)}`}>
-                          {player.win_rate}%
+              <div className="bg-gradient-to-br from-background/80 to-muted/20 backdrop-blur-xl rounded-3xl border border-border/30 overflow-hidden shadow-xl hover:shadow-2xl hover:border-border/60 transition-all duration-300">
+                <div className="p-6">
+                  <div className="flex items-center gap-6">
+                    {/* Enhanced Avatar */}
+                    <div className="relative">
+                      <Avatar className={`h-20 w-20 ${getPlayerColor(index)} text-white shadow-2xl ring-4 ring-background/50 group-hover:ring-border/30 transition-all duration-300`}>
+                        <AvatarFallback className="bg-transparent text-white font-poppins font-bold text-2xl">
+                          {player.name.charAt(0)}
+                        </AvatarFallback>
+                      </Avatar>
+                      {player.win_rate >= 60 && (
+                        <div className="absolute -top-2 -right-2 bg-meeple-gold-500 rounded-full p-2 shadow-lg ring-2 ring-background">
+                          <Crown className="h-4 w-4 text-white" />
                         </div>
-                        <div className="text-xs text-muted-foreground">Win Rate</div>
-                      </div>
-                      <div>
-                        <div className="font-mono text-lg font-bold">{player.games_won}</div>
-                        <div className="text-xs text-muted-foreground">Wins</div>
-                      </div>
+                      )}
+                      {badges.length > 0 && (
+                        <div className="absolute -bottom-1 -right-1 bg-emerald-500 rounded-full p-1.5 shadow-lg ring-2 ring-background">
+                          <Award className="h-3 w-3 text-white" />
+                        </div>
+                      )}
                     </div>
 
-                    <div className="mt-3 flex items-center justify-between">
-                      <div className="text-sm text-muted-foreground">
-                        {player.games_won}/{player.games_played} games won
+                    {/* Player Content */}
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-4">
+                        <div>
+                          <h3 className="font-poppins font-bold text-2xl text-foreground group-hover:text-foreground/90 transition-colors">
+                            {player.name}
+                          </h3>
+                          <div className="flex items-center gap-2 mt-1">
+                            {badges.slice(0, 3).map((badge, idx) => (
+                              <span key={idx} className="text-sm">{badge.icon}</span>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-sm font-medium text-muted-foreground mb-1">Record</div>
+                          <div className="font-mono text-lg font-bold text-foreground">
+                            {player.games_won}/{player.games_played}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-4">
+                        <div className="text-center p-3 bg-muted/20 rounded-2xl">
+                          <Target className="h-5 w-5 text-sky-blue-500 mx-auto mb-2" />
+                          <div className="font-mono text-xl font-bold text-foreground">{player.games_played}</div>
+                          <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Games</div>
+                        </div>
+
+                        <div className="text-center p-3 bg-muted/20 rounded-2xl">
+                          <Trophy className="h-5 w-5 text-meeple-gold-500 mx-auto mb-2" />
+                          <div className={`font-mono text-xl font-bold ${getPerformanceColor(player.win_rate)}`}>
+                            {player.win_rate}%
+                          </div>
+                          <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Win Rate</div>
+                        </div>
+
+                        <div className="text-center p-3 bg-muted/20 rounded-2xl">
+                          <Star className="h-5 w-5 text-emerald-500 mx-auto mb-2" />
+                          <div className="font-mono text-xl font-bold text-foreground">{player.games_won}</div>
+                          <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Wins</div>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           );
         })}
       </div>
