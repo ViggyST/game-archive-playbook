@@ -1,10 +1,12 @@
+
 import { useState } from "react";
 import { ArrowLeft, Calendar, Gamepad2, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import CalendarView from "@/components/track-games/CalendarView";
 import GamesView from "@/components/track-games/GamesView";
 import PlayersView from "@/components/track-games/PlayersView";
+import DynamicStatsCard from "@/components/track-games/DynamicStatsCard";
 
 const TrackGames = () => {
   const navigate = useNavigate();
@@ -29,45 +31,48 @@ const TrackGames = () => {
         </div>
       </div>
 
-      {/* Tab Navigation */}
+      {/* Dynamic Stats Card */}
       <div className="px-4 py-4">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 bg-muted/50 backdrop-blur-sm">
-            <TabsTrigger 
-              value="calendar"
-              className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:text-foreground"
-            >
-              <Calendar className="h-4 w-4" />
-              <span className="hidden sm:inline">Calendar</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="games"
-              className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:text-foreground"
-            >
-              <Gamepad2 className="h-4 w-4" />
-              <span className="hidden sm:inline">Games</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="players"
-              className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:text-foreground"
-            >
-              <Users className="h-4 w-4" />
-              <span className="hidden sm:inline">Players</span>
-            </TabsTrigger>
-          </TabsList>
+        <DynamicStatsCard />
+      </div>
 
-          <div className="mt-6">
-            <TabsContent value="calendar" className="mt-0">
-              <CalendarView />
-            </TabsContent>
-            <TabsContent value="games" className="mt-0">
-              <GamesView />
-            </TabsContent>
-            <TabsContent value="players" className="mt-0">
-              <PlayersView />
-            </TabsContent>
-          </div>
-        </Tabs>
+      {/* Enhanced Tab Navigation */}
+      <div className="px-4 py-2">
+        <ToggleGroup 
+          type="single" 
+          value={activeTab} 
+          onValueChange={(value) => value && setActiveTab(value)}
+          className="grid grid-cols-3 gap-2 bg-gradient-to-r from-muted/60 to-muted/40 p-2 rounded-2xl shadow-lg backdrop-blur-sm"
+        >
+          <ToggleGroupItem 
+            value="calendar"
+            className="flex flex-col items-center gap-2 py-4 px-3 rounded-xl font-poppins font-semibold text-sm transition-all duration-300 hover:scale-105 data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-lg data-[state=on]:scale-105 data-[state=on]:border-2 data-[state=on]:border-sky-blue-500/20"
+          >
+            <Calendar className="h-5 w-5" />
+            <span>Calendar</span>
+          </ToggleGroupItem>
+          <ToggleGroupItem 
+            value="games"
+            className="flex flex-col items-center gap-2 py-4 px-3 rounded-xl font-poppins font-semibold text-sm transition-all duration-300 hover:scale-105 data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-lg data-[state=on]:scale-105 data-[state=on]:border-2 data-[state=on]:border-meeple-gold-500/20"
+          >
+            <Gamepad2 className="h-5 w-5" />
+            <span>Games</span>
+          </ToggleGroupItem>
+          <ToggleGroupItem 
+            value="players"
+            className="flex flex-col items-center gap-2 py-4 px-3 rounded-xl font-poppins font-semibold text-sm transition-all duration-300 hover:scale-105 data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-lg data-[state=on]:scale-105 data-[state=on]:border-2 data-[state=on]:border-emerald-500/20"
+          >
+            <Users className="h-5 w-5" />
+            <span>Players</span>
+          </ToggleGroupItem>
+        </ToggleGroup>
+      </div>
+
+      {/* Tab Content */}
+      <div className="px-4 pb-8">
+        {activeTab === "calendar" && <CalendarView />}
+        {activeTab === "games" && <GamesView />}
+        {activeTab === "players" && <PlayersView />}
       </div>
     </div>
   );

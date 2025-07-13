@@ -9,7 +9,7 @@ const Index = () => {
   const userName = "Vignesh";
 
   return (
-    <div className="min-h-screen bg-gray-50 font-inter">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-muted/30 font-inter">
       {/* Top Greeting Bar */}
       <GreetingBar userName={userName} />
       
