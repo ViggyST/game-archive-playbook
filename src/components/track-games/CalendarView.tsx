@@ -54,10 +54,10 @@ const CalendarView = () => {
 
   const getCategoryColor = (weight: string) => {
     switch (weight) {
-      case "Light": return "bg-emerald-400 shadow-emerald-200";
-      case "Medium": return "bg-sky-blue-400 shadow-sky-200";
-      case "Heavy": return "bg-red-400 shadow-red-200";
-      default: return "bg-gray-400 shadow-gray-200";
+      case "Light": return "bg-emerald-500 shadow-emerald-300/50";
+      case "Medium": return "bg-sky-blue-500 shadow-sky-blue-300/50";
+      case "Heavy": return "bg-red-500 shadow-red-300/50";
+      default: return "bg-muted-foreground shadow-muted/50";
     }
   };
 
@@ -171,9 +171,9 @@ const CalendarView = () => {
                 >
                   <span className="text-sm font-medium group-hover:font-semibold transition-all">{day}</span>
                   {hasGames && (
-                    <div className="absolute bottom-1.5 left-1/2 transform -translate-x-1/2">
+                    <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2">
                       <div
-                        className={`w-1.5 h-1.5 rounded-full ${getCategoryColor(sessionData.weight)} shadow-sm group-hover:w-2 group-hover:h-2 transition-all duration-200`}
+                        className={`w-2 h-2 rounded-full ${getCategoryColor(sessionData.weight)} shadow-lg group-hover:w-3 group-hover:h-3 group-hover:shadow-xl transition-all duration-300 ring-2 ring-background/50`}
                       />
                     </div>
                   )}
@@ -189,17 +189,17 @@ const CalendarView = () => {
         <div className="p-6">
           <h3 className="font-inter font-semibold text-sm mb-4 text-muted-foreground uppercase tracking-wider">Complexity</h3>
           <div className="flex justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-emerald-400 shadow-sm" />
-              <span className="text-xs font-medium text-muted-foreground">Light</span>
+            <div className="flex items-center gap-3 p-2 rounded-xl hover:bg-muted/20 transition-colors">
+              <div className="w-4 h-4 rounded-full bg-emerald-500 shadow-lg ring-2 ring-background/50" />
+              <span className="text-sm font-medium text-foreground">Light</span>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-sky-blue-400 shadow-sm" />
-              <span className="text-xs font-medium text-muted-foreground">Medium</span>
+            <div className="flex items-center gap-3 p-2 rounded-xl hover:bg-muted/20 transition-colors">
+              <div className="w-4 h-4 rounded-full bg-sky-blue-500 shadow-lg ring-2 ring-background/50" />
+              <span className="text-sm font-medium text-foreground">Medium</span>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-red-400 shadow-sm" />
-              <span className="text-xs font-medium text-muted-foreground">Heavy</span>
+            <div className="flex items-center gap-3 p-2 rounded-xl hover:bg-muted/20 transition-colors">
+              <div className="w-4 h-4 rounded-full bg-red-500 shadow-lg ring-2 ring-background/50" />
+              <span className="text-sm font-medium text-foreground">Heavy</span>
             </div>
           </div>
         </div>

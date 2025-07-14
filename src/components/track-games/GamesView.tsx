@@ -118,12 +118,18 @@ const GamesView = () => {
             onClick={() => handleGameClick(game)}
           >
             <div className="bg-gradient-to-br from-background/80 to-muted/20 backdrop-blur-xl rounded-3xl border border-border/30 overflow-hidden shadow-xl hover:shadow-2xl hover:border-border/60 transition-all duration-300">
-              {/* Game Header */}
-              <div className="relative h-20 bg-gradient-to-br from-muted/20 via-muted/30 to-muted/40 flex items-center justify-center">
-                <div className="text-5xl opacity-80 group-hover:scale-110 transition-transform duration-300">🎲</div>
+              {/* Game Header - Enhanced with Icons */}
+              <div className="relative h-24 bg-gradient-to-br from-muted/10 via-muted/20 to-muted/30 flex items-center justify-center overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-transparent via-muted/5 to-muted/10" />
+                <div className="relative z-10 flex items-center gap-4">
+                  <div className="text-4xl group-hover:scale-110 transition-transform duration-300 drop-shadow-lg">
+                    {game.weight === "Light" ? "🌟" : game.weight === "Heavy" ? "⚔️" : "🎯"}
+                  </div>
+                  <div className="text-3xl opacity-60 group-hover:opacity-80 transition-opacity duration-300">🎲</div>
+                </div>
                 <Badge 
                   variant={getCategoryBadgeVariant(game.weight)}
-                  className="absolute top-4 right-4 shadow-lg"
+                  className="absolute top-3 right-3 shadow-xl backdrop-blur-sm border border-background/20"
                 >
                   {game.weight}
                 </Badge>
@@ -138,29 +144,29 @@ const GamesView = () => {
                   <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-foreground group-hover:translate-x-1 transition-all duration-200" />
                 </div>
 
-                <div className="grid grid-cols-4 gap-4">
-                  <div className="text-center p-3 bg-muted/20 rounded-2xl">
-                    <BarChart3 className="h-5 w-5 text-sky-blue-500 mx-auto mb-2" />
-                    <div className="font-mono text-lg font-bold text-foreground">{game.plays}</div>
-                    <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Plays</div>
+                <div className="grid grid-cols-4 gap-3">
+                  <div className="text-center p-4 bg-gradient-to-br from-muted/10 to-muted/30 rounded-2xl hover:bg-muted/40 transition-all duration-300 hover:scale-105 hover:shadow-lg group/stat">
+                    <BarChart3 className="h-6 w-6 text-sky-blue-500 mx-auto mb-3 group-hover/stat:scale-110 transition-transform duration-300" />
+                    <div className="font-mono text-xl font-bold text-foreground group-hover/stat:text-sky-blue-500 transition-colors">{game.plays}</div>
+                    <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mt-1">Plays</div>
                   </div>
 
-                  <div className="text-center p-3 bg-muted/20 rounded-2xl">
-                    <Trophy className="h-5 w-5 text-meeple-gold-500 mx-auto mb-2" />
-                    <div className="font-mono text-lg font-bold text-foreground">{game.win_rate}%</div>
-                    <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Win</div>
+                  <div className="text-center p-4 bg-gradient-to-br from-muted/10 to-muted/30 rounded-2xl hover:bg-muted/40 transition-all duration-300 hover:scale-105 hover:shadow-lg group/stat">
+                    <Trophy className="h-6 w-6 text-meeple-gold-500 mx-auto mb-3 group-hover/stat:scale-110 transition-transform duration-300" />
+                    <div className="font-mono text-xl font-bold text-foreground group-hover/stat:text-meeple-gold-500 transition-colors">{game.win_rate}%</div>
+                    <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mt-1">Win</div>
                   </div>
 
-                  <div className="text-center p-3 bg-muted/20 rounded-2xl">
-                    <Clock className="h-5 w-5 text-muted-foreground mx-auto mb-2" />
-                    <div className="font-mono text-lg font-bold text-foreground">{game.avg_duration}m</div>
-                    <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Time</div>
+                  <div className="text-center p-4 bg-gradient-to-br from-muted/10 to-muted/30 rounded-2xl hover:bg-muted/40 transition-all duration-300 hover:scale-105 hover:shadow-lg group/stat">
+                    <Clock className="h-6 w-6 text-emerald-500 mx-auto mb-3 group-hover/stat:scale-110 transition-transform duration-300" />
+                    <div className="font-mono text-xl font-bold text-foreground group-hover/stat:text-emerald-500 transition-colors">{game.avg_duration}m</div>
+                    <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mt-1">Time</div>
                   </div>
 
-                  <div className="text-center p-3 bg-muted/20 rounded-2xl">
-                    <TrendingUp className="h-5 w-5 text-emerald-500 mx-auto mb-2" />
-                    <div className="font-mono text-sm font-bold text-foreground">{game.weight}</div>
-                    <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Level</div>
+                  <div className="text-center p-4 bg-gradient-to-br from-muted/10 to-muted/30 rounded-2xl hover:bg-muted/40 transition-all duration-300 hover:scale-105 hover:shadow-lg group/stat">
+                    <TrendingUp className="h-6 w-6 text-purple-500 mx-auto mb-3 group-hover/stat:scale-110 transition-transform duration-300" />
+                    <div className="font-mono text-sm font-bold text-foreground group-hover/stat:text-purple-500 transition-colors">{game.weight}</div>
+                    <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mt-1">Level</div>
                   </div>
                 </div>
               </div>

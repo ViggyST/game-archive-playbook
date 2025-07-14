@@ -32,36 +32,56 @@ const TrackGames = () => {
       </div>
 
 
-      {/* Enhanced Tab Navigation */}
-      <div className="px-4 py-2">
-        <ToggleGroup 
-          type="single" 
-          value={activeTab} 
-          onValueChange={(value) => value && setActiveTab(value)}
-          className="grid grid-cols-3 gap-2 bg-gradient-to-r from-muted/60 to-muted/40 p-2 rounded-2xl shadow-lg backdrop-blur-sm"
-        >
-          <ToggleGroupItem 
-            value="calendar"
-            className="flex flex-col items-center gap-2 py-4 px-3 rounded-xl font-poppins font-semibold text-sm transition-all duration-300 hover:scale-105 data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-lg data-[state=on]:scale-105 data-[state=on]:border-2 data-[state=on]:border-sky-blue-500/20"
-          >
-            <Calendar className="h-5 w-5" />
-            <span>Calendar</span>
-          </ToggleGroupItem>
-          <ToggleGroupItem 
-            value="games"
-            className="flex flex-col items-center gap-2 py-4 px-3 rounded-xl font-poppins font-semibold text-sm transition-all duration-300 hover:scale-105 data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-lg data-[state=on]:scale-105 data-[state=on]:border-2 data-[state=on]:border-meeple-gold-500/20"
-          >
-            <Gamepad2 className="h-5 w-5" />
-            <span>Games</span>
-          </ToggleGroupItem>
-          <ToggleGroupItem 
-            value="players"
-            className="flex flex-col items-center gap-2 py-4 px-3 rounded-xl font-poppins font-semibold text-sm transition-all duration-300 hover:scale-105 data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-lg data-[state=on]:scale-105 data-[state=on]:border-2 data-[state=on]:border-emerald-500/20"
-          >
-            <Users className="h-5 w-5" />
-            <span>Players</span>
-          </ToggleGroupItem>
-        </ToggleGroup>
+      {/* Enhanced Tab Navigation - More Visible Design */}
+      <div className="px-4 py-6">
+        <div className="bg-gradient-to-r from-background/90 to-muted/30 backdrop-blur-xl rounded-3xl border border-border/20 shadow-2xl overflow-hidden p-2">
+          <div className="grid grid-cols-3 gap-2">
+            <button
+              onClick={() => setActiveTab("calendar")}
+              className={`
+                group flex flex-col items-center gap-3 py-6 px-4 rounded-2xl font-poppins font-bold text-sm 
+                transition-all duration-300 transform-gpu hover:scale-105 active:scale-95
+                ${activeTab === "calendar" 
+                  ? 'bg-gradient-to-br from-sky-blue-500 to-sky-blue-600 text-white shadow-xl shadow-sky-blue-500/30 scale-105 border-2 border-sky-blue-300/50' 
+                  : 'hover:bg-muted/40 text-muted-foreground hover:text-foreground hover:shadow-lg'
+                }
+              `}
+            >
+              <Calendar className={`h-6 w-6 transition-all duration-300 ${activeTab === "calendar" ? "scale-110" : "group-hover:scale-110"}`} />
+              <span className="tracking-wide">Calendar</span>
+            </button>
+            
+            <button
+              onClick={() => setActiveTab("games")}
+              className={`
+                group flex flex-col items-center gap-3 py-6 px-4 rounded-2xl font-poppins font-bold text-sm 
+                transition-all duration-300 transform-gpu hover:scale-105 active:scale-95
+                ${activeTab === "games" 
+                  ? 'bg-gradient-to-br from-meeple-gold-500 to-meeple-gold-600 text-white shadow-xl shadow-meeple-gold-500/30 scale-105 border-2 border-meeple-gold-300/50' 
+                  : 'hover:bg-muted/40 text-muted-foreground hover:text-foreground hover:shadow-lg'
+                }
+              `}
+            >
+              <Gamepad2 className={`h-6 w-6 transition-all duration-300 ${activeTab === "games" ? "scale-110" : "group-hover:scale-110"}`} />
+              <span className="tracking-wide">Games</span>
+            </button>
+            
+            <button
+              onClick={() => setActiveTab("players")}
+              className={`
+                group flex flex-col items-center gap-3 py-6 px-4 rounded-2xl font-poppins font-bold text-sm 
+                transition-all duration-300 transform-gpu hover:scale-105 active:scale-95
+                ${activeTab === "players" 
+                  ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-xl shadow-emerald-500/30 scale-105 border-2 border-emerald-300/50' 
+                  : 'hover:bg-muted/40 text-muted-foreground hover:text-foreground hover:shadow-lg'
+                }
+              `}
+            >
+              <Users className={`h-6 w-6 transition-all duration-300 ${activeTab === "players" ? "scale-110" : "group-hover:scale-110"}`} />
+              <span className="tracking-wide">Players</span>
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Tab Content */}

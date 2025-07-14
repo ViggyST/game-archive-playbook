@@ -181,25 +181,25 @@ const PlayersView = () => {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-3 gap-4">
-                        <div className="text-center p-3 bg-muted/20 rounded-2xl">
-                          <Target className="h-5 w-5 text-sky-blue-500 mx-auto mb-2" />
-                          <div className="font-mono text-xl font-bold text-foreground">{player.games_played}</div>
-                          <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Games</div>
+                      <div className="grid grid-cols-3 gap-3">
+                        <div className="text-center p-4 bg-gradient-to-br from-muted/10 to-muted/30 rounded-2xl hover:bg-muted/40 transition-all duration-300 hover:scale-105 hover:shadow-lg group/stat">
+                          <Target className="h-6 w-6 text-sky-blue-500 mx-auto mb-3 group-hover/stat:scale-110 transition-transform duration-300" />
+                          <div className="font-mono text-xl font-bold text-foreground group-hover/stat:text-sky-blue-500 transition-colors">{player.games_played}</div>
+                          <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mt-1">Games</div>
                         </div>
 
-                        <div className="text-center p-3 bg-muted/20 rounded-2xl">
-                          <Trophy className="h-5 w-5 text-meeple-gold-500 mx-auto mb-2" />
-                          <div className={`font-mono text-xl font-bold ${getPerformanceColor(player.win_rate)}`}>
+                        <div className="text-center p-4 bg-gradient-to-br from-muted/10 to-muted/30 rounded-2xl hover:bg-muted/40 transition-all duration-300 hover:scale-105 hover:shadow-lg group/stat">
+                          <Trophy className="h-6 w-6 text-meeple-gold-500 mx-auto mb-3 group-hover/stat:scale-110 transition-transform duration-300" />
+                          <div className={`font-mono text-xl font-bold group-hover/stat:text-meeple-gold-500 transition-colors ${getPerformanceColor(player.win_rate)}`}>
                             {player.win_rate}%
                           </div>
-                          <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Win Rate</div>
+                          <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mt-1">Win Rate</div>
                         </div>
 
-                        <div className="text-center p-3 bg-muted/20 rounded-2xl">
-                          <Star className="h-5 w-5 text-emerald-500 mx-auto mb-2" />
-                          <div className="font-mono text-xl font-bold text-foreground">{player.games_won}</div>
-                          <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Wins</div>
+                        <div className="text-center p-4 bg-gradient-to-br from-muted/10 to-muted/30 rounded-2xl hover:bg-muted/40 transition-all duration-300 hover:scale-105 hover:shadow-lg group/stat">
+                          <Star className="h-6 w-6 text-emerald-500 mx-auto mb-3 group-hover/stat:scale-110 transition-transform duration-300" />
+                          <div className="font-mono text-xl font-bold text-foreground group-hover/stat:text-emerald-500 transition-colors">{player.games_won}</div>
+                          <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mt-1">Wins</div>
                         </div>
                       </div>
                     </div>
