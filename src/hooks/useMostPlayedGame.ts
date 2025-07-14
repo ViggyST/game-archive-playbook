@@ -7,16 +7,33 @@ export interface MostPlayedGame {
   times_played: number;
 }
 
-export const useMostPlayedGame = () => {
+export const useMostPlayedGame = (playerName: string = 'Kirito') => {
   return useQuery({
-    queryKey: ['most-played-game'],
+    queryKey: ['most-played-game', playerName],
     queryFn: async (): Promise<MostPlayedGame | null> => {
+      // First get the player ID
+      const { data: playerData, error: playerError } = await supabase
+        .from('players')
+        .select('id')
+        .eq('name', playerName)
+        .single();
+
+      if (playerError || !playerData) {
+        console.error('Error fetching player:', playerError);
+        return null;
+      }
+
+      const playerId = playerData.id;
+
+      // Get games for this specific player using the SQL logic from the prompt
       const { data, error } = await supabase
-        .from('sessions')
+        .from('scores')
         .select(`
-          games!inner(name)
+          sessions!inner(
+            games!inner(name)
+          )
         `)
-        .limit(1000); // Get enough data to count properly
+        .eq('player_id', playerId);
 
       if (error) {
         console.error('Error fetching most played game:', error);
@@ -24,8 +41,8 @@ export const useMostPlayedGame = () => {
       }
 
       // Count games manually since we can't use complex GROUP BY with Supabase client
-      const gameCounts = data.reduce((acc: Record<string, number>, session) => {
-        const gameName = session.games?.name;
+      const gameCounts = data.reduce((acc: Record<string, number>, score) => {
+        const gameName = score.sessions?.games?.name;
         if (gameName) {
           acc[gameName] = (acc[gameName] || 0) + 1;
         }

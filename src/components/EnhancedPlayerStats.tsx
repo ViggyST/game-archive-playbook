@@ -7,8 +7,8 @@ interface EnhancedPlayerStatsProps {
 }
 
 const EnhancedPlayerStats = ({ playerName }: EnhancedPlayerStatsProps) => {
-  const { data: playerStats, isLoading, error } = usePlayerStats();
-  const { data: mostPlayed } = useMostPlayedGame();
+  const { data: playerStats, isLoading, error } = usePlayerStats(playerName);
+  const { data: mostPlayed } = useMostPlayedGame(playerName);
 
   if (isLoading) {
     return (
