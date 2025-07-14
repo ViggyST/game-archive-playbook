@@ -7,7 +7,7 @@ interface PlayerStatsCardProps {
 }
 
 const PlayerStatsCard = ({ playerName }: PlayerStatsCardProps) => {
-  const { data: stats, isLoading, error } = usePlayerStats(playerName);
+  const { data: stats, isLoading, error } = usePlayerStats();
 
   if (isLoading) {
     return (

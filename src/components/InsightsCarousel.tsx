@@ -10,7 +10,7 @@ interface InsightsCarouselProps {
 
 const InsightsCarousel = ({ playerName }: InsightsCarouselProps) => {
   const [currentInsight, setCurrentInsight] = useState(0);
-  const { data: playerStats } = usePlayerStats(playerName);
+  const { data: playerStats } = usePlayerStats();
   const { data: mostPlayed } = useMostPlayedGame();
 
   // Generate dynamic insights based on real data
