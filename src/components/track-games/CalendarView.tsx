@@ -54,10 +54,10 @@ const CalendarView = () => {
 
   const getCategoryColor = (weight: string) => {
     switch (weight) {
-      case "Light": return "bg-emerald-500 shadow-emerald-300/50";
-      case "Medium": return "bg-sky-blue-500 shadow-sky-blue-300/50";
-      case "Heavy": return "bg-red-500 shadow-red-300/50";
-      default: return "bg-muted-foreground shadow-muted/50";
+      case "Light": return "bg-emerald-500";
+      case "Medium": return "bg-sky-blue-500";
+      case "Heavy": return "bg-red-500";
+      default: return "bg-gray-400";
     }
   };
 
@@ -104,48 +104,48 @@ const CalendarView = () => {
 
   return (
     <div className="space-y-6">
-      {/* Month Navigation - Modern Minimalist */}
-      <div className="bg-background/60 backdrop-blur-xl rounded-3xl border border-border/30 shadow-2xl overflow-hidden">
-        <div className="flex items-center justify-between px-8 py-6">
+      {/* Month Navigation - Clean Header */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="flex items-center justify-between p-6">
           <button
             onClick={() => navigateMonth('prev')}
-            className="group p-4 rounded-2xl hover:bg-muted/40 transition-all duration-300 hover:scale-110 active:scale-95 shadow-lg hover:shadow-xl"
+            className="group p-3 rounded-xl hover:bg-gray-50 transition-all duration-200"
           >
-            <ChevronLeft className="h-6 w-6 text-muted-foreground group-hover:text-foreground transition-colors" />
+            <ChevronLeft className="h-6 w-6 text-gray-400 group-hover:text-gray-600 transition-colors" />
           </button>
           
           <div className="text-center">
-            <h2 className="font-poppins font-bold text-3xl tracking-tight bg-gradient-to-r from-foreground via-foreground to-muted-foreground bg-clip-text text-transparent">
+            <div className="text-3xl font-bold text-gray-900 leading-tight">
               {monthNames[currentMonth.getMonth()]}
-            </h2>
-            <p className="font-inter text-lg font-medium text-muted-foreground mt-1">
+            </div>
+            <div className="text-lg text-gray-500 font-medium">
               {currentMonth.getFullYear()}
-            </p>
+            </div>
           </div>
           
           <button
             onClick={() => navigateMonth('next')}
-            className="group p-4 rounded-2xl hover:bg-muted/40 transition-all duration-300 hover:scale-110 active:scale-95 shadow-lg hover:shadow-xl"
+            className="group p-3 rounded-xl hover:bg-gray-50 transition-all duration-200"
           >
-            <ChevronRight className="h-6 w-6 text-muted-foreground group-hover:text-foreground transition-colors" />
+            <ChevronRight className="h-6 w-6 text-gray-400 group-hover:text-gray-600 transition-colors" />
           </button>
         </div>
       </div>
 
-      {/* Calendar Grid - Modern iOS Style */}
-      <div className="bg-background/80 backdrop-blur-xl rounded-3xl border border-border/20 shadow-2xl overflow-hidden">
-        <div className="p-8">
+      {/* Calendar Grid - Pill Style */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="p-6">
           {/* Day Headers */}
-          <div className="grid grid-cols-7 gap-1 mb-8">
+          <div className="grid grid-cols-7 gap-2 mb-6">
             {dayNames.map(day => (
-              <div key={day} className="text-center text-xs font-inter font-bold text-muted-foreground/80 py-4 uppercase tracking-widest">
+              <div key={day} className="text-center text-sm font-semibold text-gray-500 py-3 uppercase tracking-wide">
                 {day}
               </div>
             ))}
           </div>
 
           {/* Calendar Days */}
-          <div className="grid grid-cols-7 gap-1">
+          <div className="grid grid-cols-7 gap-2">
             {days.map((day, index) => {
               if (day === null) {
                 return <div key={index} className="h-14" />;
@@ -161,19 +161,18 @@ const CalendarView = () => {
                   onClick={() => handleDateClick(day)}
                   className={`
                     group h-14 rounded-2xl flex flex-col items-center justify-center relative
-                    transition-all duration-300 transform-gpu font-inter font-semibold
+                    transition-all duration-200 font-medium text-base
                     ${hasGames 
-                      ? 'bg-gradient-to-br from-muted/20 to-muted/40 hover:from-muted/40 hover:to-muted/60 text-foreground shadow-lg hover:shadow-xl hover:scale-110 active:scale-95 border border-border/30 hover:border-border/60' 
-                      : 'hover:bg-muted/20 text-muted-foreground hover:text-foreground hover:scale-105 hover:shadow-sm'
+                      ? 'bg-orange-100 hover:bg-orange-200 text-gray-900 shadow-sm hover:shadow-md border border-orange-200' 
+                      : 'hover:bg-gray-50 text-gray-600 hover:text-gray-900'
                     }
-                    hover:-translate-y-0.5 active:translate-y-0
                   `}
                 >
-                  <span className="text-sm font-medium group-hover:font-semibold transition-all">{day}</span>
+                  <span className="group-hover:font-semibold transition-all">{day}</span>
                   {hasGames && (
                     <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2">
                       <div
-                        className={`w-2 h-2 rounded-full ${getCategoryColor(sessionData.weight)} shadow-lg group-hover:w-3 group-hover:h-3 group-hover:shadow-xl transition-all duration-300 ring-2 ring-background/50`}
+                        className={`w-2 h-2 rounded-full ${getCategoryColor(sessionData.weight)} shadow-sm`}
                       />
                     </div>
                   )}
@@ -184,22 +183,22 @@ const CalendarView = () => {
         </div>
       </div>
 
-      {/* Legend - Minimalist */}
-      <div className="bg-background/60 backdrop-blur-xl rounded-2xl border border-border/20 shadow-lg overflow-hidden">
+      {/* Legend - Clean Style */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <div className="p-6">
-          <h3 className="font-inter font-semibold text-sm mb-4 text-muted-foreground uppercase tracking-wider">Complexity</h3>
+          <h3 className="font-semibold text-sm mb-4 text-gray-700 uppercase tracking-wide">Complexity</h3>
           <div className="flex justify-between">
-            <div className="flex items-center gap-3 p-2 rounded-xl hover:bg-muted/20 transition-colors">
-              <div className="w-4 h-4 rounded-full bg-emerald-500 shadow-lg ring-2 ring-background/50" />
-              <span className="text-sm font-medium text-foreground">Light</span>
+            <div className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-gray-50 transition-colors">
+              <div className="w-3 h-3 rounded-full bg-emerald-500" />
+              <span className="text-sm font-medium text-gray-700">Light</span>
             </div>
-            <div className="flex items-center gap-3 p-2 rounded-xl hover:bg-muted/20 transition-colors">
-              <div className="w-4 h-4 rounded-full bg-sky-blue-500 shadow-lg ring-2 ring-background/50" />
-              <span className="text-sm font-medium text-foreground">Medium</span>
+            <div className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-gray-50 transition-colors">
+              <div className="w-3 h-3 rounded-full bg-sky-blue-500" />
+              <span className="text-sm font-medium text-gray-700">Medium</span>
             </div>
-            <div className="flex items-center gap-3 p-2 rounded-xl hover:bg-muted/20 transition-colors">
-              <div className="w-4 h-4 rounded-full bg-red-500 shadow-lg ring-2 ring-background/50" />
-              <span className="text-sm font-medium text-foreground">Heavy</span>
+            <div className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-gray-50 transition-colors">
+              <div className="w-3 h-3 rounded-full bg-red-500" />
+              <span className="text-sm font-medium text-gray-700">Heavy</span>
             </div>
           </div>
         </div>
@@ -221,7 +220,7 @@ const CalendarView = () => {
           
           <div className="px-6 pb-6 space-y-4 overflow-y-auto">
             {Object.values(groupedSessions).map((session: any, index) => (
-              <Card key={index} className="border-border/40 shadow-lg">
+              <Card key={index} className="border-gray-200 shadow-sm">
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3">
@@ -233,7 +232,7 @@ const CalendarView = () => {
                   {/* Players and Scores */}
                   <div className="space-y-3 mb-4">
                     {session.players.map((player: any, idx: number) => (
-                      <div key={idx} className="flex items-center justify-between p-2 bg-muted/30 rounded-lg">
+                      <div key={idx} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
                         <div className="flex items-center gap-3">
                           <Avatar className="h-8 w-8">
                             <AvatarFallback className="text-xs font-poppins font-semibold">
@@ -251,7 +250,7 @@ const CalendarView = () => {
                   </div>
 
                   {/* Session Details */}
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground border-t pt-3">
+                  <div className="flex items-center gap-4 text-sm text-gray-500 border-t pt-3">
                     <div className="flex items-center gap-2">
                       <Clock className="h-4 w-4" />
                       <span className="font-inter">{session.duration_minutes}min</span>
@@ -263,8 +262,8 @@ const CalendarView = () => {
                   </div>
 
                   {session.highlights && (
-                    <div className="mt-3 p-3 bg-gradient-to-r from-muted/40 to-muted/20 rounded-lg border-l-4 border-meeple-gold-500">
-                      <p className="text-sm font-inter italic text-muted-foreground">{session.highlights}</p>
+                    <div className="mt-3 p-3 bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg border-l-4 border-orange-400">
+                      <p className="text-sm font-inter italic text-gray-600">{session.highlights}</p>
                     </div>
                   )}
                 </CardContent>
