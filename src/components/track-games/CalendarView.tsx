@@ -45,7 +45,7 @@ const CalendarView = () => {
     return Array.from(complexities).map(weight => {
       switch (weight) {
         case 'Light': return 'bg-emerald-500';
-        case 'Medium': return 'bg-sky-blue-500'; 
+        case 'Medium': return 'bg-sky-500'; 
         case 'Heavy': return 'bg-red-500';
         default: return 'bg-gray-400';
       }
@@ -173,7 +173,7 @@ const CalendarView = () => {
               <span className="text-sm font-medium text-gray-700">Light</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-sky-blue-500 rounded-full"></div>
+              <div className="w-3 h-3 bg-sky-500 rounded-full"></div>
               <span className="text-sm font-medium text-gray-700">Medium</span>
             </div>
             <div className="flex items-center gap-2">

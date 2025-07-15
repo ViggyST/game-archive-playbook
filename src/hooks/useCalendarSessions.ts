@@ -1,11 +1,11 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 export interface CalendarSession {
   date: string;
-  sessions: number;
-  weight: string;
+  game_name: string;
+  game_weight: string;
+  session_id: string;
 }
 
 export interface GameSession {
@@ -21,35 +21,33 @@ export interface GameSession {
 export const useCalendarSessions = () => {
   return useQuery({
     queryKey: ['calendar-sessions'],
-    queryFn: async (): Promise<Record<string, CalendarSession>> => {
+    queryFn: async (): Promise<CalendarSession[]> => {
       const { data, error } = await supabase
         .from('sessions')
         .select(`
+          id,
           date,
-          games!inner(weight)
+          games!inner(
+            name,
+            weight
+          )
         `)
         .order('date');
 
       if (error) {
         console.error('Error fetching calendar sessions:', error);
-        return {};
+        return [];
       }
 
-      // Group by date and count sessions
-      const sessionsByDate = data.reduce((acc: Record<string, CalendarSession>, session) => {
-        const dateKey = session.date;
-        if (!acc[dateKey]) {
-          acc[dateKey] = {
-            date: dateKey,
-            sessions: 0,
-            weight: session.games?.weight || 'Medium'
-          };
-        }
-        acc[dateKey].sessions++;
-        return acc;
-      }, {});
+      // Transform to flat array of sessions
+      const sessions: CalendarSession[] = data.map(session => ({
+        date: session.date,
+        game_name: session.games?.name || '',
+        game_weight: session.games?.weight || 'Medium',
+        session_id: session.id
+      }));
 
-      return sessionsByDate;
+      return sessions;
     },
     staleTime: 5 * 60 * 1000,
   });
