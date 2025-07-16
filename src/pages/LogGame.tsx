@@ -9,8 +9,6 @@ import ScoreEntryStep from "@/components/log-game/ScoreEntryStep";
 import HighlightsStep from "@/components/log-game/HighlightsStep";
 import ReviewSubmitStep from "@/components/log-game/ReviewSubmitStep";
 import { useLogGame } from "@/hooks/useLogGame";
-// Temporary import to run manual score insertion
-import "@/utils/manualScoreInsert";
 
 export interface GameData {
   name: string;

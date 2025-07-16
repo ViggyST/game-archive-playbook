@@ -62,9 +62,4 @@ export const insertMissingScores = async () => {
   return insertedScores;
 };
 
-// Auto-run the function when this file is imported
-insertMissingScores().then(() => {
-  console.log("Manual score insertion completed");
-}).catch(error => {
-  console.error("Manual score insertion failed:", error);
-});
+// Removed auto-execution - function is now only available for manual use
