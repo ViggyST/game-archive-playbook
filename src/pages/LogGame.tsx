@@ -8,6 +8,7 @@ import AddPlayersStep from "@/components/log-game/AddPlayersStep";
 import ScoreEntryStep from "@/components/log-game/ScoreEntryStep";
 import HighlightsStep from "@/components/log-game/HighlightsStep";
 import ReviewSubmitStep from "@/components/log-game/ReviewSubmitStep";
+import { useLogGame } from "@/hooks/useLogGame";
 
 export interface GameData {
   name: string;
@@ -30,6 +31,7 @@ export interface Player {
 
 const LogGame = () => {
   const navigate = useNavigate();
+  const logGameMutation = useLogGame();
   const [currentStep, setCurrentStep] = useState(1);
   const [gameData, setGameData] = useState<GameData>({
     name: '',
@@ -68,10 +70,16 @@ const LogGame = () => {
     }
   };
 
-  const handleSubmit = () => {
-    // Here you would typically save to database
-    console.log("Game logged:", gameData);
-    navigate('/');
+  const handleSubmit = async () => {
+    console.log("Attempting to save game:", gameData);
+    
+    try {
+      await logGameMutation.mutateAsync(gameData);
+      navigate('/');
+    } catch (error) {
+      console.error("Error in handleSubmit:", error);
+      // Error handling is done in the hook via toast
+    }
   };
 
   const updateGameData = (updates: Partial<GameData>) => {
@@ -108,6 +116,7 @@ const LogGame = () => {
               size="icon"
               onClick={handleBack}
               className="hover:bg-navy/10"
+              disabled={logGameMutation.isPending}
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
@@ -153,6 +162,7 @@ const LogGame = () => {
             variant="outline"
             onClick={handleBack}
             className="flex-1 font-inter"
+            disabled={logGameMutation.isPending}
           >
             {currentStep === 1 ? 'Cancel' : 'Back'}
           </Button>
@@ -160,7 +170,7 @@ const LogGame = () => {
           {currentStep < steps.length ? (
             <Button
               onClick={handleNext}
-              disabled={!canProceed()}
+              disabled={!canProceed() || logGameMutation.isPending}
               className="flex-1 bg-gradient-to-r from-sky-blue-500 to-meeple-gold-500 text-white font-inter hover:opacity-90"
             >
               Next
@@ -169,10 +179,10 @@ const LogGame = () => {
           ) : (
             <Button
               onClick={handleSubmit}
-              disabled={!canProceed()}
+              disabled={!canProceed() || logGameMutation.isPending}
               className="flex-1 bg-gradient-to-r from-meeple-gold-500 to-sky-blue-500 text-white font-inter hover:opacity-90"
             >
-              Save Game
+              {logGameMutation.isPending ? 'Saving...' : 'Save Game'}
             </Button>
           )}
         </div>
