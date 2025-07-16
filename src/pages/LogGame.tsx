@@ -9,6 +9,8 @@ import ScoreEntryStep from "@/components/log-game/ScoreEntryStep";
 import HighlightsStep from "@/components/log-game/HighlightsStep";
 import ReviewSubmitStep from "@/components/log-game/ReviewSubmitStep";
 import { useLogGame } from "@/hooks/useLogGame";
+// Temporary import to run manual score insertion
+import "@/utils/manualScoreInsert";
 
 export interface GameData {
   name: string;
@@ -72,6 +74,20 @@ const LogGame = () => {
 
   const handleSubmit = async () => {
     console.log("Attempting to save game:", gameData);
+    console.log("Players:", gameData.players);
+    console.log("Scores object:", gameData.scores);
+    console.log("Winner ID:", gameData.winner);
+    
+    // Validate that we have all required data
+    if (gameData.players.length === 0) {
+      console.error("No players found");
+      return;
+    }
+    
+    if (Object.keys(gameData.scores).length === 0) {
+      console.error("No scores found");
+      return;
+    }
     
     try {
       await logGameMutation.mutateAsync(gameData);

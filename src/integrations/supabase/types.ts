@@ -61,6 +61,7 @@ export type Database = {
       }
       scores: {
         Row: {
+          created_at: string | null
           id: string
           is_winner: boolean | null
           player_id: string | null
@@ -68,6 +69,7 @@ export type Database = {
           session_id: string | null
         }
         Insert: {
+          created_at?: string | null
           id?: string
           is_winner?: boolean | null
           player_id?: string | null
@@ -75,6 +77,7 @@ export type Database = {
           session_id?: string | null
         }
         Update: {
+          created_at?: string | null
           id?: string
           is_winner?: boolean | null
           player_id?: string | null

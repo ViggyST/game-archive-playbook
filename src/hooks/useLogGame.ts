@@ -78,6 +78,10 @@ export const useLogGame = () => {
         }
       }
       
+      console.log("Player ID mapping:", playerIds);
+      console.log("Game scores:", gameData.scores);
+      console.log("Winner:", gameData.winner);
+      
       // Step 3: Insert session
       const { data: session, error: sessionError } = await supabase
         .from('sessions')
@@ -99,22 +103,35 @@ export const useLogGame = () => {
       console.log("Created session:", session.id);
       
       // Step 4: Insert scores for each player
-      const scoresData = gameData.players.map(player => ({
-        session_id: session.id,
-        player_id: playerIds[player.id],
-        score: gameData.scores[player.id] || 0,
-        is_winner: gameData.winner === player.id
-      }));
+      const scoresData = gameData.players.map(player => {
+        const scoreEntry = {
+          session_id: session.id,
+          player_id: playerIds[player.id],
+          score: gameData.scores[player.id] || 0,
+          is_winner: gameData.winner === player.id
+        };
+        console.log("Creating score entry for player:", player.name, scoreEntry);
+        return scoreEntry;
+      });
       
-      const { error: scoresError } = await supabase
+      console.log("Final scores data to insert:", scoresData);
+      
+      if (scoresData.length === 0) {
+        console.error("No scores data to insert!");
+        throw new Error("No scores data prepared for insertion");
+      }
+      
+      const { data: insertedScores, error: scoresError } = await supabase
         .from('scores')
-        .insert(scoresData);
+        .insert(scoresData)
+        .select();
       
       if (scoresError) {
         console.error("Error inserting scores:", scoresError);
         throw new Error(`Failed to create scores: ${scoresError.message}`);
       }
       
+      console.log("Successfully inserted scores:", insertedScores);
       console.log("Created scores for", scoresData.length, "players");
       
       return { sessionId: session.id, gameId };
