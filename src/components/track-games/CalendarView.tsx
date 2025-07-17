@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, X, Clock, MapPin, Trophy, Users } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, MapPin, Trophy, Users } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, isSameMonth, isSameDay, isToday } from "date-fns";
 import { useCalendarSessions, useSessionsByDate } from "@/hooks/useCalendarSessions";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -43,7 +43,7 @@ const CalendarView = () => {
   };
 
   // Get complexity dots for a date - enhanced version
-  const getComplexityIndicators = (date: Date) => {
+  const getComplexityDots = (date: Date) => {
     const dateSessions = getSessionsForDate(date);
     if (dateSessions.length === 0) return [];
     
@@ -54,37 +54,34 @@ const CalendarView = () => {
       return acc;
     }, {} as Record<string, number>);
 
-    // Create indicators in order: Light, Medium, Heavy
-    const indicators = [];
+    // Create dots in order: Light, Medium, Heavy
+    const dots = [];
     
     if (complexityGroups['Light']) {
-      indicators.push({
+      dots.push({
         type: 'Light',
-        count: complexityGroups['Light'],
-        className: 'w-2 h-2 bg-emerald-500 rounded-full animate-scale-in',
-        icon: null
+        color: 'bg-emerald-500',
+        count: complexityGroups['Light']
       });
     }
     
     if (complexityGroups['Medium']) {
-      indicators.push({
+      dots.push({
         type: 'Medium', 
-        count: complexityGroups['Medium'],
-        className: 'w-2.5 h-2.5 bg-sky-500 rounded-full animate-scale-in',
-        icon: null
+        color: 'bg-blue-500',
+        count: complexityGroups['Medium']
       });
     }
     
     if (complexityGroups['Heavy']) {
-      indicators.push({
+      dots.push({
         type: 'Heavy',
-        count: complexityGroups['Heavy'], 
-        className: 'w-3 h-3 bg-red-500 rounded-full animate-scale-in relative',
-        icon: '🔥'
+        color: 'bg-red-500',
+        count: complexityGroups['Heavy']
       });
     }
 
-    return indicators.slice(0, 3); // Max 3 indicators
+    return dots.slice(0, 3); // Max 3 dots
   };
 
   // Handle date click
@@ -192,7 +189,7 @@ const CalendarView = () => {
         <div className="grid grid-cols-7 gap-2">
           {/* Empty cells for days before month starts */}
           {emptyCells.map((_, index) => (
-            <div key={`empty-${index}`} className="h-14" />
+            <div key={`empty-${index}`} className="h-16" />
           ))}
           
           {/* Month days */}
@@ -200,7 +197,7 @@ const CalendarView = () => {
             const isCurrentMonth = isSameMonth(date, currentDate);
             const dateSessions = getSessionsForDate(date);
             const hasGames = dateSessions.length > 0;
-            const complexityIndicators = getComplexityIndicators(date);
+            const complexityDots = getComplexityDots(date);
             const isTodayDate = isToday(date);
             
             return (
@@ -208,7 +205,7 @@ const CalendarView = () => {
                 key={date.toISOString()}
                 onClick={() => handleDateClick(date)}
                 className={`
-                  relative h-14 rounded-xl border transition-all duration-200 flex flex-col items-center justify-center
+                  relative h-16 rounded-xl border transition-all duration-200 flex flex-col items-center justify-center
                   ${isCurrentMonth 
                     ? hasGames 
                       ? 'bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200 text-orange-800 font-semibold shadow-sm hover:shadow-md cursor-pointer hover:scale-105 transform' 
@@ -228,21 +225,15 @@ const CalendarView = () => {
                   )}
                 </div>
                 
-                {/* Complexity indicators */}
-                {hasGames && (
-                  <div className="flex gap-1 mt-1">
-                    {complexityIndicators.map((indicator, index) => (
+                {/* Complexity dots inside date cell */}
+                {hasGames && complexityDots.length > 0 && (
+                  <div className="flex gap-1 mt-2">
+                    {complexityDots.map((dot, index) => (
                       <div
-                        key={`${indicator.type}-${index}`}
-                        className={indicator.className}
+                        key={`${dot.type}-${index}`}
+                        className={`w-1.5 h-1.5 rounded-full ${dot.color} animate-scale-in`}
                         style={{ animationDelay: `${index * 100}ms` }}
-                      >
-                        {indicator.icon && (
-                          <span className="absolute inset-0 flex items-center justify-center text-xs">
-                            {indicator.icon}
-                          </span>
-                        )}
-                      </div>
+                      />
                     ))}
                   </div>
                 )}
@@ -252,7 +243,7 @@ const CalendarView = () => {
         </div>
       </div>
 
-      {/* Enhanced Complexity Legend */}
+      {/* Game Complexity Legend */}
       <div className="bg-gradient-to-r from-white to-gray-50 rounded-2xl border border-gray-100 shadow-sm p-6">
         <div className="text-center">
           <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-4 font-inter">Game Complexity</h3>
@@ -262,13 +253,11 @@ const CalendarView = () => {
               <span className="text-sm font-medium text-gray-700 font-inter">Light</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-sky-500 rounded-full shadow-sm"></div>
+              <div className="w-3 h-3 bg-blue-500 rounded-full shadow-sm"></div>
               <span className="text-sm font-medium text-gray-700 font-inter">Medium</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-red-500 rounded-full shadow-sm relative">
-                <span className="absolute inset-0 flex items-center justify-center text-xs">🔥</span>
-              </div>
+              <div className="w-3 h-3 bg-red-500 rounded-full shadow-sm"></div>
               <span className="text-sm font-medium text-gray-700 font-inter">Heavy</span>
             </div>
           </div>
