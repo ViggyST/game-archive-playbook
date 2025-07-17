@@ -1,76 +1,65 @@
 
 import { useKiritoGameInsights } from "@/hooks/useKiritoGameInsights";
-import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 const KiritoInsightCards = () => {
   const { data: insights, isLoading, error } = useKiritoGameInsights();
 
   if (isLoading || error || !insights) {
     return (
-      <div className="px-4 mb-4 space-y-2">
+      <div className="px-4 mb-2 flex flex-wrap justify-center gap-2">
         {[1, 2, 3].map((i) => (
-          <Card key={i} className="p-3 animate-pulse">
-            <div className="h-4 bg-muted rounded mb-1"></div>
-            <div className="h-3 bg-muted rounded w-2/3"></div>
-          </Card>
+          <div key={i} className="h-8 w-28 animate-pulse bg-muted rounded-full"></div>
         ))}
       </div>
     );
   }
 
-  const insightCards = [
+  const insightBadges = [
     {
       title: insights.mostPlayedGame.name,
       label: "Most Played",
       emoji: "💜",
-      bgColor: "bg-gradient-to-r from-purple-50 to-pink-50",
-      borderColor: "border-purple-100",
-      secondaryText: `${insights.mostPlayedGame.count} sessions`
+      bgColor: "bg-purple-50 hover:bg-purple-100",
+      textColor: "text-purple-700",
+      borderColor: "border-purple-200",
+      secondaryText: `${insights.mostPlayedGame.count} games`
     },
     insights.bestWinRateGame && {
       title: insights.bestWinRateGame.name,
-      label: "Best Win Rate",
+      label: "You Rock at",
       emoji: "💯",
-      bgColor: "bg-gradient-to-r from-green-50 to-emerald-50",
-      borderColor: "border-green-100",
-      secondaryText: `${insights.bestWinRateGame.winRate}% wins`
+      bgColor: "bg-green-50 hover:bg-green-100",
+      textColor: "text-green-700",
+      borderColor: "border-green-200",
+      secondaryText: `${insights.bestWinRateGame.winRate}%`
     },
     insights.worstWinRateGame && {
       title: insights.worstWinRateGame.name,
-      label: "Challenge Game",
+      label: "You Suck at",
       emoji: "⚡",
-      bgColor: "bg-gradient-to-r from-orange-50 to-red-50",
-      borderColor: "border-orange-100",
-      secondaryText: `${insights.worstWinRateGame.winRate}% wins`
+      bgColor: "bg-orange-50 hover:bg-orange-100",
+      textColor: "text-orange-700",
+      borderColor: "border-orange-200",
+      secondaryText: `${insights.worstWinRateGame.winRate}%`
     }
   ].filter(Boolean);
 
   return (
-    <div className="px-4 mb-4 space-y-2">
-      {insightCards.map((card, index) => (
-        <Card 
-          key={card.label}
-          className={`p-3 shadow-sm ${card.bgColor} ${card.borderColor} border animate-slide-up`}
-          style={{ animationDelay: `${index * 0.1}s` }}
-        >
-          <div className="flex items-center gap-2">
-            <span className="text-base">{card.emoji}</span>
-            <div className="flex-1">
-              <div className="font-semibold text-navy text-xs mb-0.5">
-                {card.label}
-              </div>
-              <div className="font-bold text-navy text-sm">
-                {card.title}
-              </div>
-              {card.secondaryText && (
-                <div className="text-xs text-muted-foreground">
-                  {card.secondaryText}
-                </div>
-              )}
-            </div>
+    <div className="px-4 mb-2">
+      <div className="flex flex-wrap justify-center gap-2">
+        {insightBadges.map((badge, index) => (
+          <div 
+            key={badge.label}
+            className={`inline-flex items-center px-3 py-1 rounded-full shadow-sm ${badge.bgColor} ${badge.textColor} ${badge.borderColor} border animate-slide-up cursor-pointer`}
+            style={{ animationDelay: `${index * 0.1}s` }}
+          >
+            <span className="mr-1">{badge.emoji}</span>
+            <span className="font-medium text-xs mr-1">{badge.label}:</span>
+            <span className="font-bold text-xs truncate max-w-32">{badge.title}</span>
           </div>
-        </Card>
-      ))}
+        ))}
+      </div>
     </div>
   );
 };

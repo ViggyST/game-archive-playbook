@@ -21,9 +21,9 @@ const KiritoTriviaCarousel = () => {
 
   if (isLoading || error || !facts || facts.length === 0) {
     return (
-      <div className="px-4 mb-4">
-        <h3 className="font-poppins font-semibold text-navy mb-2 text-sm">💡 Did You Know?</h3>
-        <Card className="bg-violet-50 rounded-xl p-3 shadow-sm animate-pulse">
+      <div className="px-4 mb-3">
+        <h3 className="font-poppins font-semibold text-navy mb-1 text-sm">💡 Did You Know?</h3>
+        <Card className="bg-violet-50 rounded-xl p-2 shadow-sm animate-pulse">
           <div className="h-3 bg-muted rounded"></div>
         </Card>
       </div>
@@ -41,10 +41,10 @@ const KiritoTriviaCarousel = () => {
   };
 
   return (
-    <div className="px-4 mb-4">
-      <h3 className="font-poppins font-semibold text-navy mb-2 text-sm">💡 Did You Know?</h3>
+    <div className="px-4 mb-3">
+      <h3 className="font-poppins font-semibold text-navy mb-1 text-sm">💡 Did You Know?</h3>
       <div className="relative">
-        <Card className="bg-violet-50 rounded-xl p-3 shadow-sm border border-violet-100 animate-fade-slide-up">
+        <Card className="bg-violet-50 rounded-xl p-2 shadow-sm border border-violet-100 animate-fade-slide-up">
           <div className="flex items-center justify-between">
             <button
               onClick={prevFact}
@@ -68,7 +68,7 @@ const KiritoTriviaCarousel = () => {
           </div>
           
           {facts.length > 1 && (
-            <div className="flex justify-center mt-2 gap-1">
+            <div className="flex justify-center mt-1 gap-1">
               {facts.map((_, index) => (
                 <button
                   key={index}
