@@ -12,7 +12,7 @@ const Index = () => {
       <BrandingHeader />
       
       {/* Personalized Greeting */}
-      <div className="px-4 pt-6 pb-2">
+      <div className="px-4 pt-2 pb-3">
         <h2 className="font-poppins text-xl font-semibold text-navy text-left">
           Hi Kirito <span className="animate-bounce-in inline-block">👋</span>
         </h2>
@@ -31,7 +31,7 @@ const Index = () => {
       <KiritoTriviaCarousel />
       
       {/* Bottom spacing */}
-      <div className="h-8"></div>
+      <div className="h-4"></div>
     </div>
   );
 };

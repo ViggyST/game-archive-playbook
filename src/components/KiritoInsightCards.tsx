@@ -7,11 +7,11 @@ const KiritoInsightCards = () => {
 
   if (isLoading || error || !insights) {
     return (
-      <div className="px-4 mb-6 space-y-3">
+      <div className="px-4 mb-4 space-y-2">
         {[1, 2, 3].map((i) => (
-          <Card key={i} className="p-4 animate-pulse">
-            <div className="h-6 bg-muted rounded mb-2"></div>
-            <div className="h-4 bg-muted rounded w-2/3"></div>
+          <Card key={i} className="p-3 animate-pulse">
+            <div className="h-4 bg-muted rounded mb-1"></div>
+            <div className="h-3 bg-muted rounded w-2/3"></div>
           </Card>
         ))}
       </div>
@@ -46,24 +46,24 @@ const KiritoInsightCards = () => {
   ].filter(Boolean);
 
   return (
-    <div className="px-4 mb-6 space-y-3">
+    <div className="px-4 mb-4 space-y-2">
       {insightCards.map((card, index) => (
         <Card 
           key={card.label}
-          className={`p-4 shadow-sm ${card.bgColor} ${card.borderColor} border animate-slide-up`}
+          className={`p-3 shadow-sm ${card.bgColor} ${card.borderColor} border animate-slide-up`}
           style={{ animationDelay: `${index * 0.1}s` }}
         >
-          <div className="flex items-center gap-3">
-            <span className="text-xl">{card.emoji}</span>
+          <div className="flex items-center gap-2">
+            <span className="text-base">{card.emoji}</span>
             <div className="flex-1">
-              <div className="font-semibold text-navy text-sm mb-1">
+              <div className="font-semibold text-navy text-xs mb-0.5">
                 {card.label}
               </div>
-              <div className="font-bold text-navy">
+              <div className="font-bold text-navy text-sm">
                 {card.title}
               </div>
               {card.secondaryText && (
-                <div className="text-xs text-muted-foreground mt-1">
+                <div className="text-xs text-muted-foreground">
                   {card.secondaryText}
                 </div>
               )}
