@@ -1,16 +1,17 @@
 
 import { useKiritoGameInsights } from "@/hooks/useKiritoGameInsights";
-import { Badge } from "@/components/ui/badge";
 
 const KiritoInsightCards = () => {
   const { data: insights, isLoading, error } = useKiritoGameInsights();
 
   if (isLoading || error || !insights) {
     return (
-      <div className="px-4 mb-2 flex flex-wrap justify-center gap-2">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="h-8 w-28 animate-pulse bg-muted rounded-full"></div>
-        ))}
+      <div className="px-4 mb-3">
+        <div className="flex gap-2 overflow-x-auto pb-2">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-12 w-40 animate-pulse bg-muted rounded-full flex-shrink-0"></div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -20,43 +21,45 @@ const KiritoInsightCards = () => {
       title: insights.mostPlayedGame.name,
       label: "Most Played",
       emoji: "💜",
-      bgColor: "bg-purple-50 hover:bg-purple-100",
-      textColor: "text-purple-700",
-      borderColor: "border-purple-200",
+      bgColor: "bg-gradient-to-r from-purple-100 to-purple-200",
+      textColor: "text-purple-800",
+      borderColor: "border-purple-300",
       secondaryText: `${insights.mostPlayedGame.count} games`
     },
     insights.bestWinRateGame && {
       title: insights.bestWinRateGame.name,
-      label: "You Rock at",
+      label: "You Rock At",
       emoji: "💯",
-      bgColor: "bg-green-50 hover:bg-green-100",
-      textColor: "text-green-700",
-      borderColor: "border-green-200",
+      bgColor: "bg-gradient-to-r from-emerald-100 to-emerald-200",
+      textColor: "text-emerald-800",
+      borderColor: "border-emerald-300",
       secondaryText: `${insights.bestWinRateGame.winRate}%`
     },
     insights.worstWinRateGame && {
       title: insights.worstWinRateGame.name,
-      label: "You Suck at",
+      label: "You Suck At",
       emoji: "⚡",
-      bgColor: "bg-orange-50 hover:bg-orange-100",
-      textColor: "text-orange-700",
-      borderColor: "border-orange-200",
+      bgColor: "bg-gradient-to-r from-orange-100 to-red-200",
+      textColor: "text-red-800",
+      borderColor: "border-red-300",
       secondaryText: `${insights.worstWinRateGame.winRate}%`
     }
   ].filter(Boolean);
 
   return (
-    <div className="px-4 mb-2">
-      <div className="flex flex-wrap justify-center gap-2">
+    <div className="px-4 mb-3">
+      <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
         {insightBadges.map((badge, index) => (
           <div 
             key={badge.label}
-            className={`inline-flex items-center px-3 py-1 rounded-full shadow-sm ${badge.bgColor} ${badge.textColor} ${badge.borderColor} border animate-slide-up cursor-pointer`}
+            className={`inline-flex items-center px-4 py-3 rounded-full shadow-md hover:shadow-lg ${badge.bgColor} ${badge.textColor} ${badge.borderColor} border-2 animate-scale-in cursor-pointer transition-all duration-300 hover:scale-105 flex-shrink-0 min-w-fit group`}
             style={{ animationDelay: `${index * 0.1}s` }}
           >
-            <span className="mr-1">{badge.emoji}</span>
-            <span className="font-medium text-xs mr-1">{badge.label}:</span>
-            <span className="font-bold text-xs truncate max-w-32">{badge.title}</span>
+            <span className="mr-2 text-lg group-hover:scale-110 transition-transform">{badge.emoji}</span>
+            <div className="text-center">
+              <div className="font-bold text-sm">{badge.label}</div>
+              <div className="font-semibold text-xs truncate max-w-24">{badge.title}</div>
+            </div>
           </div>
         ))}
       </div>

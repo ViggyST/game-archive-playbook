@@ -91,32 +91,33 @@
   }
 }
 
-/* Enhanced animations for calendar */
+/* Enhanced animations and utilities */
 @layer utilities {
   .animate-scale-in {
-    animation: scale-in 0.3s ease-out forwards;
+    animation: scale-in 0.4s ease-out forwards;
   }
   
   .animate-fade-slide-up {
-    animation: fade-slide-up 0.4s ease-out forwards;
+    animation: fade-slide-up 0.5s ease-out forwards;
   }
   
   .animate-bounce-in {
-    animation: bounce-in 0.5s ease-out forwards;
+    animation: bounce-in 0.6s ease-out forwards;
   }
   
-  .animate-pulse-today {
-    animation: pulse-today 2s ease-in-out infinite;
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
   
-  .animate-dot-pop {
-    animation: dot-pop 0.3s ease-out forwards;
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
   }
 }
 
 @keyframes scale-in {
   from {
-    transform: scale(0);
+    transform: scale(0.8);
     opacity: 0;
   }
   to {
@@ -127,7 +128,7 @@
 
 @keyframes fade-slide-up {
   from {
-    transform: translateY(10px);
+    transform: translateY(15px);
     opacity: 0;
   }
   to {
@@ -142,10 +143,10 @@
     opacity: 0;
   }
   50% {
-    transform: scale(1.05);
+    transform: scale(1.1);
   }
   70% {
-    transform: scale(0.9);
+    transform: scale(0.95);
   }
   100% {
     transform: scale(1);
@@ -153,35 +154,8 @@
   }
 }
 
-@keyframes pulse-today {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
-  }
-  50% {
-    box-shadow: 0 0 0 8px rgba(59, 130, 246, 0);
-  }
-}
-
-@keyframes dot-pop {
-  0% {
-    transform: scale(0);
-    opacity: 0;
-  }
-  80% {
-    transform: scale(1.2);
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-/* Pulse animation for today indicator */
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
+/* Additional glass effect utilities */
+.glass-effect {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.1);
 }

@@ -1,19 +1,15 @@
 
 import { Trophy, Gamepad2, TrendingUp } from "lucide-react";
 import { useKiritoAllTimeStats } from "@/hooks/useKiritoAllTimeStats";
-import { Card } from "@/components/ui/card";
 
 const KiritoStatsCards = () => {
   const { data: stats, isLoading, error } = useKiritoAllTimeStats();
 
   if (isLoading || error || !stats) {
     return (
-      <div className="grid grid-cols-3 gap-3 px-4 mb-2">
+      <div className="grid grid-cols-3 gap-2 px-4 mb-3">
         {[1, 2, 3].map((i) => (
-          <Card key={i} className="p-2 animate-pulse">
-            <div className="h-6 bg-muted rounded mb-2"></div>
-            <div className="h-3 bg-muted rounded"></div>
-          </Card>
+          <div key={i} className="h-20 animate-pulse bg-muted rounded-2xl"></div>
         ))}
       </div>
     );
@@ -21,43 +17,54 @@ const KiritoStatsCards = () => {
 
   const statCards = [
     {
-      icon: <Gamepad2 className="h-4 w-4 text-blue-600" />,
+      icon: <Gamepad2 className="h-5 w-5 text-blue-600" />,
       value: stats.gamesPlayed,
       label: "Games Played",
-      emoji: "🎲"
+      emoji: "🎯",
+      gradient: "from-blue-50 to-blue-100",
+      border: "border-blue-200"
     },
     {
-      icon: <Trophy className="h-4 w-4 text-yellow-600" />,
+      icon: <Trophy className="h-5 w-5 text-yellow-600" />,
       value: stats.gamesWon,
       label: "Games Won",
-      emoji: "🏆"
+      emoji: "🏆",
+      gradient: "from-yellow-50 to-yellow-100",
+      border: "border-yellow-200"
     },
     {
-      icon: <TrendingUp className="h-4 w-4 text-green-600" />,
+      icon: <TrendingUp className="h-5 w-5 text-green-600" />,
       value: `${stats.winRate}%`,
       label: "Win Rate",
-      emoji: "📈"
+      emoji: "📈",
+      gradient: "from-green-50 to-green-100",
+      border: "border-green-200"
     }
   ];
 
   return (
-    <div className="grid grid-cols-3 gap-3 px-4 mb-2">
+    <div className="grid grid-cols-3 gap-2 px-4 mb-3">
       {statCards.map((stat, index) => (
-        <Card 
+        <div 
           key={stat.label}
-          className="p-2 shadow-md hover:shadow-lg bg-gradient-to-br from-white to-gray-50 transition-all duration-200 hover:scale-[1.02] animate-fade-in"
+          className={`relative p-3 rounded-2xl shadow-lg hover:shadow-xl bg-gradient-to-br ${stat.gradient} ${stat.border} border transition-all duration-300 hover:scale-[1.02] animate-fade-in group`}
           style={{ animationDelay: `${index * 0.1}s` }}
         >
-          <div className="flex items-center justify-center gap-1 mb-1">
-            <span className="text-lg">{stat.emoji}</span>
+          {/* Glass effect overlay */}
+          <div className="absolute inset-0 bg-white/20 rounded-2xl backdrop-blur-sm"></div>
+          
+          <div className="relative z-10">
+            <div className="flex items-center justify-center mb-2">
+              <span className="text-2xl group-hover:scale-110 transition-transform duration-300">{stat.emoji}</span>
+            </div>
+            <div className="text-2xl font-bold text-navy text-center mb-1">
+              {stat.value}
+            </div>
+            <div className="text-[10px] text-muted-foreground uppercase tracking-wide text-center font-medium">
+              {stat.label}
+            </div>
           </div>
-          <div className="text-xl sm:text-2xl font-bold text-navy text-center mb-0.5">
-            {stat.value}
-          </div>
-          <div className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide text-center">
-            {stat.label}
-          </div>
-        </Card>
+        </div>
       ))}
     </div>
   );

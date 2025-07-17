@@ -1,8 +1,6 @@
 
 import { useState, useEffect } from "react";
 import { useKiritoTrivia } from "@/hooks/useKiritoTrivia";
-import { Card } from "@/components/ui/card";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const KiritoTriviaCarousel = () => {
   const { data: facts, isLoading, error } = useKiritoTrivia();
@@ -21,54 +19,26 @@ const KiritoTriviaCarousel = () => {
 
   if (isLoading || error || !facts || facts.length === 0) {
     return (
-      <div className="px-4 mb-3">
-        <h3 className="font-poppins font-semibold text-navy mb-1 text-sm">💡 Did You Know?</h3>
-        <Card className="bg-violet-50 rounded-xl p-2 shadow-sm animate-pulse">
-          <div className="h-3 bg-muted rounded"></div>
-        </Card>
+      <div className="px-4 mb-4">
+        <h3 className="font-poppins font-semibold text-navy mb-2 text-center text-sm">💡 Did You Know?</h3>
+        <div className="bg-gradient-to-r from-violet-100 to-purple-100 rounded-2xl p-4 shadow-lg animate-pulse border border-violet-200">
+          <div className="h-4 bg-violet-200 rounded"></div>
+        </div>
       </div>
     );
   }
 
-  const nextFact = () => {
-    setCurrentIndex((prev) => (prev + 1) % facts.length);
-    setIsAutoPlaying(false);
-  };
-
-  const prevFact = () => {
-    setCurrentIndex((prev) => (prev - 1 + facts.length) % facts.length);
-    setIsAutoPlaying(false);
-  };
-
   return (
-    <div className="px-4 mb-3">
-      <h3 className="font-poppins font-semibold text-navy mb-1 text-sm">💡 Did You Know?</h3>
+    <div className="px-4 mb-4">
+      <h3 className="font-poppins font-semibold text-navy mb-2 text-center text-sm">💡 Did You Know?</h3>
       <div className="relative">
-        <Card className="bg-violet-50 rounded-xl p-2 shadow-sm border border-violet-100 animate-fade-slide-up">
-          <div className="flex items-center justify-between">
-            <button
-              onClick={prevFact}
-              className="p-1 rounded-full hover:bg-violet-100 transition-colors flex-shrink-0"
-              disabled={facts.length <= 1}
-            >
-              <ChevronLeft className="h-3 w-3 text-violet-600" />
-            </button>
-            
-            <div className="text-xs text-navy text-center mx-2 min-h-[16px] flex items-center justify-center">
-              {facts[currentIndex]}
-            </div>
-            
-            <button
-              onClick={nextFact}
-              className="p-1 rounded-full hover:bg-violet-100 transition-colors flex-shrink-0"
-              disabled={facts.length <= 1}
-            >
-              <ChevronRight className="h-3 w-3 text-violet-600" />
-            </button>
+        <div className="bg-gradient-to-r from-violet-100 to-purple-100 rounded-2xl p-4 shadow-lg border-2 border-violet-200 animate-fade-slide-up backdrop-blur-sm">
+          <div className="text-sm text-navy text-center min-h-[20px] flex items-center justify-center font-medium">
+            {facts[currentIndex]}
           </div>
           
           {facts.length > 1 && (
-            <div className="flex justify-center mt-1 gap-1">
+            <div className="flex justify-center mt-3 gap-2">
               {facts.map((_, index) => (
                 <button
                   key={index}
@@ -76,14 +46,16 @@ const KiritoTriviaCarousel = () => {
                     setCurrentIndex(index);
                     setIsAutoPlaying(false);
                   }}
-                  className={`w-1.5 h-1.5 rounded-full transition-colors ${
-                    index === currentIndex ? 'bg-violet-400' : 'bg-violet-200'
+                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                    index === currentIndex 
+                      ? 'bg-violet-500 scale-125 shadow-lg' 
+                      : 'bg-violet-300 hover:bg-violet-400'
                   }`}
                 />
               ))}
             </div>
           )}
-        </Card>
+        </div>
       </div>
     </div>
   );

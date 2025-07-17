@@ -11,25 +11,16 @@ const Index = () => {
       {/* Top Branding Section */}
       <BrandingHeader />
       
-      {/* Personalized Greeting */}
-      <div className="px-4 pb-2">
-        <h2 className="font-poppins text-xl font-semibold text-navy text-center">
-          Hi Kirito <span className="animate-bounce-in inline-block">👋</span>
-        </h2>
-      </div>
-      
-      {/* All-Time Stats Cards */}
+      {/* All-Time Stats Cards - Elevated Glass Style */}
       <KiritoStatsCards />
       
-      {/* Primary Action Cards - More prominent placement */}
-      <div className="mt-3 mb-3">
-        <ActionCards />
-      </div>
+      {/* Primary Action Cards - Prominent CTA placement */}
+      <ActionCards />
       
-      {/* Game Insight Cards */}
+      {/* Game Insight Pills - Horizontal scroll below CTAs */}
       <KiritoInsightCards />
       
-      {/* Did You Know? Trivia Carousel */}
+      {/* Did You Know? Trivia Carousel - Compact bottom section */}
       <KiritoTriviaCarousel />
     </div>
   );
