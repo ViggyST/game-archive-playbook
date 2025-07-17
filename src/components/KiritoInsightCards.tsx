@@ -6,63 +6,68 @@ const KiritoInsightCards = () => {
 
   if (isLoading || error || !insights) {
     return (
-      <div className="px-4 mb-3">
-        <div className="flex gap-2 overflow-x-auto pb-2">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-12 w-40 animate-pulse bg-muted rounded-full flex-shrink-0"></div>
-          ))}
-        </div>
+      <div className="px-4 mb-4 space-y-3">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-20 animate-pulse bg-muted rounded-2xl"></div>
+        ))}
       </div>
     );
   }
 
-  const insightBadges = [
+  const insightCards = [
     {
-      title: insights.mostPlayedGame.name,
-      label: "Most Played",
+      title: "Most Played",
+      gameName: insights.mostPlayedGame.name,
+      subtitle: `${insights.mostPlayedGame.count} sessions`,
       emoji: "💜",
-      bgColor: "bg-gradient-to-r from-purple-100 to-purple-200",
+      bgColor: "bg-purple-50",
       textColor: "text-purple-800",
-      borderColor: "border-purple-300",
-      secondaryText: `${insights.mostPlayedGame.count} games`
+      borderColor: "border-purple-200"
     },
     insights.bestWinRateGame && {
-      title: insights.bestWinRateGame.name,
-      label: "You Rock At",
+      title: "Best Win Rate",
+      gameName: insights.bestWinRateGame.name,
+      subtitle: `${insights.bestWinRateGame.winRate}% wins`,
       emoji: "💯",
-      bgColor: "bg-gradient-to-r from-emerald-100 to-emerald-200",
-      textColor: "text-emerald-800",
-      borderColor: "border-emerald-300",
-      secondaryText: `${insights.bestWinRateGame.winRate}%`
+      bgColor: "bg-green-50",
+      textColor: "text-green-800",
+      borderColor: "border-green-200"
     },
     insights.worstWinRateGame && {
-      title: insights.worstWinRateGame.name,
-      label: "You Suck At",
+      title: "Challenge Game",
+      gameName: insights.worstWinRateGame.name,
+      subtitle: `${insights.worstWinRateGame.winRate}% wins`,
       emoji: "⚡",
-      bgColor: "bg-gradient-to-r from-orange-100 to-red-200",
-      textColor: "text-red-800",
-      borderColor: "border-red-300",
-      secondaryText: `${insights.worstWinRateGame.winRate}%`
+      bgColor: "bg-orange-50",
+      textColor: "text-orange-800",
+      borderColor: "border-orange-200"
     }
   ].filter(Boolean);
 
   return (
-    <div className="px-4 mb-3">
-      <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-        {insightBadges.map((badge, index) => (
-          <div 
-            key={badge.label}
-            className={`inline-flex items-center px-4 py-3 rounded-full shadow-md hover:shadow-lg ${badge.bgColor} ${badge.textColor} ${badge.borderColor} border-2 animate-scale-in cursor-pointer transition-all duration-300 hover:scale-105 flex-shrink-0 min-w-fit group`}
-            style={{ animationDelay: `${index * 0.1}s` }}
-          >
-            <span className="mr-2 text-lg group-hover:scale-110 transition-transform">{badge.emoji}</span>
-            <div className="text-center">
-              <div className="font-bold text-sm">{badge.label}</div>
-              <div className="font-semibold text-xs truncate max-w-24">{badge.title}</div>
+    <div className="px-4 mb-4 space-y-3">
+      {insightCards.map((card, index) => (
+        <div 
+          key={card.title}
+          className={`${card.bgColor} ${card.borderColor} border rounded-2xl p-4 shadow-sm hover:shadow-md transition-all duration-300 animate-fade-in`}
+          style={{ animationDelay: `${index * 0.1}s` }}
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">{card.emoji}</span>
+            <div className="flex-1">
+              <div className={`text-sm font-medium ${card.textColor} mb-1`}>
+                {card.title}
+              </div>
+              <div className={`font-bold text-lg ${card.textColor} mb-1`}>
+                {card.gameName}
+              </div>
+              <div className={`text-sm ${card.textColor} opacity-75`}>
+                {card.subtitle}
+              </div>
             </div>
           </div>
-        ))}
-      </div>
+        </div>
+      ))}
     </div>
   );
 };
