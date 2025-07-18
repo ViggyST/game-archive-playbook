@@ -84,23 +84,10 @@
   body {
     @apply bg-background text-foreground;
     font-family: 'Inter', sans-serif;
-    /* Mobile optimization */
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    -webkit-tap-highlight-color: transparent;
   }
   
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Poppins', sans-serif;
-  }
-  
-  /* Mobile safe area support */
-  .pb-safe {
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-  
-  .pt-safe {
-    padding-top: env(safe-area-inset-top);
   }
 }
 
@@ -125,15 +112,6 @@
   
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
-  }
-  
-  /* Mobile touch optimizations */
-  .touch-manipulation {
-    touch-action: manipulation;
-  }
-  
-  .active-scale {
-    @apply active:scale-95 transition-transform duration-150;
   }
 }
 
@@ -180,17 +158,4 @@
 .glass-effect {
   backdrop-filter: blur(10px);
   background: rgba(255, 255, 255, 0.1);
-}
-
-/* Mobile viewport optimization */
-@media screen and (max-width: 768px) {
-  .mobile-optimize {
-    font-size: 16px; /* Prevents iOS zoom */
-  }
-  
-  /* Improve touch targets */
-  button, .btn, [role="button"] {
-    min-height: 44px;
-    min-width: 44px;
-  }
 }
