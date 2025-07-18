@@ -67,23 +67,25 @@ const GamesDashboard = () => {
 
   if (isLoading) {
     return (
-      <div className="space-y-4 px-4">
+      <div className="space-y-4">
         {/* Sorting Toggle Skeleton */}
-        <div className="bg-gray-200 h-12 rounded-2xl animate-pulse"></div>
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-2">
+          <div className="bg-gray-200 h-12 rounded-xl animate-pulse"></div>
+        </div>
         
         {/* Card Skeletons */}
         {[1, 2, 3, 4, 5].map((i) => (
-          <div key={i} className="bg-gray-800 rounded-2xl p-6 animate-pulse">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-12 h-12 bg-gray-700 rounded-xl"></div>
+          <div key={i} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 animate-pulse">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 bg-gray-200 rounded-xl"></div>
               <div className="flex-1">
-                <div className="bg-gray-700 h-6 w-32 rounded mb-2"></div>
-                <div className="bg-gray-700 h-4 w-16 rounded"></div>
+                <div className="bg-gray-200 h-5 w-24 rounded mb-1"></div>
+                <div className="bg-gray-200 h-4 w-16 rounded"></div>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-4 gap-2">
               {[1, 2, 3, 4].map((j) => (
-                <div key={j} className="bg-gray-700 h-12 rounded-xl"></div>
+                <div key={j} className="bg-gray-200 h-10 rounded-lg"></div>
               ))}
             </div>
           </div>
@@ -94,24 +96,24 @@ const GamesDashboard = () => {
 
   if (error) {
     return (
-      <div className="text-center py-8 px-4">
-        <p className="text-red-400">Error loading game dashboard</p>
+      <div className="text-center py-8">
+        <p className="text-red-600">Error loading game dashboard</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 px-4 pb-8">
+    <div className="space-y-4">
       {/* Sorting Toggle */}
-      <div className="bg-gray-900 rounded-2xl p-2 border border-gray-800">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-2">
         <div className="grid grid-cols-2 gap-1">
           <button
             onClick={() => setSortBy('plays')}
             className={`
               py-3 px-4 rounded-xl font-medium text-sm transition-all duration-200
               ${sortBy === 'plays' 
-                ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' 
-                : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800'
+                ? 'bg-orange-100 text-orange-700 shadow-sm border border-orange-200' 
+                : 'text-gray-600 hover:text-gray-700 hover:bg-gray-50'
               }
             `}
           >
@@ -122,8 +124,8 @@ const GamesDashboard = () => {
             className={`
               py-3 px-4 rounded-xl font-medium text-sm transition-all duration-200
               ${sortBy === 'recent' 
-                ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' 
-                : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800'
+                ? 'bg-orange-100 text-orange-700 shadow-sm border border-orange-200' 
+                : 'text-gray-600 hover:text-gray-700 hover:bg-gray-50'
               }
             `}
           >
@@ -136,11 +138,11 @@ const GamesDashboard = () => {
       {games.length === 0 ? (
         <div className="text-center py-12">
           <div className="text-6xl mb-4">🎮</div>
-          <p className="text-gray-400 text-lg">No games found</p>
+          <p className="text-gray-600 text-lg">No games found</p>
           <p className="text-gray-500 text-sm">Start logging some game sessions!</p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {games.map((game, index) => {
             const isTopThree = sortBy === 'plays' && index < 3;
             const rankBadgeColors = ['bg-yellow-500', 'bg-gray-400', 'bg-amber-600'];
@@ -149,39 +151,34 @@ const GamesDashboard = () => {
               <div
                 key={game.game_id}
                 className={`
-                  relative bg-gray-900 rounded-2xl p-6 border transition-all duration-300
-                  hover:shadow-2xl hover:shadow-blue-500/10 hover:border-blue-400/30
-                  ${isTopThree ? 'border-blue-500/30 shadow-lg shadow-blue-500/5' : 'border-gray-800'}
+                  relative bg-white rounded-2xl border border-gray-100 shadow-sm p-4 
+                  transition-all duration-200 hover:shadow-md hover:border-orange-200
+                  ${isTopThree ? 'ring-1 ring-orange-200 bg-orange-50/30' : ''}
                 `}
-                style={{
-                  background: isTopThree 
-                    ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(17, 24, 39, 1))'
-                    : undefined
-                }}
               >
                 {/* Top 3 Badge */}
                 {isTopThree && (
                   <div className={`
-                    absolute -top-2 -left-2 w-8 h-8 rounded-full flex items-center justify-center
-                    ${rankBadgeColors[index]} text-white text-sm font-bold shadow-lg
+                    absolute -top-2 -left-2 w-6 h-6 rounded-full flex items-center justify-center
+                    ${rankBadgeColors[index]} text-white text-xs font-bold shadow-sm
                   `}>
                     {index + 1}
                   </div>
                 )}
 
                 {/* Game Header */}
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-14 h-14 bg-gray-800 rounded-xl flex items-center justify-center text-2xl border border-gray-700 transition-transform duration-200 hover:scale-110">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center text-lg border border-gray-200">
                     {getGameIcon(game.game_name)}
                   </div>
                   
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-xl text-white mb-2 truncate">
+                    <h3 className="font-bold text-lg text-gray-900 truncate mb-1">
                       {game.game_name}
                     </h3>
                     <Badge 
                       className={`
-                        text-xs px-3 py-1 rounded-full font-medium border
+                        text-xs px-2 py-1 rounded-full font-medium border
                         ${getCategoryBadgeStyle(game.complexity)}
                       `}
                     >
@@ -191,45 +188,45 @@ const GamesDashboard = () => {
                 </div>
 
                 {/* Stats Grid */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700/50">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Gamepad2 className="h-4 w-4 text-blue-400" />
-                      <span className="text-gray-400 text-sm">Plays</span>
+                <div className="grid grid-cols-4 gap-2">
+                  <div className="text-center bg-gray-50 rounded-lg p-2 border border-gray-100">
+                    <div className="flex items-center justify-center gap-1 mb-1">
+                      <Gamepad2 className="h-3 w-3 text-blue-500" />
                     </div>
-                    <div className="text-xl font-bold text-white">
+                    <div className="text-sm font-bold text-gray-900">
                       {game.total_plays}
                     </div>
+                    <div className="text-xs text-gray-500">Plays</div>
                   </div>
 
-                  <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700/50">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Trophy className="h-4 w-4 text-yellow-400" />
-                      <span className="text-gray-400 text-sm">Win Rate</span>
+                  <div className="text-center bg-gray-50 rounded-lg p-2 border border-gray-100">
+                    <div className="flex items-center justify-center gap-1 mb-1">
+                      <Trophy className="h-3 w-3 text-yellow-500" />
                     </div>
-                    <div className="text-xl font-bold text-yellow-400">
+                    <div className="text-sm font-bold text-yellow-600">
                       {game.win_rate || 0}%
                     </div>
+                    <div className="text-xs text-gray-500">Win Rate</div>
                   </div>
 
-                  <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700/50">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Clock className="h-4 w-4 text-green-400" />
-                      <span className="text-gray-400 text-sm">Avg Time</span>
+                  <div className="text-center bg-gray-50 rounded-lg p-2 border border-gray-100">
+                    <div className="flex items-center justify-center gap-1 mb-1">
+                      <Clock className="h-3 w-3 text-green-500" />
                     </div>
-                    <div className="text-xl font-bold text-green-400">
+                    <div className="text-sm font-bold text-green-600">
                       {game.avg_duration || 0}m
                     </div>
+                    <div className="text-xs text-gray-500">Time</div>
                   </div>
 
-                  <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700/50">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Calendar className="h-4 w-4 text-purple-400" />
-                      <span className="text-gray-400 text-sm">Last Played</span>
+                  <div className="text-center bg-gray-50 rounded-lg p-2 border border-gray-100">
+                    <div className="flex items-center justify-center gap-1 mb-1">
+                      <Calendar className="h-3 w-3 text-purple-500" />
                     </div>
-                    <div className="text-lg font-bold text-purple-400">
+                    <div className="text-sm font-bold text-purple-600">
                       {formatLastPlayed(game.last_played)}
                     </div>
+                    <div className="text-xs text-gray-500">Last</div>
                   </div>
                 </div>
               </div>
