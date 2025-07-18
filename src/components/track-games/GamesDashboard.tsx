@@ -6,7 +6,8 @@ import { usePlayerGameDashboard } from "@/hooks/usePlayerGameDashboard";
 
 const GamesDashboard = () => {
   const [sortBy, setSortBy] = useState<'plays' | 'recent'>('plays');
-  const playerId = 'a3e81c80-f601-4197-8a9a-dbe4c504db4b';
+  // Using Kirito's player ID as specified
+  const playerId = '3db5dc38-1f5d-499f-bece-b1c20e31f838';
   
   const { data: games = [], isLoading, error } = usePlayerGameDashboard(playerId, sortBy);
 
