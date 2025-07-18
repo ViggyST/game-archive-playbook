@@ -6,9 +6,9 @@ const KiritoInsightCards = () => {
 
   if (isLoading || error || !insights) {
     return (
-      <div className="px-4 mb-4 space-y-3">
+      <div className="px-4 mb-4 space-y-3 sm:px-6 sm:mb-6">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-20 animate-pulse bg-muted rounded-2xl"></div>
+          <div key={i} className="h-20 sm:h-24 animate-pulse bg-muted rounded-2xl"></div>
         ))}
       </div>
     );
@@ -45,23 +45,23 @@ const KiritoInsightCards = () => {
   ].filter(Boolean);
 
   return (
-    <div className="px-4 mb-4 space-y-3">
+    <div className="px-4 mb-4 space-y-3 sm:px-6 sm:mb-6">
       {insightCards.map((card, index) => (
         <div 
           key={card.title}
-          className={`${card.bgColor} ${card.borderColor} border rounded-2xl p-4 shadow-sm hover:shadow-md transition-all duration-300 animate-fade-in`}
+          className={`${card.bgColor} ${card.borderColor} border rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-md transition-all duration-300 animate-fade-in`}
           style={{ animationDelay: `${index * 0.1}s` }}
         >
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">{card.emoji}</span>
-            <div className="flex-1">
-              <div className={`text-sm font-medium ${card.textColor} mb-1`}>
+          <div className="flex items-center gap-3 sm:gap-4">
+            <span className="text-2xl sm:text-3xl flex-shrink-0">{card.emoji}</span>
+            <div className="flex-1 min-w-0">
+              <div className={`text-xs sm:text-sm font-medium ${card.textColor} mb-1`}>
                 {card.title}
               </div>
-              <div className={`font-bold text-lg ${card.textColor} mb-1`}>
+              <div className={`font-bold text-base sm:text-lg ${card.textColor} mb-1 truncate`}>
                 {card.gameName}
               </div>
-              <div className={`text-sm ${card.textColor} opacity-75`}>
+              <div className={`text-xs sm:text-sm ${card.textColor} opacity-75`}>
                 {card.subtitle}
               </div>
             </div>

@@ -7,20 +7,20 @@ import KiritoTriviaCarousel from "@/components/KiritoTriviaCarousel";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-muted/30 font-inter">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-muted/30 font-inter pb-safe">
       {/* Top Branding Section */}
       <BrandingHeader />
       
-      {/* All-Time Stats Cards - Elevated Glass Style */}
+      {/* All-Time Stats Cards - Mobile optimized spacing */}
       <KiritoStatsCards />
       
-      {/* Primary Action Cards - Prominent CTA placement */}
+      {/* Primary Action Cards - Mobile first design */}
       <ActionCards />
       
-      {/* Game Insight Pills - Horizontal scroll below CTAs */}
+      {/* Game Insight Pills - Mobile scrollable */}
       <KiritoInsightCards />
       
-      {/* Did You Know? Trivia Carousel - Compact bottom section */}
+      {/* Did You Know? Trivia Carousel - Mobile compact */}
       <KiritoTriviaCarousel />
     </div>
   );
