@@ -33,10 +33,15 @@ const LogGame = () => {
   const navigate = useNavigate();
   const logGameMutation = useLogGame();
   const [currentStep, setCurrentStep] = useState(1);
+  
+  // Initialize with date set to noon to avoid timezone issues
+  const today = new Date();
+  const initialDate = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 12, 0, 0);
+  
   const [gameData, setGameData] = useState<GameData>({
     name: '',
     complexity: 'Medium',
-    date: new Date(),
+    date: initialDate,
     location: '',
     duration: 60,
     players: [],

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon, MapPin, Clock, Minus, Plus } from "lucide-react";
@@ -32,6 +33,16 @@ const SessionDetailsStep = ({ gameData, updateGameData }: SessionDetailsStepProp
     updateGameData({ duration: newDuration });
   };
 
+  const handleDateSelect = (date: Date | undefined) => {
+    if (date) {
+      // Create a new date object with time set to noon in local timezone
+      // This prevents timezone conversion issues
+      const localDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0, 0);
+      updateGameData({ date: localDate });
+      setIsCalendarOpen(false);
+    }
+  };
+
   return (
     <div className="space-y-6 animate-slide-up">
       <Card>
@@ -64,12 +75,7 @@ const SessionDetailsStep = ({ gameData, updateGameData }: SessionDetailsStepProp
                 <Calendar
                   mode="single"
                   selected={gameData.date}
-                  onSelect={(date) => {
-                    if (date) {
-                      updateGameData({ date });
-                      setIsCalendarOpen(false);
-                    }
-                  }}
+                  onSelect={handleDateSelect}
                   disabled={(date) => date > new Date()}
                   initialFocus
                   className="p-3 pointer-events-auto"

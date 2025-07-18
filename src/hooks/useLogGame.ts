@@ -82,12 +82,27 @@ export const useLogGame = () => {
       console.log("Game scores:", gameData.scores);
       console.log("Winner:", gameData.winner);
       
+      // Step 3: Format date to ensure it's stored as date only without timezone issues
+      const formatDateForDatabase = (date: Date) => {
+        // Get the local date components
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        
+        // Return in YYYY-MM-DD format
+        return `${year}-${month}-${day}`;
+      };
+      
+      const formattedDate = formatDateForDatabase(gameData.date);
+      console.log("Original date:", gameData.date);
+      console.log("Formatted date for DB:", formattedDate);
+      
       // Step 3: Insert session
       const { data: session, error: sessionError } = await supabase
         .from('sessions')
         .insert({
           game_id: gameId,
-          date: gameData.date.toISOString().split('T')[0], // Format as YYYY-MM-DD
+          date: formattedDate, // Use formatted date string
           location: gameData.location,
           duration_minutes: gameData.duration,
           highlights: gameData.highlights || null
