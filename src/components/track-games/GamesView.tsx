@@ -1,12 +1,19 @@
-
 import { useState } from "react";
 import { Trophy, Clock, Gamepad2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { useKiritoGameStats } from "@/hooks/useKiritoGameStats";
+import GamesDashboard from "./GamesDashboard";
 
 const GamesView = () => {
+  // Check if we should show the new dashboard or the old Kirito-specific view
+  const showNewDashboard = true; // We can make this configurable later
+  
+  if (showNewDashboard) {
+    return <GamesDashboard />;
+  }
+
   const [selectedGame, setSelectedGame] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   
