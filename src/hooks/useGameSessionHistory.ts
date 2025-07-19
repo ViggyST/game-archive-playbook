@@ -31,11 +31,11 @@ export const useGameSessionHistory = (gameId: string | null, filterByPlayer?: st
           location,
           duration_minutes,
           highlights,
-          scores!inner(
+          scores(
             player_id,
             score,
             is_winner,
-            players!inner(name)
+            players(name)
           )
         `)
         .eq('game_id', gameId);
@@ -63,16 +63,30 @@ export const useGameSessionHistory = (gameId: string | null, filterByPlayer?: st
         throw error;
       }
 
-      // Process the data to group players by session
+      // Process the data to group players by session properly
       const processedSessions: SessionHistoryData[] = sessions?.map((session: any) => {
-        const players = session.scores.map((score: any) => ({
-          player_name: score.players.name,
-          score: score.score || 0,
-          is_winner: score.is_winner
-        }));
+        // Get unique players for this session (avoid duplicates)
+        const playersMap = new Map();
+        
+        session.scores?.forEach((score: any) => {
+          const playerId = score.player_id;
+          const playerName = score.players?.name;
+          const playerScore = score.score || 0;
+          const isWinner = score.is_winner;
 
-        // Sort players by score (highest first)
-        players.sort((a, b) => b.score - a.score);
+          // Only add if we haven't seen this player in this session yet
+          if (!playersMap.has(playerId) && playerName) {
+            playersMap.set(playerId, {
+              player_name: playerName,
+              score: playerScore,
+              is_winner: isWinner
+            });
+          }
+        });
+
+        // Convert map to array and sort by score (highest first)
+        const players = Array.from(playersMap.values())
+          .sort((a, b) => b.score - a.score);
 
         return {
           session_id: session.id,
