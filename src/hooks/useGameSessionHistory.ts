@@ -15,15 +15,15 @@ interface SessionHistoryData {
   }[];
 }
 
-export const useGameSessionHistory = (gameId: string | null) => {
+export const useGameSessionHistory = (gameId: string | null, filterByPlayer?: string) => {
   return useQuery({
-    queryKey: ['game-session-history', gameId],
+    queryKey: ['game-session-history', gameId, filterByPlayer],
     queryFn: async () => {
       if (!gameId) return [];
 
-      console.log('Fetching session history for game:', gameId);
+      console.log('Fetching session history for game:', gameId, 'filterByPlayer:', filterByPlayer);
       
-      const { data: sessions, error } = await supabase
+      let query = supabase
         .from('sessions')
         .select(`
           id,
@@ -38,8 +38,25 @@ export const useGameSessionHistory = (gameId: string | null) => {
             players!inner(name)
           )
         `)
-        .eq('game_id', gameId)
-        .order('date', { ascending: false });
+        .eq('game_id', gameId);
+
+      // If filtering by player, only get sessions where that player participated
+      if (filterByPlayer) {
+        const { data: playerSessions } = await supabase
+          .from('scores')
+          .select('session_id')
+          .eq('player_id', filterByPlayer);
+        
+        if (playerSessions && playerSessions.length > 0) {
+          const sessionIds = playerSessions.map(ps => ps.session_id);
+          query = query.in('id', sessionIds);
+        } else {
+          // No sessions found for this player and game
+          return [];
+        }
+      }
+
+      const { data: sessions, error } = await query.order('date', { ascending: false });
 
       if (error) {
         console.error('Error fetching session history:', error);
