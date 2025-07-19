@@ -23,80 +23,66 @@ export const useGameSessionHistory = (gameId: string | null, filterByPlayer?: st
 
       console.log('Fetching session history for game:', gameId, 'filterByPlayer:', filterByPlayer);
       
+      // Query from scores table where game_id actually exists
       let query = supabase
-        .from('sessions')
+        .from('scores')
         .select(`
-          id,
-          date,
-          location,
-          duration_minutes,
-          highlights,
-          scores(
-            player_id,
-            score,
-            is_winner,
-            players(name)
-          )
+          session_id,
+          score,
+          is_winner,
+          player_id,
+          players(name),
+          sessions(id, date, location, duration_minutes, highlights)
         `)
         .eq('game_id', gameId);
 
-      // If filtering by player, only get sessions where that player participated
+      // If filtering by player, only get scores where that player participated
       if (filterByPlayer) {
-        const { data: playerSessions } = await supabase
-          .from('scores')
-          .select('session_id')
-          .eq('player_id', filterByPlayer);
-        
-        if (playerSessions && playerSessions.length > 0) {
-          const sessionIds = playerSessions.map(ps => ps.session_id);
-          query = query.in('id', sessionIds);
-        } else {
-          // No sessions found for this player and game
-          return [];
-        }
+        query = query.eq('player_id', filterByPlayer);
       }
 
-      const { data: sessions, error } = await query.order('date', { ascending: false });
+      const { data: scoresData, error } = await query;
 
       if (error) {
         console.error('Error fetching session history:', error);
         throw error;
       }
 
-      // Process the data to group players by session properly
-      const processedSessions: SessionHistoryData[] = sessions?.map((session: any) => {
-        // Get unique players for this session (avoid duplicates)
-        const playersMap = new Map();
-        
-        session.scores?.forEach((score: any) => {
-          const playerId = score.player_id;
-          const playerName = score.players?.name;
-          const playerScore = score.score || 0;
-          const isWinner = score.is_winner;
+      // Group scores by session_id to create proper session objects
+      const sessionsMap = new Map();
 
-          // Only add if we haven't seen this player in this session yet
-          if (!playersMap.has(playerId) && playerName) {
-            playersMap.set(playerId, {
-              player_name: playerName,
-              score: playerScore,
-              is_winner: isWinner
-            });
-          }
+      scoresData?.forEach((row: any) => {
+        const session = row.sessions;
+        const sessionKey = session.id;
+
+        if (!sessionsMap.has(sessionKey)) {
+          sessionsMap.set(sessionKey, {
+            session_id: session.id,
+            date: session.date,
+            location: session.location || 'Unknown Location',
+            duration_minutes: session.duration_minutes || 0,
+            highlights: session.highlights,
+            players: [],
+          });
+        }
+
+        // Add player to this session
+        sessionsMap.get(sessionKey).players.push({
+          player_name: row.players?.name || 'Unknown Player',
+          score: row.score || 0,
+          is_winner: row.is_winner || false,
         });
+      });
 
-        // Convert map to array and sort by score (highest first)
-        const players = Array.from(playersMap.values())
-          .sort((a, b) => b.score - a.score);
+      // Convert map to array and process sessions
+      const processedSessions: SessionHistoryData[] = Array.from(sessionsMap.values()).map((session: any) => ({
+        ...session,
+        // Sort players by score (highest first)
+        players: session.players.sort((a: any, b: any) => b.score - a.score)
+      }));
 
-        return {
-          session_id: session.id,
-          date: session.date,
-          location: session.location || 'Unknown Location',
-          duration_minutes: session.duration_minutes || 0,
-          highlights: session.highlights,
-          players
-        };
-      }) || [];
+      // Sort sessions by date (most recent first)
+      processedSessions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
       console.log('Processed session history:', processedSessions);
       return processedSessions;
