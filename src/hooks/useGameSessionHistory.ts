@@ -23,83 +23,66 @@ export const useGameSessionHistory = (gameId: string | null, filterByPlayer?: st
 
       console.log('Fetching session history for game:', gameId, 'filterByPlayer:', filterByPlayer);
       
-      // Query from scores table where game_id actually exists
       let query = supabase
-        .from('scores')
+        .from('sessions')
         .select(`
-          session_id,
-          score,
-          is_winner,
-          player_id,
-          players!inner(name),
-          sessions!inner(id, date, location, duration_minutes, highlights)
-        `);
+          id,
+          date,
+          location,
+          duration_minutes,
+          highlights,
+          scores!inner(
+            player_id,
+            score,
+            is_winner,
+            players!inner(name)
+          )
+        `)
+        .eq('game_id', gameId);
 
-      // Apply game_id filter first
-      if (gameId) {
-        // We need to filter by game_id, but it's not directly on scores table
-        // Let's get sessions for this game first, then filter scores
-        const { data: gameSessions } = await supabase
-          .from('sessions')
-          .select('id')
-          .eq('game_id', gameId);
-
-        if (!gameSessions || gameSessions.length === 0) {
+      // If filtering by player, only get sessions where that player participated
+      if (filterByPlayer) {
+        const { data: playerSessions } = await supabase
+          .from('scores')
+          .select('session_id')
+          .eq('player_id', filterByPlayer);
+        
+        if (playerSessions && playerSessions.length > 0) {
+          const sessionIds = playerSessions.map(ps => ps.session_id);
+          query = query.in('id', sessionIds);
+        } else {
+          // No sessions found for this player and game
           return [];
         }
-
-        const sessionIds = gameSessions.map(s => s.id);
-        query = query.in('session_id', sessionIds);
       }
 
-      // If filtering by player, only get scores where that player participated
-      if (filterByPlayer) {
-        query = query.eq('player_id', filterByPlayer);
-      }
-
-      const { data: scoresData, error } = await query;
+      const { data: sessions, error } = await query.order('date', { ascending: false });
 
       if (error) {
         console.error('Error fetching session history:', error);
         throw error;
       }
 
-      // Group scores by session_id to create proper session objects
-      const sessionsMap = new Map<string, SessionHistoryData>();
+      // Process the data to group players by session
+      const processedSessions: SessionHistoryData[] = sessions?.map((session: any) => {
+        const players = session.scores.map((score: any) => ({
+          player_name: score.players.name,
+          score: score.score || 0,
+          is_winner: score.is_winner
+        }));
 
-      scoresData?.forEach((row) => {
-        const session = (row as any).sessions;
-        const player = (row as any).players;
-        const sessionKey = session.id;
-
-        if (!sessionsMap.has(sessionKey)) {
-          sessionsMap.set(sessionKey, {
-            session_id: session.id,
-            date: session.date,
-            location: session.location || 'Unknown Location',
-            duration_minutes: session.duration_minutes || 0,
-            highlights: session.highlights,
-            players: [],
-          });
-        }
-
-        // Add player to this session
-        sessionsMap.get(sessionKey)!.players.push({
-          player_name: player?.name || 'Unknown Player',
-          score: row.score || 0,
-          is_winner: row.is_winner || false,
-        });
-      });
-
-      // Convert map to array and process sessions
-      const processedSessions: SessionHistoryData[] = Array.from(sessionsMap.values()).map((session) => ({
-        ...session,
         // Sort players by score (highest first)
-        players: session.players.sort((a, b) => b.score - a.score)
-      }));
+        players.sort((a, b) => b.score - a.score);
 
-      // Sort sessions by date (most recent first)
-      processedSessions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        return {
+          session_id: session.id,
+          date: session.date,
+          location: session.location || 'Unknown Location',
+          duration_minutes: session.duration_minutes || 0,
+          highlights: session.highlights,
+          players
+        };
+      }) || [];
 
       console.log('Processed session history:', processedSessions);
       return processedSessions;
