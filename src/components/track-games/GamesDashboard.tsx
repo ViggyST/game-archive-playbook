@@ -1,11 +1,13 @@
-
 import { useState } from "react";
 import { Trophy, Clock, Gamepad2, Calendar } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { usePlayerGameDashboard } from "@/hooks/usePlayerGameDashboard";
+import GameSessionHistoryModal from "./GameSessionHistoryModal";
 
 const GamesDashboard = () => {
   const [sortBy, setSortBy] = useState<'plays' | 'recent'>('plays');
+  const [selectedGame, setSelectedGame] = useState<{ id: string; name: string } | null>(null);
+  
   // Using Kirito's player ID as specified
   const playerId = '3db5dc38-1f5d-499f-bece-b1c20e31f838';
   
@@ -65,6 +67,14 @@ const GamesDashboard = () => {
     });
   };
 
+  const handleGameCardClick = (gameId: string, gameName: string) => {
+    setSelectedGame({ id: gameId, name: gameName });
+  };
+
+  const handleCloseModal = () => {
+    setSelectedGame(null);
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -103,17 +113,18 @@ const GamesDashboard = () => {
   }
 
   return (
-    <div className="space-y-4">
-      {/* Sorting Toggle */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-2">
-        <div className="grid grid-cols-2 gap-1">
-          <button
-            onClick={() => setSortBy('plays')}
-            className={`
-              py-3 px-4 rounded-xl font-medium text-sm transition-all duration-200
-              ${sortBy === 'plays' 
-                ? 'bg-orange-100 text-orange-700 shadow-sm border border-orange-200' 
-                : 'text-gray-600 hover:text-gray-700 hover:bg-gray-50'
+    <>
+      <div className="space-y-4">
+        {/* Sorting Toggle */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-2">
+          <div className="grid grid-cols-2 gap-1">
+            <button
+              onClick={() => setSortBy('plays')}
+              className={`
+                py-3 px-4 rounded-xl font-medium text-sm transition-all duration-200
+                ${sortBy === 'plays' 
+                  ? 'bg-orange-100 text-orange-700 shadow-sm border border-orange-200' 
+                  : 'text-gray-600 hover:text-gray-700 hover:bg-gray-50'
               }
             `}
           >
@@ -150,10 +161,12 @@ const GamesDashboard = () => {
             return (
               <div
                 key={game.game_id}
+                onClick={() => handleGameCardClick(game.game_id, game.game_name)}
                 className={`
-                  relative bg-white rounded-2xl border border-gray-100 shadow-sm p-4 
-                  transition-all duration-200 hover:shadow-md hover:border-orange-200
-                  ${isTopThree ? 'ring-1 ring-orange-200 bg-orange-50/30' : ''}
+                  relative bg-white rounded-xl border border-gray-200 shadow-sm p-3 
+                  transition-all duration-200 hover:shadow-md hover:border-gray-300 cursor-pointer
+                  active:scale-[0.98] hover:bg-gray-50
+                  ${isTopThree ? 'ring-1 ring-blue-200 bg-blue-50/30' : ''}
                 `}
               >
                 {/* Top 3 Badge */}
@@ -167,74 +180,83 @@ const GamesDashboard = () => {
                 )}
 
                 {/* Game Header */}
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center text-lg border border-gray-200">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center text-base border border-gray-200">
                     {getGameIcon(game.game_name)}
                   </div>
                   
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-lg text-gray-900 truncate mb-1">
+                    <h3 className="font-semibold text-base text-gray-900 truncate mb-1">
                       {game.game_name}
                     </h3>
                     <Badge 
                       className={`
-                        text-xs px-2 py-1 rounded-full font-medium border
-                        ${getCategoryBadgeStyle(game.complexity)}
-                      `}
-                    >
-                      {game.complexity || 'Unknown'}
-                    </Badge>
+                          text-xs px-2 py-0.5 rounded-full font-medium border
+                          ${getCategoryBadgeStyle(game.complexity)}
+                        `}
+                      >
+                        {game.complexity || 'Unknown'}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  {/* Stats Grid */}
+                  <div className="grid grid-cols-4 gap-1.5">
+                    <div className="text-center bg-gray-50 rounded-lg p-2 border border-gray-100">
+                      <div className="flex items-center justify-center gap-1 mb-1">
+                        <Gamepad2 className="h-3 w-3 text-blue-500" />
+                      </div>
+                      <div className="text-sm font-semibold text-gray-900">
+                        {game.total_plays}
+                      </div>
+                      <div className="text-xs text-gray-500">Plays</div>
+                    </div>
+
+                    <div className="text-center bg-gray-50 rounded-lg p-2 border border-gray-100">
+                      <div className="flex items-center justify-center gap-1 mb-1">
+                        <Trophy className="h-3 w-3 text-yellow-500" />
+                      </div>
+                      <div className="text-sm font-semibold text-yellow-600">
+                        {game.win_rate || 0}%
+                      </div>
+                      <div className="text-xs text-gray-500">Win</div>
+                    </div>
+
+                    <div className="text-center bg-gray-50 rounded-lg p-2 border border-gray-100">
+                      <div className="flex items-center justify-center gap-1 mb-1">
+                        <Clock className="h-3 w-3 text-green-500" />
+                      </div>
+                      <div className="text-sm font-semibold text-green-600">
+                        {game.avg_duration || 0}m
+                      </div>
+                      <div className="text-xs text-gray-500">Time</div>
+                    </div>
+
+                    <div className="text-center bg-gray-50 rounded-lg p-2 border border-gray-100">
+                      <div className="flex items-center justify-center gap-1 mb-1">
+                        <Calendar className="h-3 w-3 text-purple-500" />
+                      </div>
+                      <div className="text-sm font-semibold text-purple-600">
+                        {formatLastPlayed(game.last_played)}
+                      </div>
+                      <div className="text-xs text-gray-500">Last</div>
+                    </div>
                   </div>
                 </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
 
-                {/* Stats Grid */}
-                <div className="grid grid-cols-4 gap-2">
-                  <div className="text-center bg-gray-50 rounded-lg p-2 border border-gray-100">
-                    <div className="flex items-center justify-center gap-1 mb-1">
-                      <Gamepad2 className="h-3 w-3 text-blue-500" />
-                    </div>
-                    <div className="text-sm font-bold text-gray-900">
-                      {game.total_plays}
-                    </div>
-                    <div className="text-xs text-gray-500">Plays</div>
-                  </div>
-
-                  <div className="text-center bg-gray-50 rounded-lg p-2 border border-gray-100">
-                    <div className="flex items-center justify-center gap-1 mb-1">
-                      <Trophy className="h-3 w-3 text-yellow-500" />
-                    </div>
-                    <div className="text-sm font-bold text-yellow-600">
-                      {game.win_rate || 0}%
-                    </div>
-                    <div className="text-xs text-gray-500">Win Rate</div>
-                  </div>
-
-                  <div className="text-center bg-gray-50 rounded-lg p-2 border border-gray-100">
-                    <div className="flex items-center justify-center gap-1 mb-1">
-                      <Clock className="h-3 w-3 text-green-500" />
-                    </div>
-                    <div className="text-sm font-bold text-green-600">
-                      {game.avg_duration || 0}m
-                    </div>
-                    <div className="text-xs text-gray-500">Time</div>
-                  </div>
-
-                  <div className="text-center bg-gray-50 rounded-lg p-2 border border-gray-100">
-                    <div className="flex items-center justify-center gap-1 mb-1">
-                      <Calendar className="h-3 w-3 text-purple-500" />
-                    </div>
-                    <div className="text-sm font-bold text-purple-600">
-                      {formatLastPlayed(game.last_played)}
-                    </div>
-                    <div className="text-xs text-gray-500">Last</div>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </div>
+      {/* Game Session History Modal */}
+      <GameSessionHistoryModal
+        isOpen={!!selectedGame}
+        onClose={handleCloseModal}
+        gameId={selectedGame?.id || null}
+        gameName={selectedGame?.name || ''}
+      />
+    </>
   );
 };
 
