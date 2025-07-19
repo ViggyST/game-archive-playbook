@@ -31,10 +31,26 @@ export const useGameSessionHistory = (gameId: string | null, filterByPlayer?: st
           score,
           is_winner,
           player_id,
-          players(name),
-          sessions(id, date, location, duration_minutes, highlights)
-        `)
-        .eq('game_id', gameId);
+          players!inner(name),
+          sessions!inner(id, date, location, duration_minutes, highlights)
+        `);
+
+      // Apply game_id filter first
+      if (gameId) {
+        // We need to filter by game_id, but it's not directly on scores table
+        // Let's get sessions for this game first, then filter scores
+        const { data: gameSessions } = await supabase
+          .from('sessions')
+          .select('id')
+          .eq('game_id', gameId);
+
+        if (!gameSessions || gameSessions.length === 0) {
+          return [];
+        }
+
+        const sessionIds = gameSessions.map(s => s.id);
+        query = query.in('session_id', sessionIds);
+      }
 
       // If filtering by player, only get scores where that player participated
       if (filterByPlayer) {
@@ -49,10 +65,11 @@ export const useGameSessionHistory = (gameId: string | null, filterByPlayer?: st
       }
 
       // Group scores by session_id to create proper session objects
-      const sessionsMap = new Map();
+      const sessionsMap = new Map<string, SessionHistoryData>();
 
-      scoresData?.forEach((row: any) => {
-        const session = row.sessions;
+      scoresData?.forEach((row) => {
+        const session = (row as any).sessions;
+        const player = (row as any).players;
         const sessionKey = session.id;
 
         if (!sessionsMap.has(sessionKey)) {
@@ -67,18 +84,18 @@ export const useGameSessionHistory = (gameId: string | null, filterByPlayer?: st
         }
 
         // Add player to this session
-        sessionsMap.get(sessionKey).players.push({
-          player_name: row.players?.name || 'Unknown Player',
+        sessionsMap.get(sessionKey)!.players.push({
+          player_name: player?.name || 'Unknown Player',
           score: row.score || 0,
           is_winner: row.is_winner || false,
         });
       });
 
       // Convert map to array and process sessions
-      const processedSessions: SessionHistoryData[] = Array.from(sessionsMap.values()).map((session: any) => ({
+      const processedSessions: SessionHistoryData[] = Array.from(sessionsMap.values()).map((session) => ({
         ...session,
         // Sort players by score (highest first)
-        players: session.players.sort((a: any, b: any) => b.score - a.score)
+        players: session.players.sort((a, b) => b.score - a.score)
       }));
 
       // Sort sessions by date (most recent first)
