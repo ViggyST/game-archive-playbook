@@ -34,7 +34,7 @@ const KiritoInsightCards = () => {
       borderColor: "border-green-200"
     },
     insights.worstWinRateGame && {
-      title: "Challenge Game",
+      title: "Worst Winrate",
       gameName: insights.worstWinRateGame.name,
       subtitle: `${insights.worstWinRateGame.winRate}% wins`,
       emoji: "⚡",
