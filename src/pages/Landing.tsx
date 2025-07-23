@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -23,16 +22,30 @@ const Landing = () => {
     }
 
     setIsLoading(true);
+    console.log('Searching for player:', playerName.trim());
 
     try {
-      // Search for player by name in the players table
-      const { data: player, error } = await supabase
+      // Search for player by name (case-insensitive)
+      const { data: players, error } = await supabase
         .from('players')
         .select('id, name')
-        .eq('name', playerName.trim())
-        .single();
+        .ilike('name', playerName.trim());
 
-      if (error || !player) {
+      console.log('Search results:', players);
+      console.log('Search error:', error);
+
+      if (error) {
+        console.error('Database error:', error);
+        toast({
+          title: "Database error",
+          description: "Please try again.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      if (!players || players.length === 0) {
         toast({
           title: "Player not found",
           description: "This player is not recognised. Try again.",
@@ -42,9 +55,18 @@ const Landing = () => {
         return;
       }
 
+      // Use the first matching player
+      const player = players[0];
+      console.log('Found player:', player);
+
       // Store the active player in localStorage (acting as global state)
       localStorage.setItem('active_player', player.id);
       localStorage.setItem('active_player_name', player.name);
+
+      console.log('Stored in localStorage:', {
+        id: player.id,
+        name: player.name
+      });
 
       // Navigate to the main app
       navigate("/");
