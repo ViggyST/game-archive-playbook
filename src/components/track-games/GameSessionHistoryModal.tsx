@@ -1,5 +1,6 @@
 
 import { Crown, MapPin, Clock, X } from "lucide-react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -22,10 +23,14 @@ const GameSessionHistoryModal = ({
   gameId, 
   gameName 
 }: GameSessionHistoryModalProps) => {
-  // Kirito's player ID
-  const kiritoPlayerId = '3db5dc38-1f5d-499f-bece-b1c20e31f838';
+  const [activePlayerId, setActivePlayerId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const playerId = localStorage.getItem('active_player');
+    setActivePlayerId(playerId);
+  }, []);
   
-  const { data: myGamesSessions = [], isLoading: isLoadingMyGames, error: myGamesError } = useGameSessionHistory(gameId, kiritoPlayerId);
+  const { data: myGamesSessions = [], isLoading: isLoadingMyGames, error: myGamesError } = useGameSessionHistory(gameId, activePlayerId);
   const { data: allGamesSessions = [], isLoading: isLoadingAllGames, error: allGamesError } = useGameSessionHistory(gameId);
 
   const formatDate = (dateString: string) => {

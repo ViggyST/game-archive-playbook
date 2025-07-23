@@ -110,8 +110,23 @@ export const useKiritoGameInsights = () => {
           plays: stats.total
         }));
       
-      const bestWinRateGame = eligibleGames.sort((a, b) => b.winRate - a.winRate)[0];
-      const worstWinRateGame = eligibleGames.sort((a, b) => a.winRate - b.winRate)[0];
+      // Best win rate game - if tied, most games played
+      const bestWinRateGame = eligibleGames
+        .sort((a, b) => {
+          if (b.winRate === a.winRate) {
+            return b.plays - a.plays; // If win rates are tied, sort by most plays
+          }
+          return b.winRate - a.winRate; // Otherwise sort by win rate
+        })[0];
+      
+      // Worst win rate game - if tied, most games played
+      const worstWinRateGame = eligibleGames
+        .sort((a, b) => {
+          if (a.winRate === b.winRate) {
+            return b.plays - a.plays; // If win rates are tied, sort by most plays
+          }
+          return a.winRate - b.winRate; // Otherwise sort by win rate (ascending)
+        })[0];
       
       console.log('Game insights:', {
         mostPlayed: { name: mostPlayedGame?.games?.name, count: mostPlayedCount },

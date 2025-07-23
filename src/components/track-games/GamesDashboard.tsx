@@ -1,5 +1,6 @@
+
 import { useState } from "react";
-import { Trophy, Clock, Gamepad2, Calendar } from "lucide-react";
+import { Trophy, Clock, Gamepad2, Calendar, Search, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { usePlayerGameDashboard } from "@/hooks/usePlayerGameDashboard";
 import GameSessionHistoryModal from "./GameSessionHistoryModal";
@@ -7,8 +8,14 @@ import GameSessionHistoryModal from "./GameSessionHistoryModal";
 const GamesDashboard = () => {
   const [sortBy, setSortBy] = useState<'plays' | 'recent'>('plays');
   const [selectedGame, setSelectedGame] = useState<{ id: string; name: string } | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   
   const { data: games = [], isLoading, error } = usePlayerGameDashboard(sortBy);
+
+  // Filter games based on search query
+  const filteredGames = games.filter(game => 
+    game.game_name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const gameIconMap: Record<string, string> = {
     "Saboteur": "🌊",
@@ -72,12 +79,21 @@ const GamesDashboard = () => {
     setSelectedGame(null);
   };
 
+  const clearSearch = () => {
+    setSearchQuery('');
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-4">
         {/* Sorting Toggle Skeleton */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-2">
           <div className="bg-gray-200 h-12 rounded-xl animate-pulse"></div>
+        </div>
+        
+        {/* Search Skeleton */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+          <div className="bg-gray-200 h-10 rounded-xl animate-pulse"></div>
         </div>
         
         {/* Card Skeletons */}
@@ -140,18 +156,49 @@ const GamesDashboard = () => {
             Last Played
           </button>
         </div>
+        
+        {/* Search Bar */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search games..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-10 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            />
+            {searchQuery && (
+              <button
+                onClick={clearSearch}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="h-4 w-4 text-gray-400" />
+              </button>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Game Cards */}
-      {games.length === 0 ? (
+      {filteredGames.length === 0 ? (
         <div className="text-center py-12">
           <div className="text-6xl mb-4">🎮</div>
-          <p className="text-gray-600 text-lg">No games found</p>
-          <p className="text-gray-500 text-sm">Start logging some game sessions!</p>
+          {searchQuery ? (
+            <>
+              <p className="text-gray-600 text-lg">No games found for "{searchQuery}"</p>
+              <p className="text-gray-500 text-sm">Try a different search term</p>
+            </>
+          ) : (
+            <>
+              <p className="text-gray-600 text-lg">No games found</p>
+              <p className="text-gray-500 text-sm">Start logging some game sessions!</p>
+            </>
+          )}
         </div>
       ) : (
         <div className="space-y-3">
-          {games.map((game, index) => {
+          {filteredGames.map((game, index) => {
             const isTopThree = sortBy === 'plays' && index < 3;
             const rankBadgeColors = ['bg-yellow-500', 'bg-gray-400', 'bg-amber-600'];
             
