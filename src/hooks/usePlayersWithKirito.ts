@@ -1,6 +1,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useState, useEffect } from "react";
 
 export interface PlayerWithKiritoStats {
   id: string;
@@ -19,42 +20,39 @@ export interface PlayersWithKiritoSummary {
 }
 
 export const usePlayersWithKirito = () => {
+  const [activePlayerId, setActivePlayerId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const playerId = localStorage.getItem('active_player');
+    setActivePlayerId(playerId);
+  }, []);
+
   return useQuery({
-    queryKey: ['players-with-kirito'],
+    queryKey: ['players-with-active-player', activePlayerId],
     queryFn: async (): Promise<{ players: PlayerWithKiritoStats[]; summary: PlayersWithKiritoSummary }> => {
+      if (!activePlayerId) {
+        return { players: [], summary: { unique_players_count: 0, most_played_with: [] } };
+      }
+
       try {
-        // First get Kirito's player ID
-        const { data: kiritoData, error: kiritoError } = await supabase
-          .from('players')
-          .select('id')
-          .eq('name', 'Kirito')
-          .single();
-
-        if (kiritoError || !kiritoData) {
-          console.error('Error fetching Kirito:', kiritoError);
-          return { players: [], summary: { unique_players_count: 0, most_played_with: [] } };
-        }
-
-        const kiritoId = kiritoData.id;
-
-        // Get sessions where Kirito participated
-        const { data: kiritoSessions, error: sessionsError } = await supabase
+        // Get sessions where the active player participated
+        const { data: activePlayerSessions, error: sessionsError } = await supabase
           .from('scores')
           .select('session_id')
-          .eq('player_id', kiritoId);
+          .eq('player_id', activePlayerId);
 
         if (sessionsError) {
-          console.error('Error fetching Kirito sessions:', sessionsError);
+          console.error('Error fetching active player sessions:', sessionsError);
           return { players: [], summary: { unique_players_count: 0, most_played_with: [] } };
         }
 
-        const sessionIds = kiritoSessions.map(s => s.session_id);
+        const sessionIds = activePlayerSessions.map(s => s.session_id);
 
         if (sessionIds.length === 0) {
           return { players: [], summary: { unique_players_count: 0, most_played_with: [] } };
         }
 
-        // Get player stats for those who played with Kirito
+        // Get player stats for those who played with the active player
         const { data: playersData, error: playersError } = await supabase
           .from('scores')
           .select(`
@@ -67,7 +65,7 @@ export const usePlayersWithKirito = () => {
             )
           `)
           .in('session_id', sessionIds)
-          .neq('player_id', kiritoId);
+          .neq('player_id', activePlayerId);
 
         if (playersError) {
           console.error('Error fetching players data:', playersError);
@@ -140,6 +138,7 @@ export const usePlayersWithKirito = () => {
         return { players: [], summary: { unique_players_count: 0, most_played_with: [] } };
       }
     },
+    enabled: !!activePlayerId,
     staleTime: 5 * 60 * 1000,
   });
 };

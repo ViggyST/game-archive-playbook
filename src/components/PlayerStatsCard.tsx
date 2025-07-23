@@ -31,7 +31,7 @@ const PlayerStatsCard = ({ playerName }: PlayerStatsCardProps) => {
     return (
       <div className="px-6 py-4">
         <div className="bg-white rounded-2xl p-6 shadow-lg border border-red-100">
-          <p className="text-red-600 text-center">Unable to load player stats</p>
+          <p className="text-red-600 text-center">Unable to load player stats for {playerName}</p>
         </div>
       </div>
     );

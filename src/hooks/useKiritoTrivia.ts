@@ -1,14 +1,24 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-
-const KIRITO_PLAYER_ID = '3db5dc38-1f5d-499f-bece-b1c20e31f838';
+import { useState, useEffect } from "react";
 
 export const useKiritoTrivia = () => {
+  const [activePlayerId, setActivePlayerId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const playerId = localStorage.getItem('active_player');
+    setActivePlayerId(playerId);
+  }, []);
+
   return useQuery({
-    queryKey: ['kirito-trivia'],
+    queryKey: ['player-trivia', activePlayerId],
     queryFn: async () => {
-      console.log('Fetching Kirito trivia facts...');
+      if (!activePlayerId) {
+        return ["Start logging games to see fun facts!"];
+      }
+
+      console.log('Fetching trivia facts for player:', activePlayerId);
       
       // Get session data with location and duration info
       const { data: sessionData, error: sessionError } = await supabase
@@ -24,7 +34,7 @@ export const useKiritoTrivia = () => {
           await supabase
             .from('scores')
             .select('session_id')
-            .eq('player_id', KIRITO_PLAYER_ID)
+            .eq('player_id', activePlayerId)
             .then(({ data }) => data?.map(score => score.session_id) || [])
         );
       
@@ -44,7 +54,7 @@ export const useKiritoTrivia = () => {
           ),
           players!inner (name)
         `)
-        .neq('player_id', KIRITO_PLAYER_ID);
+        .neq('player_id', activePlayerId);
       
       if (playerError) {
         console.error('Error fetching player data:', playerError);
@@ -57,10 +67,18 @@ export const useKiritoTrivia = () => {
         .filter(s => s.duration_minutes)
         .sort((a, b) => (a.duration_minutes || 0) - (b.duration_minutes || 0))[0];
       
-      // Count games with specific players
-      const kiritoSessionIds = new Set(sessionData.map(s => s.id));
-      const playersWithKirito = playerData.filter(p => kiritoSessionIds.has(p.session_id));
-      const bogiGames = playersWithKirito.filter(p => p.players?.name === 'Bogi').length;
+      // Count games with specific players (assuming we want to show most frequent co-player)
+      const activePlayerSessionIds = new Set(sessionData.map(s => s.id));
+      const playersWithActivePlayer = playerData.filter(p => activePlayerSessionIds.has(p.session_id));
+      const coPlayerCounts = playersWithActivePlayer.reduce((acc, p) => {
+        if (p.players?.name) {
+          acc[p.players.name] = (acc[p.players.name] || 0) + 1;
+        }
+        return acc;
+      }, {} as Record<string, number>);
+      
+      const topCoPlayer = Object.entries(coPlayerCounts)
+        .sort(([,a], [,b]) => b - a)[0];
       
       // Get day of week stats
       const dayStats = sessionData.reduce((acc, session) => {
@@ -80,7 +98,7 @@ export const useKiritoTrivia = () => {
           is_winner,
           sessions!inner (date)
         `)
-        .eq('player_id', KIRITO_PLAYER_ID)
+        .eq('player_id', activePlayerId)
         .eq('is_winner', true);
       
       if (!winsByDayError && winsByDay) {
@@ -101,7 +119,7 @@ export const useKiritoTrivia = () => {
       const facts = [
         homeSessions > 0 ? `You've logged ${homeSessions} sessions at home.` : "You love exploring new gaming venues!",
         shortestGame ? `Your shortest game lasted ${shortestGame.duration_minutes} mins.` : "Every game is an adventure!",
-        bogiGames > 0 ? `You've played ${bogiGames} different games with Bogi.` : "Time to invite more friends to game night!",
+        topCoPlayer ? `You've played ${topCoPlayer[1]} different games with ${topCoPlayer[0]}.` : "Time to invite more friends to game night!",
         bestDay ? `${bestDay.day}s have your highest win rate at ${bestDay.winRate}%.` : "Every day is a good day for gaming!",
         sessionData.length > 5 ? "You're building an amazing gaming journey!" : "Your gaming adventure is just beginning!",
         "The best games are the ones shared with friends! 🎲",
@@ -111,6 +129,7 @@ export const useKiritoTrivia = () => {
       console.log('Trivia facts generated:', facts);
       
       return facts.filter(Boolean);
-    }
+    },
+    enabled: !!activePlayerId,
   });
 };

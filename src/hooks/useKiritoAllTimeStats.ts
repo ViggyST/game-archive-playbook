@@ -1,20 +1,30 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-
-const KIRITO_PLAYER_ID = '3db5dc38-1f5d-499f-bece-b1c20e31f838';
+import { useState, useEffect } from "react";
 
 export const useKiritoAllTimeStats = () => {
+  const [activePlayerId, setActivePlayerId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const playerId = localStorage.getItem('active_player');
+    setActivePlayerId(playerId);
+  }, []);
+
   return useQuery({
-    queryKey: ['kirito-all-time-stats'],
+    queryKey: ['player-all-time-stats', activePlayerId],
     queryFn: async () => {
-      console.log('Fetching Kirito all-time stats...');
+      if (!activePlayerId) {
+        return { gamesPlayed: 0, gamesWon: 0, winRate: 0 };
+      }
+
+      console.log('Fetching all-time stats for player:', activePlayerId);
       
       // Get total games played
       const { data: gamesPlayedData, error: gamesPlayedError } = await supabase
         .from('scores')
         .select('session_id')
-        .eq('player_id', KIRITO_PLAYER_ID);
+        .eq('player_id', activePlayerId);
       
       if (gamesPlayedError) {
         console.error('Error fetching games played:', gamesPlayedError);
@@ -28,7 +38,7 @@ export const useKiritoAllTimeStats = () => {
       const { data: gamesWonData, error: gamesWonError } = await supabase
         .from('scores')
         .select('*')
-        .eq('player_id', KIRITO_PLAYER_ID)
+        .eq('player_id', activePlayerId)
         .eq('is_winner', true);
       
       if (gamesWonError) {
@@ -46,6 +56,7 @@ export const useKiritoAllTimeStats = () => {
         gamesWon,
         winRate
       };
-    }
+    },
+    enabled: !!activePlayerId,
   });
 };
