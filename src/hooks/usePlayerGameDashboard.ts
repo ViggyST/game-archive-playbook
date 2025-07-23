@@ -1,6 +1,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useState, useEffect } from 'react';
 
 interface GameDashboardData {
   game_id: string;
@@ -12,10 +13,21 @@ interface GameDashboardData {
   last_played: string;
 }
 
-export const usePlayerGameDashboard = (playerId: string, sortBy: 'plays' | 'recent' = 'plays') => {
+export const usePlayerGameDashboard = (sortBy: 'plays' | 'recent' = 'plays') => {
+  const [activePlayerId, setActivePlayerId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const playerId = localStorage.getItem('active_player');
+    setActivePlayerId(playerId);
+  }, []);
+
   return useQuery({
-    queryKey: ['player-game-dashboard', playerId, sortBy],
+    queryKey: ['player-game-dashboard', activePlayerId, sortBy],
     queryFn: async () => {
+      if (!activePlayerId) {
+        return [];
+      }
+
       // Direct query to get player game stats
       const { data: sessionsData, error } = await supabase
         .from('sessions')
@@ -27,7 +39,7 @@ export const usePlayerGameDashboard = (playerId: string, sortBy: 'plays' | 'rece
           games!inner(id, name, weight),
           scores!inner(player_id, is_winner, score)
         `)
-        .eq('scores.player_id', playerId);
+        .eq('scores.player_id', activePlayerId);
 
       if (error) {
         console.error('Error fetching player game stats:', error);
@@ -47,7 +59,7 @@ export const usePlayerGameDashboard = (playerId: string, sortBy: 'plays' | 'rece
       
       sessionsData?.forEach((session: any) => {
         const game = session.games;
-        const score = session.scores.find((s: any) => s.player_id === playerId);
+        const score = session.scores.find((s: any) => s.player_id === activePlayerId);
         const gameId = game.id;
         
         if (!gameStats.has(gameId)) {
@@ -100,5 +112,6 @@ export const usePlayerGameDashboard = (playerId: string, sortBy: 'plays' | 'rece
 
       return processedData;
     },
+    enabled: !!activePlayerId, // Only run query if we have an active player ID
   });
 };

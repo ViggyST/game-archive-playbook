@@ -8,10 +8,7 @@ const GamesDashboard = () => {
   const [sortBy, setSortBy] = useState<'plays' | 'recent'>('plays');
   const [selectedGame, setSelectedGame] = useState<{ id: string; name: string } | null>(null);
   
-  // Using Kirito's player ID as specified
-  const playerId = '3db5dc38-1f5d-499f-bece-b1c20e31f838';
-  
-  const { data: games = [], isLoading, error } = usePlayerGameDashboard(playerId, sortBy);
+  const { data: games = [], isLoading, error } = usePlayerGameDashboard(sortBy);
 
   const gameIconMap: Record<string, string> = {
     "Saboteur": "🌊",
