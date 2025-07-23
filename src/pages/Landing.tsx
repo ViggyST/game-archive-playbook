@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -86,23 +87,20 @@ const Landing = () => {
     {
       title: "Log Your Games",
       subtitle: "Record session date, duration, location, and highlights",
-      emoji: "🎮",
+      image: "/lovable-uploads/659589f2-c155-4b4c-b55a-072294c0b45a.png",
       bgColor: "bg-orange-50",
-      iconColor: "text-orange-500"
     },
     {
       title: "Track Your Stats", 
       subtitle: "See winrates, top scores, and recent matches",
-      emoji: "📈",
+      image: "/lovable-uploads/6fb51983-559b-4382-b6f2-542fa5f04807.png",
       bgColor: "bg-blue-50",
-      iconColor: "text-blue-500"
     },
     {
       title: "Play Leaderboards",
       subtitle: "Compare with friends and climb rankings",
-      emoji: "🏆",
+      image: "/lovable-uploads/d2994d75-f847-4b5d-bfcb-72cb28b8efe0.png",
       bgColor: "bg-yellow-50",
-      iconColor: "text-yellow-500"
     }
   ];
 
@@ -140,10 +138,14 @@ const Landing = () => {
                 <CarouselItem key={index} className="md:basis-1/3">
                   <div className="p-4">
                     <div className={`${slide.bgColor} rounded-2xl p-8 text-center h-80 flex flex-col justify-center items-center border border-gray-100`}>
-                      {/* Illustration Placeholder */}
+                      {/* Image */}
                       <div className="mb-6">
-                        <div className={`w-20 h-20 ${slide.bgColor} border-2 border-orange-200 rounded-2xl flex items-center justify-center mb-4`}>
-                          <span className="text-4xl">{slide.emoji}</span>
+                        <div className="w-32 h-32 flex items-center justify-center mb-4">
+                          <img 
+                            src={slide.image} 
+                            alt={slide.title}
+                            className="w-full h-full object-contain"
+                          />
                         </div>
                       </div>
                       
