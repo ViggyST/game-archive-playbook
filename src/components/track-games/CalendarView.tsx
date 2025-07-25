@@ -42,7 +42,7 @@ const CalendarView = () => {
     );
   };
 
-  // Get complexity dots for a date - enhanced version
+  // Enhanced complexity dots for inside orange highlights
   const getComplexityDots = (date: Date) => {
     const dateSessions = getSessionsForDate(date);
     if (dateSessions.length === 0) return [];
@@ -54,13 +54,14 @@ const CalendarView = () => {
       return acc;
     }, {} as Record<string, number>);
 
-    // Create dots in order: Light, Medium, Heavy
+    // Create dots in priority order: Light, Medium, Heavy
     const dots = [];
     
     if (complexityGroups['Light']) {
       dots.push({
         type: 'Light',
         color: 'bg-emerald-500',
+        borderColor: 'ring-emerald-400',
         count: complexityGroups['Light']
       });
     }
@@ -69,6 +70,7 @@ const CalendarView = () => {
       dots.push({
         type: 'Medium', 
         color: 'bg-blue-500',
+        borderColor: 'ring-blue-400',
         count: complexityGroups['Medium']
       });
     }
@@ -77,11 +79,12 @@ const CalendarView = () => {
       dots.push({
         type: 'Heavy',
         color: 'bg-red-500',
+        borderColor: 'ring-red-400',
         count: complexityGroups['Heavy']
       });
     }
 
-    return dots.slice(0, 3); // Max 3 dots
+    return dots.slice(0, 3); // Max 3 dots to avoid overcrowding
   };
 
   // Handle date click
@@ -205,7 +208,7 @@ const CalendarView = () => {
                 key={date.toISOString()}
                 onClick={() => handleDateClick(date)}
                 className={`
-                  relative h-16 rounded-xl border transition-all duration-200 flex flex-col items-center justify-center
+                  relative h-16 rounded-xl border transition-all duration-200 flex flex-col items-center justify-center overflow-hidden
                   ${isCurrentMonth 
                     ? hasGames 
                       ? 'bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200 text-orange-800 font-semibold shadow-sm hover:shadow-md cursor-pointer hover:scale-105 transform' 
@@ -225,16 +228,31 @@ const CalendarView = () => {
                   )}
                 </div>
                 
-                {/* Complexity dots inside date cell */}
+                {/* Complexity dots inside orange highlights */}
                 {hasGames && complexityDots.length > 0 && (
-                  <div className="flex gap-1 mt-2">
+                  <div className="flex gap-1 mt-1">
                     {complexityDots.map((dot, index) => (
                       <div
                         key={`${dot.type}-${index}`}
-                        className={`w-1.5 h-1.5 rounded-full ${dot.color} animate-scale-in`}
-                        style={{ animationDelay: `${index * 100}ms` }}
+                        className={`
+                          w-2 h-2 rounded-full ${dot.color} ring-1 ring-white ring-opacity-50 
+                          shadow-sm animate-scale-in transition-all duration-200
+                          ${dot.count > 1 ? 'ring-2 ring-offset-1 ring-offset-orange-100' : ''}
+                        `}
+                        style={{ 
+                          animationDelay: `${index * 100}ms`,
+                          transform: dot.count > 1 ? 'scale(1.1)' : 'scale(1)'
+                        }}
+                        title={`${dot.type} complexity games: ${dot.count}`}
                       />
                     ))}
+                  </div>
+                )}
+                
+                {/* Multiple games indicator */}
+                {hasGames && dateSessions.length > 1 && (
+                  <div className="absolute top-1 right-1 w-3 h-3 bg-orange-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                    {dateSessions.length}
                   </div>
                 )}
               </div>
@@ -243,22 +261,27 @@ const CalendarView = () => {
         </div>
       </div>
 
-      {/* Game Complexity Legend */}
+      {/* Enhanced Game Complexity Legend */}
       <div className="bg-gradient-to-r from-white to-gray-50 rounded-2xl border border-gray-100 shadow-sm p-6">
         <div className="text-center">
-          <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-4 font-inter">Game Complexity</h3>
+          <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-4 font-inter">
+            Game Complexity Legend
+          </h3>
+          <p className="text-xs text-gray-500 mb-4 font-inter">
+            Colored dots appear inside orange highlights to show game complexity
+          </p>
           <div className="flex justify-center gap-8">
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-emerald-500 rounded-full shadow-sm"></div>
-              <span className="text-sm font-medium text-gray-700 font-inter">Light</span>
+              <div className="w-4 h-4 bg-emerald-500 rounded-full shadow-sm ring-1 ring-white ring-opacity-50"></div>
+              <span className="text-sm font-medium text-gray-700 font-inter">Light Games</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-blue-500 rounded-full shadow-sm"></div>
-              <span className="text-sm font-medium text-gray-700 font-inter">Medium</span>
+              <div className="w-4 h-4 bg-blue-500 rounded-full shadow-sm ring-1 ring-white ring-opacity-50"></div>
+              <span className="text-sm font-medium text-gray-700 font-inter">Medium Games</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-red-500 rounded-full shadow-sm"></div>
-              <span className="text-sm font-medium text-gray-700 font-inter">Heavy</span>
+              <div className="w-4 h-4 bg-red-500 rounded-full shadow-sm ring-1 ring-white ring-opacity-50"></div>
+              <span className="text-sm font-medium text-gray-700 font-inter">Heavy Games</span>
             </div>
           </div>
         </div>
