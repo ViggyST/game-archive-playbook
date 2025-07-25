@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -39,7 +40,7 @@ export const useCalendarSessions = () => {
         return [];
       }
 
-      // Transform to flat array of sessions
+      // Transform to flat array of sessions with proper game weight
       const sessions: CalendarSession[] = data.map(session => ({
         date: session.date,
         game_name: session.games?.name || '',
