@@ -42,49 +42,30 @@ const CalendarView = () => {
     );
   };
 
-  // Enhanced complexity dots for inside orange highlights
+  // Get unique complexity dots for a date
   const getComplexityDots = (date: Date) => {
     const dateSessions = getSessionsForDate(date);
     if (dateSessions.length === 0) return [];
     
-    // Group by complexity and count
-    const complexityGroups = dateSessions.reduce((acc, session) => {
-      const weight = session.game_weight || 'Medium';
-      acc[weight] = (acc[weight] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
+    // Get unique complexities
+    const complexities = [...new Set(dateSessions.map(session => session.game_weight || 'Medium'))];
+    
     // Create dots in priority order: Light, Medium, Heavy
     const dots = [];
     
-    if (complexityGroups['Light']) {
-      dots.push({
-        type: 'Light',
-        color: 'bg-emerald-500',
-        borderColor: 'ring-emerald-400',
-        count: complexityGroups['Light']
-      });
+    if (complexities.includes('Light')) {
+      dots.push({ type: 'Light', color: 'bg-green-500' });
     }
     
-    if (complexityGroups['Medium']) {
-      dots.push({
-        type: 'Medium', 
-        color: 'bg-blue-500',
-        borderColor: 'ring-blue-400',
-        count: complexityGroups['Medium']
-      });
+    if (complexities.includes('Medium')) {
+      dots.push({ type: 'Medium', color: 'bg-blue-500' });
     }
     
-    if (complexityGroups['Heavy']) {
-      dots.push({
-        type: 'Heavy',
-        color: 'bg-red-500',
-        borderColor: 'ring-red-400',
-        count: complexityGroups['Heavy']
-      });
+    if (complexities.includes('Heavy')) {
+      dots.push({ type: 'Heavy', color: 'bg-red-500' });
     }
 
-    return dots.slice(0, 3); // Max 3 dots to avoid overcrowding
+    return dots;
   };
 
   // Handle date click
@@ -228,22 +209,14 @@ const CalendarView = () => {
                   )}
                 </div>
                 
-                {/* Complexity dots inside orange highlights */}
+                {/* Complexity dots below date number */}
                 {hasGames && complexityDots.length > 0 && (
                   <div className="flex gap-1 mt-1">
                     {complexityDots.map((dot, index) => (
                       <div
                         key={`${dot.type}-${index}`}
-                        className={`
-                          w-2 h-2 rounded-full ${dot.color} ring-1 ring-white ring-opacity-50 
-                          shadow-sm animate-scale-in transition-all duration-200
-                          ${dot.count > 1 ? 'ring-2 ring-offset-1 ring-offset-orange-100' : ''}
-                        `}
-                        style={{ 
-                          animationDelay: `${index * 100}ms`,
-                          transform: dot.count > 1 ? 'scale(1.1)' : 'scale(1)'
-                        }}
-                        title={`${dot.type} complexity games: ${dot.count}`}
+                        className={`w-2 h-2 rounded-full ${dot.color}`}
+                        title={`${dot.type} complexity games`}
                       />
                     ))}
                   </div>
@@ -261,27 +234,24 @@ const CalendarView = () => {
         </div>
       </div>
 
-      {/* Enhanced Game Complexity Legend */}
+      {/* Game Complexity Legend */}
       <div className="bg-gradient-to-r from-white to-gray-50 rounded-2xl border border-gray-100 shadow-sm p-6">
         <div className="text-center">
-          <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-4 font-inter">
-            Game Complexity Legend
+          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-4 font-inter">
+            Game Complexity
           </h3>
-          <p className="text-xs text-gray-500 mb-4 font-inter">
-            Colored dots appear inside orange highlights to show game complexity
-          </p>
-          <div className="flex justify-center gap-8">
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-emerald-500 rounded-full shadow-sm ring-1 ring-white ring-opacity-50"></div>
-              <span className="text-sm font-medium text-gray-700 font-inter">Light Games</span>
+          <div className="flex justify-center gap-6">
+            <div className="flex items-center">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span className="text-sm text-gray-500 ml-1 font-inter">Light</span>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-blue-500 rounded-full shadow-sm ring-1 ring-white ring-opacity-50"></div>
-              <span className="text-sm font-medium text-gray-700 font-inter">Medium Games</span>
+            <div className="flex items-center">
+              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+              <span className="text-sm text-gray-500 ml-1 font-inter">Medium</span>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-red-500 rounded-full shadow-sm ring-1 ring-white ring-opacity-50"></div>
-              <span className="text-sm font-medium text-gray-700 font-inter">Heavy Games</span>
+            <div className="flex items-center">
+              <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+              <span className="text-sm text-gray-500 ml-1 font-inter">Heavy</span>
             </div>
           </div>
         </div>
