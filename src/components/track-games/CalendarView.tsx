@@ -34,10 +34,10 @@ const CalendarView = () => {
   // Create empty cells for days before month starts
   const emptyCells = Array(startDay).fill(null);
 
-  // Get sessions for a specific date
+  // Get sessions for a specific date - Fixed date comparison
   const getSessionsForDate = (date: Date) => {
     return sessions.filter(session => 
-      isSameDay(new Date(session.date), date)
+      isSameDay(new Date(session.date + 'T00:00:00'), date)
     );
   };
 
@@ -45,6 +45,8 @@ const CalendarView = () => {
   const getComplexityDots = (date: Date) => {
     const dateSessions = getSessionsForDate(date);
     if (dateSessions.length === 0) return [];
+    
+    console.log('dots for', format(date, 'yyyy-MM-dd'), dateSessions);
     
     // Get unique complexities from the properly joined game data
     const complexities = [...new Set(dateSessions.map(session => session.game_weight))];
@@ -171,7 +173,7 @@ const CalendarView = () => {
         <div className="grid grid-cols-7 gap-3">
           {/* Empty cells for days before month starts */}
           {emptyCells.map((_, index) => (
-            <div key={`empty-${index}`} className="h-24" />
+            <div key={`empty-${index}`} className="h-28" />
           ))}
           
           {/* Month days */}
@@ -187,7 +189,7 @@ const CalendarView = () => {
                 key={date.toISOString()}
                 onClick={() => handleDateClick(date)}
                 className={`
-                  relative h-24 rounded-xl border-2 transition-all duration-200 flex flex-col items-center justify-center overflow-hidden
+                  relative h-28 rounded-xl border-2 transition-all duration-200 flex flex-col items-center justify-center overflow-hidden p-2
                   ${isCurrentMonth 
                     ? hasGames 
                       ? 'bg-gradient-to-br from-orange-50 to-orange-100 border-orange-300 text-orange-900 font-semibold shadow-lg hover:shadow-xl cursor-pointer hover:scale-105 transform' 
@@ -207,14 +209,14 @@ const CalendarView = () => {
                   )}
                 </div>
                 
-                {/* Complexity dots below date number */}
+                {/* Complexity dots below date number - Fixed rendering */}
                 {hasGames && complexityDots.length > 0 && (
                   <div className="flex gap-1 mt-2 justify-center">
                     {complexityDots.map((dot, index) => (
-                      <div
-                        key={`${dot.type}-${index}`}
-                        className={`w-3 h-3 rounded-full ${dot.color} shadow-md border border-white`}
-                        title={`${dot.type} complexity games`}
+                      <span
+                        key={index}
+                        className={`w-3 h-3 rounded-full ${dot.color} border border-white shadow-sm`}
+                        aria-label={`${dot.type} game`}
                       />
                     ))}
                   </div>
@@ -240,15 +242,15 @@ const CalendarView = () => {
           </h3>
           <div className="flex justify-center items-center gap-6">
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-green-500 rounded-full shadow-sm"></div>
+              <div className="w-3 h-3 bg-green-500 rounded-full border border-white shadow-sm"></div>
               <span className="text-sm text-gray-500 font-inter">Light</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-blue-500 rounded-full shadow-sm"></div>
+              <div className="w-3 h-3 bg-blue-500 rounded-full border border-white shadow-sm"></div>
               <span className="text-sm text-gray-500 font-inter">Medium</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-red-500 rounded-full shadow-sm"></div>
+              <div className="w-3 h-3 bg-red-500 rounded-full border border-white shadow-sm"></div>
               <span className="text-sm text-gray-500 font-inter">Heavy</span>
             </div>
           </div>
