@@ -6,12 +6,14 @@ import { Input } from "@/components/ui/input";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { usePlayerContext } from "@/context/PlayerContext";
 
 const Landing = () => {
   const [playerName, setPlayerName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { setPlayer } = usePlayerContext();
 
   const handleEnterArchive = async () => {
     if (!playerName.trim()) {
@@ -60,11 +62,10 @@ const Landing = () => {
       const player = players[0];
       console.log('Found player:', player);
 
-      // Store the active player in localStorage (acting as global state)
-      localStorage.setItem('active_player', player.id);
-      localStorage.setItem('active_player_name', player.name);
+      // Set the player in context
+      setPlayer({ id: player.id, name: player.name });
 
-      console.log('Stored in localStorage:', {
+      console.log('Player set in context:', {
         id: player.id,
         name: player.name
       });

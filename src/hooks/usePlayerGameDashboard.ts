@@ -1,7 +1,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useState, useEffect } from 'react';
+import { usePlayerContext } from '@/context/PlayerContext';
 
 interface GameDashboardData {
   game_id: string;
@@ -14,17 +14,12 @@ interface GameDashboardData {
 }
 
 export const usePlayerGameDashboard = (sortBy: 'plays' | 'recent' = 'plays') => {
-  const [activePlayerId, setActivePlayerId] = useState<string | null>(null);
-
-  useEffect(() => {
-    const playerId = localStorage.getItem('active_player');
-    setActivePlayerId(playerId);
-  }, []);
+  const { player } = usePlayerContext();
 
   return useQuery({
-    queryKey: ['player-game-dashboard', activePlayerId, sortBy],
+    queryKey: ['player-game-dashboard', player?.id, sortBy],
     queryFn: async () => {
-      if (!activePlayerId) {
+      if (!player?.id) {
         return [];
       }
 
@@ -39,7 +34,7 @@ export const usePlayerGameDashboard = (sortBy: 'plays' | 'recent' = 'plays') => 
           games!inner(id, name, weight),
           scores!inner(player_id, is_winner, score)
         `)
-        .eq('scores.player_id', activePlayerId);
+        .eq('scores.player_id', player.id);
 
       if (error) {
         console.error('Error fetching player game stats:', error);
@@ -59,7 +54,7 @@ export const usePlayerGameDashboard = (sortBy: 'plays' | 'recent' = 'plays') => 
       
       sessionsData?.forEach((session: any) => {
         const game = session.games;
-        const score = session.scores.find((s: any) => s.player_id === activePlayerId);
+        const score = session.scores.find((s: any) => s.player_id === player.id);
         const gameId = game.id;
         
         if (!gameStats.has(gameId)) {
@@ -112,6 +107,6 @@ export const usePlayerGameDashboard = (sortBy: 'plays' | 'recent' = 'plays') => 
 
       return processedData;
     },
-    enabled: !!activePlayerId, // Only run query if we have an active player ID
+    enabled: !!player?.id, // Only run query if we have a player
   });
 };

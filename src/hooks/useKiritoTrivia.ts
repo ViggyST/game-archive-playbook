@@ -1,24 +1,19 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useState, useEffect } from "react";
+import { usePlayerContext } from "@/context/PlayerContext";
 
 export const useKiritoTrivia = () => {
-  const [activePlayerId, setActivePlayerId] = useState<string | null>(null);
-
-  useEffect(() => {
-    const playerId = localStorage.getItem('active_player');
-    setActivePlayerId(playerId);
-  }, []);
+  const { player } = usePlayerContext();
 
   return useQuery({
-    queryKey: ['player-trivia', activePlayerId],
+    queryKey: ['player-trivia', player?.id],
     queryFn: async () => {
-      if (!activePlayerId) {
+      if (!player?.id) {
         return ["Start logging games to see fun facts!"];
       }
 
-      console.log('Fetching trivia facts for player:', activePlayerId);
+      console.log('Fetching trivia facts for player:', player.id);
       
       // Get session data with location and duration info
       const { data: sessionData, error: sessionError } = await supabase
@@ -34,7 +29,7 @@ export const useKiritoTrivia = () => {
           await supabase
             .from('scores')
             .select('session_id')
-            .eq('player_id', activePlayerId)
+            .eq('player_id', player.id)
             .then(({ data }) => data?.map(score => score.session_id) || [])
         );
       
@@ -54,7 +49,7 @@ export const useKiritoTrivia = () => {
           ),
           players!inner (name)
         `)
-        .neq('player_id', activePlayerId);
+        .neq('player_id', player.id);
       
       if (playerError) {
         console.error('Error fetching player data:', playerError);
@@ -98,7 +93,7 @@ export const useKiritoTrivia = () => {
           is_winner,
           sessions!inner (date)
         `)
-        .eq('player_id', activePlayerId)
+        .eq('player_id', player.id)
         .eq('is_winner', true);
       
       if (!winsByDayError && winsByDay) {
@@ -130,6 +125,6 @@ export const useKiritoTrivia = () => {
       
       return facts.filter(Boolean);
     },
-    enabled: !!activePlayerId,
+    enabled: !!player?.id,
   });
 };

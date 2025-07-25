@@ -1,25 +1,16 @@
 
-import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { usePlayerContext } from "@/context/PlayerContext";
 
 const BrandingHeader = () => {
-  const [activePlayerName, setActivePlayerName] = useState("Kirito");
+  const { player, setPlayer } = usePlayerContext();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // Get the active player name from localStorage
-    const storedPlayerName = localStorage.getItem('active_player_name');
-    if (storedPlayerName) {
-      setActivePlayerName(storedPlayerName);
-    }
-  }, []);
-
   const handleLogout = () => {
-    // Clear the active player data from localStorage
-    localStorage.removeItem('active_player');
-    localStorage.removeItem('active_player_name');
+    // Clear the player from context (this will also clear localStorage)
+    setPlayer(null);
     
     // Redirect to landing page
     navigate('/landing');
@@ -49,7 +40,7 @@ const BrandingHeader = () => {
       {/* Personalized Greeting - Left aligned */}
       <div className="text-left">
         <h2 className="font-poppins text-xl font-semibold text-navy">
-          Hi {activePlayerName} <span className="animate-bounce-in inline-block">👋</span>
+          Hi {player?.name || 'Player'} <span className="animate-bounce-in inline-block">👋</span>
         </h2>
       </div>
     </div>

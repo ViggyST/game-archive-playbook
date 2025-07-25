@@ -1,31 +1,22 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { usePlayerContext } from "@/context/PlayerContext";
 
 export interface MostPlayedGame {
   name: string;
   times_played: number;
 }
 
-export const useMostPlayedGame = (playerName: string = 'Kirito') => {
+export const useMostPlayedGame = () => {
+  const { player } = usePlayerContext();
+
   return useQuery({
-    queryKey: ['most-played-game', playerName],
+    queryKey: ['most-played-game', player?.id],
     queryFn: async (): Promise<MostPlayedGame | null> => {
-      // First get the player ID
-      const { data: playerData, error: playerError } = await supabase
-        .from('players')
-        .select('id')
-        .eq('name', playerName)
-        .single();
+      if (!player?.id) return null;
 
-      if (playerError || !playerData) {
-        console.error('Error fetching player:', playerError);
-        return null;
-      }
-
-      const playerId = playerData.id;
-
-      // Get games for this specific player using the SQL logic from the prompt
+      // Get games for this specific player
       const { data, error } = await supabase
         .from('scores')
         .select(`
@@ -33,7 +24,7 @@ export const useMostPlayedGame = (playerName: string = 'Kirito') => {
             games!inner(name)
           )
         `)
-        .eq('player_id', playerId);
+        .eq('player_id', player.id);
 
       if (error) {
         console.error('Error fetching most played game:', error);
@@ -59,5 +50,6 @@ export const useMostPlayedGame = (playerName: string = 'Kirito') => {
       };
     },
     staleTime: 10 * 60 * 1000, // 10 minutes
+    enabled: !!player?.id,
   });
 };

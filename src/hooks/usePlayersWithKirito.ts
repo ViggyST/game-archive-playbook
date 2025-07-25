@@ -1,7 +1,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useState, useEffect } from "react";
+import { usePlayerContext } from "@/context/PlayerContext";
 
 export interface PlayerWithKiritoStats {
   id: string;
@@ -20,17 +20,12 @@ export interface PlayersWithKiritoSummary {
 }
 
 export const usePlayersWithKirito = () => {
-  const [activePlayerId, setActivePlayerId] = useState<string | null>(null);
-
-  useEffect(() => {
-    const playerId = localStorage.getItem('active_player');
-    setActivePlayerId(playerId);
-  }, []);
+  const { player } = usePlayerContext();
 
   return useQuery({
-    queryKey: ['players-with-active-player', activePlayerId],
+    queryKey: ['players-with-active-player', player?.id],
     queryFn: async (): Promise<{ players: PlayerWithKiritoStats[]; summary: PlayersWithKiritoSummary }> => {
-      if (!activePlayerId) {
+      if (!player?.id) {
         return { players: [], summary: { unique_players_count: 0, most_played_with: [] } };
       }
 
@@ -39,7 +34,7 @@ export const usePlayersWithKirito = () => {
         const { data: activePlayerSessions, error: sessionsError } = await supabase
           .from('scores')
           .select('session_id')
-          .eq('player_id', activePlayerId);
+          .eq('player_id', player.id);
 
         if (sessionsError) {
           console.error('Error fetching active player sessions:', sessionsError);
@@ -65,7 +60,7 @@ export const usePlayersWithKirito = () => {
             )
           `)
           .in('session_id', sessionIds)
-          .neq('player_id', activePlayerId);
+          .neq('player_id', player.id);
 
         if (playersError) {
           console.error('Error fetching players data:', playersError);
@@ -83,13 +78,13 @@ export const usePlayersWithKirito = () => {
 
         playersData.forEach(score => {
           const playerId = score.player_id;
-          const player = score.players;
+          const playerInfo = score.players;
           
           if (!playerStatsMap.has(playerId)) {
             playerStatsMap.set(playerId, {
-              id: player.id,
-              name: player.name,
-              avatar_url: player.avatar_url,
+              id: playerInfo.id,
+              name: playerInfo.name,
+              avatar_url: playerInfo.avatar_url,
               games: 0,
               wins: 0
             });
@@ -103,19 +98,19 @@ export const usePlayersWithKirito = () => {
         });
 
         // Convert to final format
-        const players: PlayerWithKiritoStats[] = Array.from(playerStatsMap.values()).map(player => {
-          const losses = player.games - player.wins;
-          const winRate = player.games > 0 ? Math.round((player.wins / player.games) * 100) : 0;
+        const players: PlayerWithKiritoStats[] = Array.from(playerStatsMap.values()).map(playerStats => {
+          const losses = playerStats.games - playerStats.wins;
+          const winRate = playerStats.games > 0 ? Math.round((playerStats.wins / playerStats.games) * 100) : 0;
           
           return {
-            id: player.id,
-            name: player.name,
-            avatar_url: player.avatar_url,
-            games_played_with_kirito: player.games,
-            wins_with_kirito: player.wins,
+            id: playerStats.id,
+            name: playerStats.name,
+            avatar_url: playerStats.avatar_url,
+            games_played_with_kirito: playerStats.games,
+            wins_with_kirito: playerStats.wins,
             losses_with_kirito: losses,
             win_rate_with_kirito: winRate,
-            record: `${player.wins}/${losses}`
+            record: `${playerStats.wins}/${losses}`
           };
         }).sort((a, b) => b.games_played_with_kirito - a.games_played_with_kirito);
 
@@ -138,7 +133,7 @@ export const usePlayersWithKirito = () => {
         return { players: [], summary: { unique_players_count: 0, most_played_with: [] } };
       }
     },
-    enabled: !!activePlayerId,
+    enabled: !!player?.id,
     staleTime: 5 * 60 * 1000,
   });
 };

@@ -1,7 +1,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useState, useEffect } from "react";
+import { usePlayerContext } from "@/context/PlayerContext";
 
 export interface PlayerStats {
   games_played: number;
@@ -10,26 +10,21 @@ export interface PlayerStats {
 }
 
 export const usePlayerStats = () => {
-  const [activePlayerId, setActivePlayerId] = useState<string | null>(null);
-
-  useEffect(() => {
-    const playerId = localStorage.getItem('active_player');
-    setActivePlayerId(playerId);
-  }, []);
+  const { player } = usePlayerContext();
 
   return useQuery({
-    queryKey: ['player-stats', activePlayerId],
+    queryKey: ['player-stats', player?.id],
     queryFn: async (): Promise<PlayerStats> => {
-      if (!activePlayerId) {
+      if (!player?.id) {
         return { games_played: 0, games_won: 0, win_rate: 0 };
       }
 
       try {
-        // 1. Games Played - COUNT(DISTINCT session_id) FROM scores WHERE player_id = activePlayerId
+        // 1. Games Played - COUNT(DISTINCT session_id) FROM scores WHERE player_id = player.id
         const { data: scoresData, error: scoresError } = await supabase
           .from('scores')
           .select('session_id')
-          .eq('player_id', activePlayerId);
+          .eq('player_id', player.id);
         
         if (scoresError) {
           console.error('Error fetching scores data:', scoresError);
@@ -39,12 +34,12 @@ export const usePlayerStats = () => {
         const uniqueSessions = new Set(scoresData?.map(row => row.session_id) || []);
         const games_played = uniqueSessions.size;
 
-        // 2. Games Won - COUNT(*) FROM scores WHERE is_winner = true AND player_id = activePlayerId
+        // 2. Games Won - COUNT(*) FROM scores WHERE is_winner = true AND player_id = player.id
         const { count: games_won, error: wonError } = await supabase
           .from('scores')
           .select('*', { count: 'exact', head: true })
           .eq('is_winner', true)
-          .eq('player_id', activePlayerId);
+          .eq('player_id', player.id);
         
         if (wonError) {
           console.error('Error fetching games won:', wonError);
@@ -65,6 +60,6 @@ export const usePlayerStats = () => {
       }
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
-    enabled: !!activePlayerId, // Only run query if we have an active player ID
+    enabled: !!player?.id, // Only run query if we have a player
   });
 };
