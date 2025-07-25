@@ -131,49 +131,48 @@ const CalendarView = () => {
 
   return (
     <div className="space-y-6">
-      {/* Calendar Header */}
-      <div className="flex items-center justify-between">
-        <div className="text-left">
-          <h2 className="text-3xl font-bold text-gray-900 font-poppins">
+      {/* Calendar Header - Centered */}
+      <div className="flex items-center justify-center relative">
+        <button
+          onClick={goToPreviousMonth}
+          className="absolute left-0 p-3 rounded-full bg-white border border-gray-200 shadow-sm hover:shadow-md hover:scale-105 transition-all duration-200"
+        >
+          <ChevronLeft className="h-5 w-5 text-gray-600" />
+        </button>
+        
+        <div className="text-center">
+          <h2 className="text-4xl font-bold text-gray-900 font-poppins">
             {format(currentDate, 'MMMM')}
           </h2>
-          <p className="text-lg text-gray-500 font-inter">
+          <p className="text-xl text-gray-500 font-inter">
             {format(currentDate, 'yyyy')}
           </p>
         </div>
         
-        <div className="flex gap-2">
-          <button
-            onClick={goToPreviousMonth}
-            className="p-3 rounded-full bg-white border border-gray-200 shadow-sm hover:shadow-md hover:scale-105 transition-all duration-200"
-          >
-            <ChevronLeft className="h-5 w-5 text-gray-600" />
-          </button>
-          <button
-            onClick={goToNextMonth}
-            className="p-3 rounded-full bg-white border border-gray-200 shadow-sm hover:shadow-md hover:scale-105 transition-all duration-200"
-          >
-            <ChevronRight className="h-5 w-5 text-gray-600" />
-          </button>
-        </div>
+        <button
+          onClick={goToNextMonth}
+          className="absolute right-0 p-3 rounded-full bg-white border border-gray-200 shadow-sm hover:shadow-md hover:scale-105 transition-all duration-200"
+        >
+          <ChevronRight className="h-5 w-5 text-gray-600" />
+        </button>
       </div>
 
       {/* Calendar Grid */}
-      <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
+      <div className="bg-white rounded-3xl border border-gray-100 shadow-lg p-8">
         {/* Day Labels */}
-        <div className="grid grid-cols-7 gap-2 mb-4">
+        <div className="grid grid-cols-7 gap-2 mb-6">
           {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-            <div key={day} className="text-center text-sm font-medium text-gray-500 py-2 font-inter">
+            <div key={day} className="text-center text-sm font-semibold text-gray-600 py-3 font-inter">
               {day}
             </div>
           ))}
         </div>
 
         {/* Calendar Days */}
-        <div className="grid grid-cols-7 gap-2">
+        <div className="grid grid-cols-7 gap-3">
           {/* Empty cells for days before month starts */}
           {emptyCells.map((_, index) => (
-            <div key={`empty-${index}`} className="h-16" />
+            <div key={`empty-${index}`} className="h-20" />
           ))}
           
           {/* Month days */}
@@ -189,20 +188,20 @@ const CalendarView = () => {
                 key={date.toISOString()}
                 onClick={() => handleDateClick(date)}
                 className={`
-                  relative h-16 rounded-xl border transition-all duration-200 flex flex-col items-center justify-center overflow-hidden
+                  relative h-20 rounded-xl border-2 transition-all duration-200 flex flex-col items-center justify-center overflow-hidden
                   ${isCurrentMonth 
                     ? hasGames 
-                      ? 'bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200 text-orange-800 font-semibold shadow-sm hover:shadow-md cursor-pointer hover:scale-105 transform' 
+                      ? 'bg-gradient-to-br from-orange-50 to-orange-100 border-orange-300 text-orange-900 font-semibold shadow-md hover:shadow-lg cursor-pointer hover:scale-105 transform' 
                       : isTodayDate
-                        ? 'bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 text-blue-800 font-semibold'
-                        : 'bg-white border-gray-100 text-gray-900 hover:bg-gray-50'
+                        ? 'bg-gradient-to-br from-blue-50 to-blue-100 border-blue-300 text-blue-900 font-semibold shadow-sm'
+                        : 'bg-white border-gray-200 text-gray-900 hover:bg-gray-50 hover:border-gray-300'
                     : 'bg-gray-50 border-gray-100 text-gray-400'
                   }
-                  ${isTodayDate && !hasGames ? 'ring-2 ring-blue-200 ring-opacity-50' : ''}
+                  ${isTodayDate && !hasGames ? 'ring-2 ring-blue-300 ring-opacity-60' : ''}
                 `}
               >
                 {/* Date number */}
-                <div className={`text-sm font-medium font-inter ${isTodayDate ? 'relative' : ''}`}>
+                <div className={`text-lg font-bold font-inter ${isTodayDate ? 'relative' : ''}`}>
                   {format(date, 'd')}
                   {isTodayDate && (
                     <div className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
@@ -215,7 +214,7 @@ const CalendarView = () => {
                     {complexityDots.map((dot, index) => (
                       <div
                         key={`${dot.type}-${index}`}
-                        className={`w-2 h-2 rounded-full ${dot.color}`}
+                        className={`w-2.5 h-2.5 rounded-full ${dot.color} shadow-sm`}
                         title={`${dot.type} complexity games`}
                       />
                     ))}
@@ -224,7 +223,7 @@ const CalendarView = () => {
                 
                 {/* Multiple games indicator */}
                 {hasGames && dateSessions.length > 1 && (
-                  <div className="absolute top-1 right-1 w-3 h-3 bg-orange-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                  <div className="absolute top-2 right-2 w-4 h-4 bg-orange-600 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-sm">
                     {dateSessions.length}
                   </div>
                 )}
@@ -234,24 +233,24 @@ const CalendarView = () => {
         </div>
       </div>
 
-      {/* Game Complexity Legend */}
-      <div className="bg-gradient-to-r from-white to-gray-50 rounded-2xl border border-gray-100 shadow-sm p-6">
+      {/* Game Complexity Legend - Improved Design */}
+      <div className="bg-gradient-to-r from-gray-50 to-white rounded-2xl border border-gray-200 shadow-sm p-6">
         <div className="text-center">
-          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-4 font-inter">
+          <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-4 font-inter">
             Game Complexity
           </h3>
-          <div className="flex justify-center gap-6">
-            <div className="flex items-center">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span className="text-sm text-gray-500 ml-1 font-inter">Light</span>
+          <div className="flex justify-center items-center gap-8">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-green-500 rounded-full shadow-sm"></div>
+              <span className="text-sm font-medium text-gray-700 font-inter">Light</span>
             </div>
-            <div className="flex items-center">
-              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-              <span className="text-sm text-gray-500 ml-1 font-inter">Medium</span>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-blue-500 rounded-full shadow-sm"></div>
+              <span className="text-sm font-medium text-gray-700 font-inter">Medium</span>
             </div>
-            <div className="flex items-center">
-              <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-              <span className="text-sm text-gray-500 ml-1 font-inter">Heavy</span>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-red-500 rounded-full shadow-sm"></div>
+              <span className="text-sm font-medium text-gray-700 font-inter">Heavy</span>
             </div>
           </div>
         </div>
