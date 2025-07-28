@@ -16,7 +16,7 @@ const TrackGames = () => {
       <div className="sticky top-0 z-10 bg-white border-b border-gray-100 shadow-sm">
         <div className="flex items-center justify-between px-4 py-4">
           <button
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/dashboard")}
             className="flex items-center gap-2 text-gray-500 hover:text-gray-700 transition-colors"
           >
             <ArrowLeft className="h-5 w-5" />

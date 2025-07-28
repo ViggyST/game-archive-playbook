@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight } from "lucide-react";
@@ -71,7 +72,7 @@ const LogGame = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
     } else {
-      navigate('/');
+      navigate('/dashboard');
     }
   };
 
@@ -94,7 +95,7 @@ const LogGame = () => {
     
     try {
       await logGameMutation.mutateAsync(gameData);
-      navigate('/');
+      navigate('/dashboard');
     } catch (error) {
       console.error("Error in handleSubmit:", error);
       // Error handling is done in the hook via toast
