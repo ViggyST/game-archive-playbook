@@ -1,99 +1,48 @@
-
 import { useNavigate } from "react-router-dom";
-import { BarChart3, Target, BookOpen } from "lucide-react";
 
-const ActionCards = () => {
+interface ActionCardProps {
+  title: string;
+  subtitle: string;
+  gradient: string;
+  href: string;
+}
+
+const ActionCard = ({ title, subtitle, gradient, href }: ActionCardProps) => {
   const navigate = useNavigate();
-  
-  const handleTrackGames = () => {
-    navigate("/track-games");
-  };
-
-  const handleLogGame = () => {
-    navigate("/log-game");
-  };
-
-  const handleCollections = () => {
-    navigate("/collections");
-  };
 
   return (
-    <div className="px-4 py-2">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {/* Track My Games Card */}
-        <button
-          onClick={handleTrackGames}
-          className="bg-sky-500 hover:bg-sky-600 text-white rounded-2xl p-5 transition-all duration-200 hover:scale-105 hover:shadow-xl animate-slide-up shadow-lg h-24 group"
-          style={{ animationDelay: '0.2s' }}
-        >
-          <div className="flex items-center space-x-3">
-            <div className="bg-white/20 rounded-full p-3 flex-shrink-0 group-hover:scale-110 transition-transform">
-              <BarChart3 className="h-6 w-6" />
-            </div>
-            <div className="text-center flex-grow">
-              <div className="flex items-center justify-center gap-1.5 mb-1">
-                <span className="text-lg">📊</span>
-                <h3 className="font-poppins font-semibold text-lg">
-                  Track My Games
-                </h3>
-              </div>
-              <p className="font-inter text-sm opacity-90">
-                View analytics & insights
-              </p>
-            </div>
-          </div>
-        </button>
-
-        {/* Log a Game Card */}
-        <button
-          onClick={handleLogGame}
-          className="bg-orange-400 hover:bg-orange-500 text-white rounded-2xl p-5 transition-all duration-200 hover:scale-105 hover:shadow-xl animate-slide-up shadow-lg h-24 group"
-          style={{ animationDelay: '0.3s' }}
-        >
-          <div className="flex items-center space-x-3">
-            <div className="bg-white/20 rounded-full p-3 flex-shrink-0 group-hover:scale-110 transition-transform">
-              <Target className="h-6 w-6" />
-            </div>
-            <div className="text-center flex-grow">
-              <div className="flex items-center justify-center gap-1.5 mb-1">
-                <span className="text-lg">🎯</span>
-                <h3 className="font-poppins font-semibold text-lg">
-                  Log a Game
-                </h3>
-              </div>
-              <p className="font-inter text-sm opacity-90">
-                Record a new session
-              </p>
-            </div>
-          </div>
-        </button>
-
-        {/* My Collection Card */}
-        <button
-          onClick={handleCollections}
-          className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white rounded-2xl p-5 transition-all duration-200 hover:scale-105 hover:shadow-xl animate-slide-up shadow-lg h-24 group sm:col-span-2"
-          style={{ animationDelay: '0.4s' }}
-        >
-          <div className="flex items-center space-x-3">
-            <div className="bg-white/20 rounded-full p-3 flex-shrink-0 group-hover:scale-110 transition-transform">
-              <BookOpen className="h-6 w-6" />
-            </div>
-            <div className="text-center flex-grow">
-              <div className="flex items-center justify-center gap-1.5 mb-1">
-                <span className="text-lg">🎒</span>
-                <h3 className="font-poppins font-semibold text-lg">
-                  My Collection
-                </h3>
-              </div>
-              <p className="font-inter text-sm opacity-90">
-                View owned games & wishlist
-              </p>
-            </div>
-          </div>
-        </button>
-      </div>
-    </div>
+    <button
+      onClick={() => navigate(href)}
+      className={`relative overflow-hidden rounded-2xl bg-gradient-to-br p-6 ${gradient} shadow-md hover:shadow-lg transition-shadow`}
+    >
+      <div className="absolute top-0 left-0 w-full h-full opacity-20 bg-white"></div>
+      <h3 className="font-poppins font-bold text-lg text-white">{title}</h3>
+      <p className="font-inter text-sm text-white mt-2">{subtitle}</p>
+    </button>
   );
 };
 
-export default ActionCards;
+export const ActionCards = () => {
+  return (
+    <div className="grid grid-cols-1 gap-6 px-4 py-8">
+      <ActionCard
+        title="📈 Track My Games"
+        subtitle="View detailed stats & insights"
+        gradient="from-orange-400 to-red-500"
+        href="/track-games"
+      />
+      <ActionCard
+        title="✏️ Log a Game"
+        subtitle="Record your latest session"
+        gradient="from-blue-400 to-purple-500"
+        href="/log-game"
+      />
+      <ActionCard
+        title="🎒 My Collection"
+        subtitle="View owned games & wishlist"
+        gradient="from-purple-500 to-pink-600"
+        href="/collections"
+      />
+    </div>
+  );
+};

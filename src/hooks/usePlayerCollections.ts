@@ -34,42 +34,48 @@ export const usePlayerCollections = () => {
     queryFn: async () => {
       if (!player?.id) return [];
 
-      const { data, error } = await supabase
-        .from('collections')
-        .select(`
-          id,
-          game_id,
-          collection_type,
-          rulebook_url,
-          notes,
-          is_manual,
-          created_at,
-          games (
+      try {
+        // Use type assertion to work around TypeScript issues
+        const { data, error } = await (supabase as any)
+          .from('collections')
+          .select(`
             id,
-            name,
-            weight,
-            cover_url
-          ),
-          collection_tags (
-            tags (
+            game_id,
+            collection_type,
+            rulebook_url,
+            notes,
+            is_manual,
+            created_at,
+            games (
               id,
-              name
+              name,
+              weight,
+              cover_url
+            ),
+            collection_tags (
+              tags (
+                id,
+                name
+              )
             )
-          )
-        `)
-        .eq('player_id', player.id)
-        .order('created_at', { ascending: false });
+          `)
+          .eq('player_id', player.id)
+          .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching collections:', error);
+        if (error) {
+          console.error('Error fetching collections:', error);
+          return [];
+        }
+
+        return data?.map((item: any) => ({
+          ...item,
+          game: item.games,
+          tags: item.collection_tags?.map((ct: any) => ct.tags) || []
+        })) || [];
+      } catch (error) {
+        console.error('Error in collections query:', error);
         return [];
       }
-
-      return data?.map((item: any) => ({
-        ...item,
-        game: item.games,
-        tags: item.collection_tags?.map((ct: any) => ct.tags) || []
-      })) || [];
     },
     enabled: !!player?.id
   });
@@ -85,82 +91,87 @@ export const usePlayerCollections = () => {
     }) => {
       if (!player?.id) throw new Error('No player selected');
 
-      // First, try to find existing game
-      let gameId: string;
-      const { data: existingGame } = await supabase
-        .from('games')
-        .select('id')
-        .eq('name', params.gameName)
-        .single();
-
-      if (existingGame) {
-        gameId = existingGame.id;
-      } else {
-        // Create new game
-        const { data: newGame, error: gameError } = await supabase
+      try {
+        // First, try to find existing game
+        let gameId: string;
+        const { data: existingGame } = await supabase
           .from('games')
+          .select('id')
+          .eq('name', params.gameName)
+          .single();
+
+        if (existingGame) {
+          gameId = existingGame.id;
+        } else {
+          // Create new game
+          const { data: newGame, error: gameError } = await supabase
+            .from('games')
+            .insert({
+              name: params.gameName,
+              weight: params.complexity || null
+            })
+            .select('id')
+            .single();
+
+          if (gameError) throw gameError;
+          gameId = newGame.id;
+        }
+
+        // Add to collection using type assertion
+        const { data: collection, error: collectionError } = await (supabase as any)
+          .from('collections')
           .insert({
-            name: params.gameName,
-            weight: params.complexity || null
+            player_id: player.id,
+            game_id: gameId,
+            collection_type: params.collectionType,
+            rulebook_url: params.rulebookUrl || null,
+            notes: params.notes || null,
+            is_manual: true
           })
           .select('id')
           .single();
 
-        if (gameError) throw gameError;
-        gameId = newGame.id;
-      }
+        if (collectionError) throw collectionError;
 
-      // Add to collection
-      const { data: collection, error: collectionError } = await supabase
-        .from('collections')
-        .insert({
-          player_id: player.id,
-          game_id: gameId,
-          collection_type: params.collectionType,
-          rulebook_url: params.rulebookUrl || null,
-          notes: params.notes || null,
-          is_manual: true
-        })
-        .select('id')
-        .single();
-
-      if (collectionError) throw collectionError;
-
-      // Add tags if provided
-      if (params.tags && params.tags.length > 0) {
-        for (const tagName of params.tags) {
-          // Get or create tag
-          const { data: existingTag } = await supabase
-            .from('tags')
-            .select('id')
-            .eq('name', tagName)
-            .single();
-
-          let tagId: string;
-          if (existingTag) {
-            tagId = existingTag.id;
-          } else {
-            const { data: newTag, error: tagError } = await supabase
+        // Add tags if provided
+        if (params.tags && params.tags.length > 0) {
+          for (const tagName of params.tags) {
+            // Get or create tag
+            const { data: existingTag } = await (supabase as any)
               .from('tags')
-              .insert({ name: tagName })
               .select('id')
+              .eq('name', tagName)
               .single();
 
-            if (tagError) throw tagError;
-            tagId = newTag.id;
+            let tagId: string;
+            if (existingTag) {
+              tagId = existingTag.id;
+            } else {
+              const { data: newTag, error: tagError } = await (supabase as any)
+                .from('tags')
+                .insert({ name: tagName })
+                .select('id')
+                .single();
+
+              if (tagError) throw tagError;
+              tagId = newTag.id;
+            }
+
+            // Link tag to collection
+            await (supabase as any)
+              .from('collection_tags')
+              .insert({
+                collection_id: collection.id,
+                tag_id: tagId
+              });
           }
-
-          // Link tag to collection
-          await supabase
-            .from('collection_tags')
-            .insert({
-              collection_id: collection.id,
-              tag_id: tagId
-            });
         }
-      }
 
-      return collection;
+        return collection;
+      } catch (error) {
+        console.error('Error adding to collection:', error);
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['collections', player?.id] });

@@ -1,6 +1,7 @@
 
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Tag } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import { CollectionItem } from "@/hooks/usePlayerCollections";
 
 interface GameCardProps {
@@ -8,110 +9,98 @@ interface GameCardProps {
 }
 
 const GameCard = ({ game }: GameCardProps) => {
-  const getComplexityBadge = (weight?: string) => {
-    if (!weight) return null;
-    
-    const complexity = weight.toLowerCase();
-    let variant: "default" | "secondary" | "destructive" = "default";
-    let color = "";
-
-    if (complexity === "light") {
-      variant = "secondary";
-      color = "bg-green-100 text-green-800 border-green-200";
-    } else if (complexity === "medium") {
-      variant = "default";
-      color = "bg-blue-100 text-blue-800 border-blue-200";
-    } else if (complexity === "heavy") {
-      variant = "destructive";
-      color = "bg-red-100 text-red-800 border-red-200";
+  const getComplexityColor = (weight?: string) => {
+    switch (weight?.toLowerCase()) {
+      case 'light':
+        return 'bg-green-100 text-green-800 border-green-200';
+      case 'medium':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'heavy':
+        return 'bg-red-100 text-red-800 border-red-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
     }
-
-    return (
-      <Badge className={`${color} font-inter text-xs`}>
-        {weight}
-      </Badge>
-    );
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 hover:shadow-md transition-shadow">
-      <div className="flex gap-4">
-        {/* Game Cover */}
-        <div className="flex-shrink-0">
-          <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl flex items-center justify-center">
+    <Card className="overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+      <CardContent className="p-0">
+        <div className="flex gap-4 p-4">
+          {/* Game Cover */}
+          <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center flex-shrink-0">
             {game.game.cover_url ? (
               <img 
                 src={game.game.cover_url} 
                 alt={game.game.name}
-                className="w-full h-full object-cover rounded-xl"
+                className="w-full h-full object-cover rounded-lg"
               />
             ) : (
-              <span className="text-2xl">🎲</span>
+              <div className="text-2xl">🎲</div>
             )}
           </div>
-        </div>
 
-        {/* Game Info */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between">
-            <div className="flex-1 min-w-0">
-              <h3 className="font-poppins font-semibold text-lg text-gray-900 truncate">
+          {/* Game Info */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-2 mb-2">
+              <h3 className="font-poppins font-semibold text-base text-gray-900 truncate">
                 {game.game.name}
               </h3>
-              
-              {/* Complexity Badge */}
-              <div className="mt-1">
-                {getComplexityBadge(game.game.weight)}
-              </div>
+              {game.rulebook_url && (
+                <a
+                  href={game.rulebook_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-purple-600 hover:text-purple-700 flex-shrink-0"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                </a>
+              )}
             </div>
 
-            {/* Rulebook Link */}
-            {game.rulebook_url && (
-              <button
-                onClick={() => window.open(game.rulebook_url, '_blank')}
-                className="ml-2 p-2 text-gray-400 hover:text-purple-600 transition-colors"
-                title="View rulebook"
+            {/* Complexity Badge */}
+            {game.game.weight && (
+              <Badge 
+                variant="outline" 
+                className={`text-xs font-medium mb-2 ${getComplexityColor(game.game.weight)}`}
               >
-                <ExternalLink className="h-4 w-4" />
-              </button>
+                {game.game.weight}
+              </Badge>
+            )}
+
+            {/* Tags */}
+            {game.tags.length > 0 && (
+              <div className="flex flex-wrap gap-1">
+                {game.tags.slice(0, 3).map((tag) => (
+                  <Badge 
+                    key={tag.id}
+                    variant="secondary"
+                    className="text-xs font-normal bg-gray-100 text-gray-700 border-0"
+                  >
+                    <Tag className="h-3 w-3 mr-1" />
+                    {tag.name}
+                  </Badge>
+                ))}
+                {game.tags.length > 3 && (
+                  <Badge 
+                    variant="secondary"
+                    className="text-xs font-normal bg-gray-100 text-gray-700 border-0"
+                  >
+                    +{game.tags.length - 3} more
+                  </Badge>
+                )}
+              </div>
+            )}
+
+            {/* Notes */}
+            {game.notes && (
+              <p className="text-sm text-gray-500 mt-2 truncate">
+                {game.notes}
+              </p>
             )}
           </div>
-
-          {/* Tags */}
-          {game.tags.length > 0 && (
-            <div className="flex flex-wrap gap-1 mt-3">
-              {game.tags.map((tag) => (
-                <Badge 
-                  key={tag.id}
-                  variant="outline"
-                  className="font-inter text-xs text-gray-600 bg-gray-50 border-gray-200"
-                >
-                  {tag.name}
-                </Badge>
-              ))}
-            </div>
-          )}
-
-          {/* Notes */}
-          {game.notes && (
-            <p className="font-inter text-sm text-gray-500 mt-2 line-clamp-2">
-              {game.notes}
-            </p>
-          )}
-
-          {/* Collection Type Indicator */}
-          <div className="mt-3">
-            <span className={`inline-flex items-center gap-1 text-xs font-inter ${
-              game.collection_type === 'owned' 
-                ? 'text-green-600' 
-                : 'text-purple-600'
-            }`}>
-              {game.collection_type === 'owned' ? '🎮 Owned' : '📝 Wishlist'}
-            </span>
-          </div>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 
