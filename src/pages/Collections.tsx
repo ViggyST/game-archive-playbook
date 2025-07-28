@@ -1,155 +1,196 @@
 
-import { useState } from "react";
-import { ArrowLeft, Plus } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { usePlayerCollections } from "@/hooks/usePlayerCollections";
-import GameCard from "@/components/collections/GameCard";
-import AddGameModal from "@/components/collections/AddGameModal";
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, Plus, BookOpen, Users, Tag } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { usePlayerCollections } from '@/hooks/usePlayerCollections';
+import { AddGameModal } from '@/components/collections/AddGameModal';
+import { usePlayerContext } from '@/context/PlayerContext';
 
 const Collections = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("owned");
-  const [showAddModal, setShowAddModal] = useState(false);
-  const { ownedGames, wishlistGames, isLoading } = usePlayerCollections();
+  const { player } = usePlayerContext();
+  const [isAddGameModalOpen, setIsAddGameModalOpen] = useState(false);
+  const [selectedTab, setSelectedTab] = useState<'owned' | 'wishlist'>('owned');
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-pulse text-gray-500">Loading collection...</div>
-      </div>
-    );
+  const { data: ownedGames = [], isLoading: isLoadingOwned } = usePlayerCollections('owned');
+  const { data: wishlistGames = [], isLoading: isLoadingWishlist } = usePlayerCollections('wishlist');
+
+  if (!player) {
+    navigate('/');
+    return null;
   }
+
+  const getComplexityColor = (complexity: string) => {
+    switch (complexity?.toLowerCase()) {
+      case 'light':
+        return 'bg-green-500';
+      case 'medium':
+        return 'bg-blue-500';
+      case 'heavy':
+        return 'bg-red-500';
+      default:
+        return 'bg-gray-500';
+    }
+  };
+
+  const CollectionCard = ({ item }: { item: any }) => (
+    <Card className="relative overflow-hidden hover:shadow-lg transition-shadow duration-200">
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between">
+          <CardTitle className="text-lg font-semibold text-gray-900 leading-tight">
+            {item.game_name}
+          </CardTitle>
+          <div className={`w-3 h-3 rounded-full ${getComplexityColor(item.complexity)} border border-white shadow-sm`} />
+        </div>
+      </CardHeader>
+      <CardContent className="pt-0">
+        <div className="space-y-3">
+          {/* Tags */}
+          {item.tags.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              {item.tags.map((tag: string, index: number) => (
+                <Badge key={index} variant="secondary" className="text-xs">
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+          )}
+
+          {/* Game Info */}
+          <div className="space-y-1 text-sm text-gray-600">
+            <div className="flex items-center gap-2">
+              <span className="font-medium">Complexity:</span>
+              <span className="capitalize">{item.complexity}</span>
+            </div>
+            {item.publisher && (
+              <div className="flex items-center gap-2">
+                <span className="font-medium">Publisher:</span>
+                <span>{item.publisher}</span>
+              </div>
+            )}
+            {item.players && (
+              <div className="flex items-center gap-2">
+                <Users className="w-4 h-4" />
+                <span>{item.players}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Actions */}
+          <div className="flex gap-2 pt-2">
+            {item.rulebook_url && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => window.open(item.rulebook_url, '_blank')}
+                className="flex items-center gap-1"
+              >
+                <BookOpen className="w-4 h-4" />
+                Rules
+              </Button>
+            )}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-white border-b border-gray-100 shadow-sm">
-        <div className="flex items-center justify-between px-4 py-4">
-          <button
-            onClick={() => navigate("/")}
-            className="flex items-center gap-2 text-gray-500 hover:text-gray-700 transition-colors"
-          >
-            <ArrowLeft className="h-5 w-5" />
-            <span className="font-inter text-sm">Back</span>
-          </button>
-          <div className="text-center">
-            <h1 className="font-poppins font-bold text-xl text-gray-900">
-              🎒 My Collection
-            </h1>
-            <p className="font-inter text-sm text-gray-500">
-              Manage your games & wishlist
-            </p>
-          </div>
-          <Button
-            onClick={() => setShowAddModal(true)}
-            size="sm"
-            className="bg-purple-500 hover:bg-purple-600 text-white rounded-full"
-          >
-            <Plus className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-
-      {/* Tab Navigation */}
-      <div className="px-4 py-6">
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden p-2">
-          <div className="grid grid-cols-2 gap-1">
-            <button
-              onClick={() => setActiveTab("owned")}
-              className={`
-                group flex items-center justify-center gap-2 py-4 px-4 rounded-xl font-medium text-sm 
-                transition-all duration-200
-                ${activeTab === "owned" 
-                  ? 'bg-purple-100 text-purple-700 shadow-sm border border-purple-200' 
-                  : 'hover:bg-gray-50 text-gray-600 hover:text-gray-700'
-                }
-              `}
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-md mx-auto px-4 py-4">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/')}
+              className="p-2"
             >
-              <span className="text-lg">🎮</span>
-              <span>Owned Games ({ownedGames.length})</span>
-            </button>
-            
-            <button
-              onClick={() => setActiveTab("wishlist")}
-              className={`
-                group flex items-center justify-center gap-2 py-4 px-4 rounded-xl font-medium text-sm 
-                transition-all duration-200
-                ${activeTab === "wishlist" 
-                  ? 'bg-purple-100 text-purple-700 shadow-sm border border-purple-200' 
-                  : 'hover:bg-gray-50 text-gray-600 hover:text-gray-700'
-                }
-              `}
-            >
-              <span className="text-lg">📝</span>
-              <span>Wishlist ({wishlistGames.length})</span>
-            </button>
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <div>
+              <h1 className="text-xl font-bold text-gray-900">🎒 My Collection</h1>
+              <p className="text-sm text-gray-600">View owned games & wishlist</p>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Tab Content */}
-      <div className="px-4 pb-8">
-        {activeTab === "owned" && (
-          <div className="space-y-4">
-            {ownedGames.length > 0 ? (
-              ownedGames.map((game) => (
-                <GameCard key={game.id} game={game} />
-              ))
-            ) : (
-              <div className="text-center py-12">
-                <div className="text-6xl mb-4">🎮</div>
-                <h3 className="font-poppins font-semibold text-lg text-gray-700 mb-2">
-                  No games yet!
-                </h3>
-                <p className="font-inter text-sm text-gray-500 mb-6">
-                  Start building your collection by adding games you own.
-                </p>
-                <Button
-                  onClick={() => setShowAddModal(true)}
-                  className="bg-purple-500 hover:bg-purple-600 text-white"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add First Game
-                </Button>
-              </div>
-            )}
+      {/* Content */}
+      <div className="max-w-md mx-auto px-4 py-6">
+        <Tabs value={selectedTab} onValueChange={(value) => setSelectedTab(value as 'owned' | 'wishlist')}>
+          <div className="flex items-center justify-between mb-6">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="owned">🎮 Games Owned</TabsTrigger>
+              <TabsTrigger value="wishlist">📝 Wishlist</TabsTrigger>
+            </TabsList>
+            <Button
+              onClick={() => setIsAddGameModalOpen(true)}
+              className="ml-3 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700"
+            >
+              <Plus className="w-4 h-4 mr-1" />
+              Add Game
+            </Button>
           </div>
-        )}
 
-        {activeTab === "wishlist" && (
-          <div className="space-y-4">
-            {wishlistGames.length > 0 ? (
-              wishlistGames.map((game) => (
-                <GameCard key={game.id} game={game} />
-              ))
-            ) : (
-              <div className="text-center py-12">
-                <div className="text-6xl mb-4">📝</div>
-                <h3 className="font-poppins font-semibold text-lg text-gray-700 mb-2">
-                  Empty wishlist!
-                </h3>
-                <p className="font-inter text-sm text-gray-500 mb-6">
-                  Add games you'd like to acquire to your wishlist.
-                </p>
-                <Button
-                  onClick={() => setShowAddModal(true)}
-                  className="bg-purple-500 hover:bg-purple-600 text-white"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add to Wishlist
+          <TabsContent value="owned" className="space-y-4">
+            {isLoadingOwned ? (
+              <div className="text-center py-8">
+                <div className="animate-spin w-6 h-6 border-2 border-orange-500 border-t-transparent rounded-full mx-auto mb-2"></div>
+                <p className="text-gray-600">Loading your collection...</p>
+              </div>
+            ) : ownedGames.length === 0 ? (
+              <div className="text-center py-8">
+                <div className="text-4xl mb-4">🎮</div>
+                <p className="text-gray-600 mb-4">No games in your collection yet!</p>
+                <Button onClick={() => setIsAddGameModalOpen(true)}>
+                  Add your first game
                 </Button>
               </div>
+            ) : (
+              <div className="grid gap-4">
+                {ownedGames.map((game) => (
+                  <CollectionCard key={game.id} item={game} />
+                ))}
+              </div>
             )}
-          </div>
-        )}
+          </TabsContent>
+
+          <TabsContent value="wishlist" className="space-y-4">
+            {isLoadingWishlist ? (
+              <div className="text-center py-8">
+                <div className="animate-spin w-6 h-6 border-2 border-orange-500 border-t-transparent rounded-full mx-auto mb-2"></div>
+                <p className="text-gray-600">Loading your wishlist...</p>
+              </div>
+            ) : wishlistGames.length === 0 ? (
+              <div className="text-center py-8">
+                <div className="text-4xl mb-4">📝</div>
+                <p className="text-gray-600 mb-4">No games in your wishlist yet!</p>
+                <Button onClick={() => setIsAddGameModalOpen(true)}>
+                  Add your first wishlist game
+                </Button>
+              </div>
+            ) : (
+              <div className="grid gap-4">
+                {wishlistGames.map((game) => (
+                  <CollectionCard key={game.id} item={game} />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
 
       {/* Add Game Modal */}
-      <AddGameModal 
-        isOpen={showAddModal} 
-        onClose={() => setShowAddModal(false)}
-        defaultType={activeTab as 'owned' | 'wishlist'}
+      <AddGameModal
+        isOpen={isAddGameModalOpen}
+        onClose={() => setIsAddGameModalOpen(false)}
+        defaultCollectionType={selectedTab}
       />
     </div>
   );

@@ -1,40 +1,41 @@
 
-import { useState } from "react";
-import { X, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Badge } from "@/components/ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { usePlayerCollections } from "@/hooks/usePlayerCollections";
+import { useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Badge } from '@/components/ui/badge';
+import { X } from 'lucide-react';
+import { usePlayerContext } from '@/context/PlayerContext';
+import { supabase } from '@/integrations/supabase/client';
+import { useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 interface AddGameModalProps {
   isOpen: boolean;
   onClose: () => void;
-  defaultType?: 'owned' | 'wishlist';
+  defaultCollectionType: 'owned' | 'wishlist';
 }
 
-const AddGameModal = ({ isOpen, onClose, defaultType = 'owned' }: AddGameModalProps) => {
-  const [gameName, setGameName] = useState("");
-  const [complexity, setComplexity] = useState<string>("");
-  const [collectionType, setCollectionType] = useState<'owned' | 'wishlist'>(defaultType);
-  const [rulebookUrl, setRulebookUrl] = useState("");
-  const [notes, setNotes] = useState("");
+export const AddGameModal = ({ isOpen, onClose, defaultCollectionType }: AddGameModalProps) => {
+  const { player } = usePlayerContext();
+  const queryClient = useQueryClient();
+  
+  const [gameName, setGameName] = useState('');
+  const [complexity, setComplexity] = useState<string>('');
+  const [publisher, setPublisher] = useState('');
+  const [rulebookUrl, setRulebookUrl] = useState('');
+  const [collectionType, setCollectionType] = useState<'owned' | 'wishlist'>(defaultCollectionType);
   const [tags, setTags] = useState<string[]>([]);
-  const [newTag, setNewTag] = useState("");
-
-  const { addToCollection, isAddingToCollection } = usePlayerCollections();
+  const [newTag, setNewTag] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleAddTag = () => {
     if (newTag.trim() && !tags.includes(newTag.trim())) {
       setTags([...tags, newTag.trim()]);
-      setNewTag("");
+      setNewTag('');
     }
   };
 
@@ -42,150 +43,178 @@ const AddGameModal = ({ isOpen, onClose, defaultType = 'owned' }: AddGameModalPr
     setTags(tags.filter(tag => tag !== tagToRemove));
   };
 
-  const handleSubmit = () => {
-    if (!gameName.trim()) return;
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!player?.id || !gameName.trim()) return;
 
-    addToCollection({
-      gameName: gameName.trim(),
-      collectionType,
-      complexity: complexity || undefined,
-      tags: tags.length > 0 ? tags : undefined,
-      rulebookUrl: rulebookUrl.trim() || undefined,
-      notes: notes.trim() || undefined
-    });
+    setIsSubmitting(true);
 
-    // Reset form
-    setGameName("");
-    setComplexity("");
-    setRulebookUrl("");
-    setNotes("");
-    setTags([]);
-    setNewTag("");
-    onClose();
-  };
+    try {
+      // First, check if game exists in games table
+      let { data: existingGame } = await supabase
+        .from('games')
+        .select('id')
+        .eq('name', gameName.trim())
+        .single();
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleAddTag();
+      let gameId;
+      
+      if (!existingGame) {
+        // Create new game
+        const { data: newGame, error: gameError } = await supabase
+          .from('games')
+          .insert({
+            name: gameName.trim(),
+            weight: complexity || 'Medium'
+          })
+          .select('id')
+          .single();
+
+        if (gameError) throw gameError;
+        gameId = newGame.id;
+      } else {
+        gameId = existingGame.id;
+      }
+
+      // Add to collection
+      const { error: collectionError } = await supabase
+        .from('collections')
+        .insert({
+          player_id: player.id,
+          game_id: gameId,
+          collection_type: collectionType,
+          rulebook_url: rulebookUrl || null,
+          is_manual: true
+        });
+
+      if (collectionError) throw collectionError;
+
+      // Add tags if any
+      if (tags.length > 0) {
+        // First, get the collection ID
+        const { data: collection } = await supabase
+          .from('collections')
+          .select('id')
+          .eq('player_id', player.id)
+          .eq('game_id', gameId)
+          .eq('collection_type', collectionType)
+          .single();
+
+        if (collection) {
+          // Insert tags and get their IDs
+          for (const tagName of tags) {
+            // Insert tag if it doesn't exist
+            const { data: tag } = await supabase
+              .from('tags')
+              .upsert({ name: tagName })
+              .select('id')
+              .single();
+
+            if (tag) {
+              // Link tag to collection
+              await supabase
+                .from('collection_tags')
+                .insert({
+                  collection_id: collection.id,
+                  tag_id: tag.id
+                });
+            }
+          }
+        }
+      }
+
+      // Refresh the collections data
+      queryClient.invalidateQueries({ queryKey: ['player-collections'] });
+      
+      toast.success(`Game added to your ${collectionType}!`);
+      handleClose();
+    } catch (error) {
+      console.error('Error adding game:', error);
+      toast.error('Failed to add game. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
+  const handleClose = () => {
+    setGameName('');
+    setComplexity('');
+    setPublisher('');
+    setRulebookUrl('');
+    setTags([]);
+    setNewTag('');
+    setCollectionType(defaultCollectionType);
+    onClose();
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-poppins font-bold text-xl">
-            Add Game to Collection
-          </DialogTitle>
+          <DialogTitle>Add Game to Collection</DialogTitle>
         </DialogHeader>
-
-        <div className="space-y-6">
-          {/* Game Name */}
+        
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="gameName" className="font-inter font-medium">
-              Game Name *
-            </Label>
+            <Label htmlFor="gameName">Game Name *</Label>
             <Input
               id="gameName"
               value={gameName}
               onChange={(e) => setGameName(e.target.value)}
-              placeholder="Enter game name..."
-              className="font-inter"
+              placeholder="Enter board game name"
+              required
             />
           </div>
 
-          {/* Collection Type */}
-          <div className="space-y-3">
-            <Label className="font-inter font-medium">Add to</Label>
-            <RadioGroup 
-              value={collectionType} 
-              onValueChange={(value: 'owned' | 'wishlist') => setCollectionType(value)}
-              className="flex gap-4"
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="owned" id="owned" />
-                <Label htmlFor="owned" className="font-inter text-sm cursor-pointer">
-                  🎮 Owned Games
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="wishlist" id="wishlist" />
-                <Label htmlFor="wishlist" className="font-inter text-sm cursor-pointer">
-                  📝 Wishlist
-                </Label>
-              </div>
-            </RadioGroup>
+          <div className="space-y-2">
+            <Label htmlFor="complexity">Complexity</Label>
+            <Select value={complexity} onValueChange={setComplexity}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select complexity" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Light">Light</SelectItem>
+                <SelectItem value="Medium">Medium</SelectItem>
+                <SelectItem value="Heavy">Heavy</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
-          {/* Complexity */}
-          <div className="space-y-3">
-            <Label className="font-inter font-medium">Complexity (Optional)</Label>
-            <RadioGroup 
-              value={complexity} 
-              onValueChange={setComplexity}
-              className="flex gap-4"
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="Light" id="light" />
-                <Label htmlFor="light" className="font-inter text-sm cursor-pointer">
-                  Light
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="Medium" id="medium" />
-                <Label htmlFor="medium" className="font-inter text-sm cursor-pointer">
-                  Medium
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="Heavy" id="heavy" />
-                <Label htmlFor="heavy" className="font-inter text-sm cursor-pointer">
-                  Heavy
-                </Label>
-              </div>
-            </RadioGroup>
+          <div className="space-y-2">
+            <Label htmlFor="publisher">Publisher</Label>
+            <Input
+              id="publisher"
+              value={publisher}
+              onChange={(e) => setPublisher(e.target.value)}
+              placeholder="Enter publisher name"
+            />
           </div>
 
-          {/* Tags */}
-          <div className="space-y-3">
-            <Label className="font-inter font-medium">Tags (Optional)</Label>
-            
-            {/* Tag Input */}
+          <div className="space-y-2">
+            <Label htmlFor="tags">Tags</Label>
             <div className="flex gap-2">
               <Input
+                id="tags"
                 value={newTag}
                 onChange={(e) => setNewTag(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Add tag..."
-                className="font-inter flex-1"
+                placeholder="Add a tag"
+                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
               />
-              <Button
-                type="button"
-                onClick={handleAddTag}
-                size="sm"
-                variant="outline"
-                disabled={!newTag.trim()}
-              >
-                <Plus className="h-4 w-4" />
+              <Button type="button" onClick={handleAddTag} variant="outline">
+                Add
               </Button>
             </div>
-
-            {/* Tag List */}
             {tags.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {tags.map((tag) => (
-                  <Badge 
-                    key={tag}
-                    variant="secondary"
-                    className="font-inter text-xs flex items-center gap-1"
-                  >
+              <div className="flex flex-wrap gap-1 mt-2">
+                {tags.map((tag, index) => (
+                  <Badge key={index} variant="secondary" className="flex items-center gap-1">
                     {tag}
                     <button
+                      type="button"
                       onClick={() => handleRemoveTag(tag)}
-                      className="hover:text-red-500 ml-1"
+                      className="ml-1 hover:text-red-500"
                     >
-                      <X className="h-3 w-3" />
+                      <X className="w-3 h-3" />
                     </button>
                   </Badge>
                 ))}
@@ -193,55 +222,40 @@ const AddGameModal = ({ isOpen, onClose, defaultType = 'owned' }: AddGameModalPr
             )}
           </div>
 
-          {/* Rulebook URL */}
           <div className="space-y-2">
-            <Label htmlFor="rulebookUrl" className="font-inter font-medium">
-              Rulebook URL (Optional)
-            </Label>
+            <Label htmlFor="rulebookUrl">Rulebook URL</Label>
             <Input
               id="rulebookUrl"
               value={rulebookUrl}
               onChange={(e) => setRulebookUrl(e.target.value)}
-              placeholder="https://..."
-              className="font-inter"
+              placeholder="Paste rulebook PDF URL"
             />
           </div>
 
-          {/* Notes */}
           <div className="space-y-2">
-            <Label htmlFor="notes" className="font-inter font-medium">
-              Notes (Optional)
-            </Label>
-            <Input
-              id="notes"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Personal notes..."
-              className="font-inter"
-            />
+            <Label>Add to:</Label>
+            <RadioGroup value={collectionType} onValueChange={(value) => setCollectionType(value as 'owned' | 'wishlist')}>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="owned" id="owned" />
+                <Label htmlFor="owned">My Collection</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="wishlist" id="wishlist" />
+                <Label htmlFor="wishlist">Wishlist</Label>
+              </div>
+            </RadioGroup>
           </div>
 
-          {/* Actions */}
-          <div className="flex gap-3 pt-4">
-            <Button
-              variant="outline"
-              onClick={onClose}
-              className="flex-1 font-inter"
-            >
+          <div className="flex justify-end gap-2 pt-4">
+            <Button type="button" variant="outline" onClick={handleClose}>
               Cancel
             </Button>
-            <Button
-              onClick={handleSubmit}
-              disabled={!gameName.trim() || isAddingToCollection}
-              className="flex-1 bg-purple-500 hover:bg-purple-600 text-white font-inter"
-            >
-              {isAddingToCollection ? "Adding..." : "Add Game"}
+            <Button type="submit" disabled={isSubmitting || !gameName.trim()}>
+              {isSubmitting ? 'Adding...' : 'Add Game'}
             </Button>
           </div>
-        </div>
+        </form>
       </DialogContent>
     </Dialog>
   );
 };
-
-export default AddGameModal;

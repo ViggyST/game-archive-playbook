@@ -1,48 +1,61 @@
-import { useNavigate } from "react-router-dom";
 
-interface ActionCardProps {
-  title: string;
-  subtitle: string;
-  gradient: string;
-  href: string;
-}
+import { useNavigate } from 'react-router-dom';
+import { Calendar, GamepadIcon, Package } from 'lucide-react';
 
-const ActionCard = ({ title, subtitle, gradient, href }: ActionCardProps) => {
+const ActionCards = () => {
   const navigate = useNavigate();
 
-  return (
-    <button
-      onClick={() => navigate(href)}
-      className={`relative overflow-hidden rounded-2xl bg-gradient-to-br p-6 ${gradient} shadow-md hover:shadow-lg transition-shadow`}
-    >
-      <div className="absolute top-0 left-0 w-full h-full opacity-20 bg-white"></div>
-      <h3 className="font-poppins font-bold text-lg text-white">{title}</h3>
-      <p className="font-inter text-sm text-white mt-2">{subtitle}</p>
-    </button>
-  );
-};
+  const cards = [
+    {
+      title: "📊 Track My Games",
+      subtitle: "See patterns & stats",
+      icon: <Calendar className="w-8 h-8" />,
+      gradient: "from-blue-500 to-purple-600",
+      onClick: () => navigate('/track-games')
+    },
+    {
+      title: "🎮 Log a Game",
+      subtitle: "Record a new session",
+      icon: <GamepadIcon className="w-8 h-8" />,
+      gradient: "from-green-500 to-emerald-600",
+      onClick: () => navigate('/log-game')
+    },
+    {
+      title: "🎒 My Collection",
+      subtitle: "View owned games & wishlist",
+      icon: <Package className="w-8 h-8" />,
+      gradient: "from-purple-500 to-pink-600",
+      onClick: () => navigate('/collections')
+    }
+  ];
 
-export const ActionCards = () => {
   return (
-    <div className="grid grid-cols-1 gap-6 px-4 py-8">
-      <ActionCard
-        title="📈 Track My Games"
-        subtitle="View detailed stats & insights"
-        gradient="from-orange-400 to-red-500"
-        href="/track-games"
-      />
-      <ActionCard
-        title="✏️ Log a Game"
-        subtitle="Record your latest session"
-        gradient="from-blue-400 to-purple-500"
-        href="/log-game"
-      />
-      <ActionCard
-        title="🎒 My Collection"
-        subtitle="View owned games & wishlist"
-        gradient="from-purple-500 to-pink-600"
-        href="/collections"
-      />
+    <div className="grid grid-cols-1 gap-4 mt-8">
+      {cards.map((card, index) => (
+        <div
+          key={index}
+          onClick={card.onClick}
+          className={`
+            relative p-6 rounded-2xl cursor-pointer
+            bg-gradient-to-br ${card.gradient}
+            text-white shadow-lg hover:shadow-xl
+            transition-all duration-300 transform hover:scale-105
+            active:scale-95 select-none
+          `}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <h3 className="text-lg font-bold mb-1">{card.title}</h3>
+              <p className="text-sm opacity-90">{card.subtitle}</p>
+            </div>
+            <div className="opacity-80">
+              {card.icon}
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
   );
 };
+
+export default ActionCards;
