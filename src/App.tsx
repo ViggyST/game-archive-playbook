@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,6 +8,7 @@ import Landing from "./pages/Landing";
 import Index from "./pages/Index";
 import LogGame from "./pages/LogGame";
 import TrackGames from "./pages/TrackGames";
+import Collections from "./pages/Collections";
 import NotFound from "./pages/NotFound";
 import { usePlayerContext } from "./context/PlayerContext";
 
@@ -35,6 +35,10 @@ const AppRoutes = () => {
         <Route 
           path="/track-games" 
           element={player ? <TrackGames /> : <Navigate to="/landing" replace />} 
+        />
+        <Route 
+          path="/collections" 
+          element={player ? <Collections /> : <Navigate to="/landing" replace />} 
         />
         
         {/* Catch-all route */}

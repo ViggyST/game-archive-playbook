@@ -1,6 +1,6 @@
 
 import { useNavigate } from "react-router-dom";
-import { BarChart3, Target } from "lucide-react";
+import { BarChart3, Target, BookOpen } from "lucide-react";
 
 const ActionCards = () => {
   const navigate = useNavigate();
@@ -11,6 +11,10 @@ const ActionCards = () => {
 
   const handleLogGame = () => {
     navigate("/log-game");
+  };
+
+  const handleCollections = () => {
+    navigate("/collections");
   };
 
   return (
@@ -59,6 +63,30 @@ const ActionCards = () => {
               </div>
               <p className="font-inter text-sm opacity-90">
                 Record a new session
+              </p>
+            </div>
+          </div>
+        </button>
+
+        {/* My Collection Card */}
+        <button
+          onClick={handleCollections}
+          className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white rounded-2xl p-5 transition-all duration-200 hover:scale-105 hover:shadow-xl animate-slide-up shadow-lg h-24 group sm:col-span-2"
+          style={{ animationDelay: '0.4s' }}
+        >
+          <div className="flex items-center space-x-3">
+            <div className="bg-white/20 rounded-full p-3 flex-shrink-0 group-hover:scale-110 transition-transform">
+              <BookOpen className="h-6 w-6" />
+            </div>
+            <div className="text-center flex-grow">
+              <div className="flex items-center justify-center gap-1.5 mb-1">
+                <span className="text-lg">🎒</span>
+                <h3 className="font-poppins font-semibold text-lg">
+                  My Collection
+                </h3>
+              </div>
+              <p className="font-inter text-sm opacity-90">
+                View owned games & wishlist
               </p>
             </div>
           </div>
