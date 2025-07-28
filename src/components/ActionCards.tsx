@@ -1,59 +1,69 @@
 
-import { useNavigate } from 'react-router-dom';
-import { Calendar, GamepadIcon, Package } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
+import { BarChart3, Target } from "lucide-react";
 
 const ActionCards = () => {
   const navigate = useNavigate();
+  
+  const handleTrackGames = () => {
+    navigate("/track-games");
+  };
 
-  const cards = [
-    {
-      title: "📊 Track My Games",
-      subtitle: "See patterns & stats",
-      icon: <Calendar className="w-8 h-8" />,
-      gradient: "from-blue-500 to-purple-600",
-      onClick: () => navigate('/track-games')
-    },
-    {
-      title: "🎮 Log a Game",
-      subtitle: "Record a new session",
-      icon: <GamepadIcon className="w-8 h-8" />,
-      gradient: "from-green-500 to-emerald-600",
-      onClick: () => navigate('/log-game')
-    },
-    {
-      title: "🎒 My Collection",
-      subtitle: "View owned games & wishlist",
-      icon: <Package className="w-8 h-8" />,
-      gradient: "from-purple-500 to-pink-600",
-      onClick: () => navigate('/collections')
-    }
-  ];
+  const handleLogGame = () => {
+    navigate("/log-game");
+  };
 
   return (
-    <div className="grid grid-cols-1 gap-4 mt-8">
-      {cards.map((card, index) => (
-        <div
-          key={index}
-          onClick={card.onClick}
-          className={`
-            relative p-6 rounded-2xl cursor-pointer
-            bg-gradient-to-br ${card.gradient}
-            text-white shadow-lg hover:shadow-xl
-            transition-all duration-300 transform hover:scale-105
-            active:scale-95 select-none
-          `}
+    <div className="px-4 py-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {/* Track My Games Card */}
+        <button
+          onClick={handleTrackGames}
+          className="bg-sky-500 hover:bg-sky-600 text-white rounded-2xl p-5 transition-all duration-200 hover:scale-105 hover:shadow-xl animate-slide-up shadow-lg h-24 group"
+          style={{ animationDelay: '0.2s' }}
         >
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <h3 className="text-lg font-bold mb-1">{card.title}</h3>
-              <p className="text-sm opacity-90">{card.subtitle}</p>
+          <div className="flex items-center space-x-3">
+            <div className="bg-white/20 rounded-full p-3 flex-shrink-0 group-hover:scale-110 transition-transform">
+              <BarChart3 className="h-6 w-6" />
             </div>
-            <div className="opacity-80">
-              {card.icon}
+            <div className="text-center flex-grow">
+              <div className="flex items-center justify-center gap-1.5 mb-1">
+                <span className="text-lg">📊</span>
+                <h3 className="font-poppins font-semibold text-lg">
+                  Track My Games
+                </h3>
+              </div>
+              <p className="font-inter text-sm opacity-90">
+                View analytics & insights
+              </p>
             </div>
           </div>
-        </div>
-      ))}
+        </button>
+
+        {/* Log a Game Card */}
+        <button
+          onClick={handleLogGame}
+          className="bg-orange-400 hover:bg-orange-500 text-white rounded-2xl p-5 transition-all duration-200 hover:scale-105 hover:shadow-xl animate-slide-up shadow-lg h-24 group"
+          style={{ animationDelay: '0.3s' }}
+        >
+          <div className="flex items-center space-x-3">
+            <div className="bg-white/20 rounded-full p-3 flex-shrink-0 group-hover:scale-110 transition-transform">
+              <Target className="h-6 w-6" />
+            </div>
+            <div className="text-center flex-grow">
+              <div className="flex items-center justify-center gap-1.5 mb-1">
+                <span className="text-lg">🎯</span>
+                <h3 className="font-poppins font-semibold text-lg">
+                  Log a Game
+                </h3>
+              </div>
+              <p className="font-inter text-sm opacity-90">
+                Record a new session
+              </p>
+            </div>
+          </div>
+        </button>
+      </div>
     </div>
   );
 };

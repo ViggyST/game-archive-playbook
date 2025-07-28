@@ -14,84 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      collection_tags: {
-        Row: {
-          collection_id: string
-          tag_id: string
-        }
-        Insert: {
-          collection_id: string
-          tag_id: string
-        }
-        Update: {
-          collection_id?: string
-          tag_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "collection_tags_collection_id_fkey"
-            columns: ["collection_id"]
-            isOneToOne: false
-            referencedRelation: "collections"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "collection_tags_tag_id_fkey"
-            columns: ["tag_id"]
-            isOneToOne: false
-            referencedRelation: "tags"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      collections: {
-        Row: {
-          collection_type: Database["public"]["Enums"]["collection_type_enum"]
-          created_at: string
-          game_id: string
-          id: string
-          is_manual: boolean | null
-          notes: string | null
-          player_id: string
-          rulebook_url: string | null
-        }
-        Insert: {
-          collection_type: Database["public"]["Enums"]["collection_type_enum"]
-          created_at?: string
-          game_id: string
-          id?: string
-          is_manual?: boolean | null
-          notes?: string | null
-          player_id: string
-          rulebook_url?: string | null
-        }
-        Update: {
-          collection_type?: Database["public"]["Enums"]["collection_type_enum"]
-          created_at?: string
-          game_id?: string
-          id?: string
-          is_manual?: boolean | null
-          notes?: string | null
-          player_id?: string
-          rulebook_url?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "collections_game_id_fkey"
-            columns: ["game_id"]
-            isOneToOne: false
-            referencedRelation: "games"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "collections_player_id_fkey"
-            columns: ["player_id"]
-            isOneToOne: false
-            referencedRelation: "players"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       games: {
         Row: {
           cover_url: string | null
@@ -217,24 +139,6 @@ export type Database = {
           },
         ]
       }
-      tags: {
-        Row: {
-          created_at: string
-          id: string
-          name: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          name: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          name?: string
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
@@ -243,7 +147,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      collection_type_enum: "owned" | "wishlist"
+      [_ in never]: never
     }
     CompositeTypes: {
       [_ in never]: never
@@ -370,8 +274,6 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {
-      collection_type_enum: ["owned", "wishlist"],
-    },
+    Enums: {},
   },
 } as const
