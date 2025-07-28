@@ -1,14 +1,15 @@
+
 import {
   BrowserRouter as Router,
   Routes,
   Route,
 } from "react-router-dom";
 import { PlayerProvider } from "@/context/PlayerContext";
-import { Index } from "@/pages";
-import { Landing } from "@/pages/Landing";
-import { NotFound } from "@/pages/NotFound";
-import { TrackGames } from "@/pages/TrackGames";
-import { LogGame } from "@/pages/LogGame";
+import Index from "@/pages/Index";
+import Landing from "@/pages/Landing";
+import NotFound from "@/pages/NotFound";
+import TrackGames from "@/pages/TrackGames";
+import LogGame from "@/pages/LogGame";
 import Collections from "@/pages/Collections";
 
 function App() {
