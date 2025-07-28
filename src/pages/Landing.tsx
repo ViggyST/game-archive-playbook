@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -70,8 +69,8 @@ const Landing = () => {
         name: player.name
       });
 
-      // Navigate to the main app
-      navigate("/");
+      // Navigate to the dashboard (not just "/")
+      navigate("/dashboard");
     } catch (error) {
       console.error('Error searching for player:', error);
       toast({
