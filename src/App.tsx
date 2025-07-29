@@ -21,7 +21,8 @@ function App() {
           <Toaster />
           <BrowserRouter>
             <Routes>
-              <Route path="/" element={<Landing />} />
+              <Route path="/" element={<Index />} />
+              <Route path="/landing" element={<Landing />} />
               <Route path="/dashboard" element={<Index />} />
               <Route path="/log-game" element={<LogGame />} />
               <Route path="/track-games" element={<TrackGames />} />
