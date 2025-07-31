@@ -22,21 +22,43 @@ export const useGameCatalogSearch = (searchQuery: string) => {
       if (!searchQuery || searchQuery.trim().length < 2) return [];
 
       try {
-        // Try to query the games table as our primary search
-        const { data, error } = await supabase
+        // First try to search the game_catalog table
+        const { data: catalogData, error: catalogError } = await supabase
+          .from('game_catalog')
+          .select('*')
+          .ilike('title', `%${searchQuery.trim()}%`)
+          .order('rank', { ascending: true, nullsLast: true })
+          .limit(10);
+
+        if (!catalogError && catalogData && catalogData.length > 0) {
+          return catalogData.map(game => ({
+            game_id: game.game_id,
+            title: game.title,
+            description: game.description,
+            year: game.year,
+            geek_rating: game.geek_rating ? Number(game.geek_rating) : undefined,
+            avg_rating: game.avg_rating ? Number(game.avg_rating) : undefined,
+            voters: game.voters,
+            rank: game.rank,
+            link: game.link,
+            thumbnail: game.thumbnail
+          }));
+        }
+
+        // Fallback to games table if catalog search fails
+        const { data: gamesData, error: gamesError } = await supabase
           .from('games')
           .select('*')
           .ilike('name', `%${searchQuery.trim()}%`)
           .limit(10);
 
-        if (error) {
-          console.error('Error searching games:', error);
+        if (gamesError) {
+          console.error('Error searching games:', gamesError);
           return [];
         }
 
-        // Transform games data to match GameCatalogItem interface
-        return (data || []).map((game, index) => ({
-          game_id: index, // Use index as fallback game_id
+        return (gamesData || []).map((game, index) => ({
+          game_id: index,
           title: game.name,
           description: undefined,
           year: undefined,
@@ -47,6 +69,7 @@ export const useGameCatalogSearch = (searchQuery: string) => {
           link: undefined,
           thumbnail: game.cover_url || undefined
         }));
+
       } catch (err) {
         console.error('Search failed:', err);
         return [];
