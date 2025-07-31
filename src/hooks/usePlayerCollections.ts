@@ -16,6 +16,7 @@ export interface CollectionItem {
   notes?: string;
   is_manual: boolean;
   created_at: string;
+  description?: string;
 }
 
 export const usePlayerCollections = (collectionType: 'owned' | 'wishlist') => {
@@ -41,14 +42,15 @@ export const usePlayerCollections = (collectionType: 'owned' | 'wishlist') => {
             cover_url,
             weight
           ),
-          collection_tags!inner(
-            tags!inner(
+          collection_tags(
+            tags(
               name
             )
           )
         `)
         .eq('player_id', player.id)
-        .eq('collection_type', collectionType);
+        .eq('collection_type', collectionType)
+        .order('created_at', { ascending: false });
 
       if (error) {
         console.error('Error fetching collections:', error);
@@ -62,13 +64,14 @@ export const usePlayerCollections = (collectionType: 'owned' | 'wishlist') => {
         game_name: item.games?.name || '',
         cover_url: item.games?.cover_url || undefined,
         complexity: item.games?.weight || 'Medium',
-        publisher: undefined, // Will be populated later
-        players: undefined, // Will be populated later
+        publisher: undefined, // Will be populated later if needed
+        players: undefined, // Will be populated later if needed
         tags: item.collection_tags?.map(ct => ct.tags?.name).filter(Boolean) || [],
         rulebook_url: item.rulebook_url || undefined,
         notes: item.notes || undefined,
         is_manual: item.is_manual || false,
-        created_at: item.created_at
+        created_at: item.created_at,
+        description: undefined // Will be populated from catalog if needed
       }));
     },
     enabled: !!player?.id,
