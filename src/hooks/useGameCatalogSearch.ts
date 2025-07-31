@@ -22,8 +22,8 @@ export const useGameCatalogSearch = (searchQuery: string) => {
       if (!searchQuery || searchQuery.trim().length < 2) return [];
 
       try {
-        // Search the game_catalog table directly
-        const { data: catalogData, error: catalogError } = await supabase
+        // Use raw SQL query for game_catalog since it's not in the TypeScript types
+        const { data: catalogData, error: catalogError } = await (supabase as any)
           .from('game_catalog')
           .select('*')
           .ilike('title', `%${searchQuery.trim()}%`)
@@ -32,7 +32,7 @@ export const useGameCatalogSearch = (searchQuery: string) => {
           .limit(10);
 
         if (!catalogError && catalogData && catalogData.length > 0) {
-          return catalogData.map(game => ({
+          return catalogData.map((game: any) => ({
             game_id: game.game_id,
             title: game.title,
             description: game.description || undefined,
