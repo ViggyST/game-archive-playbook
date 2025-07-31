@@ -22,21 +22,39 @@ export const useGameCatalogSearch = (searchQuery: string) => {
       if (!searchQuery || searchQuery.trim().length < 2) return [];
 
       try {
-        // Search the games table since game_catalog is not available in the TypeScript types
+        // Use the new search function for rich catalog data
+        const { data: catalogData, error: catalogError } = await supabase
+          .rpc('search_game_catalog', { search_term: searchQuery.trim() });
+
+        if (!catalogError && catalogData && catalogData.length > 0) {
+          return catalogData.map(game => ({
+            game_id: game.game_id,
+            title: game.title,
+            description: game.description || undefined,
+            year: game.year || undefined,
+            geek_rating: game.geek_rating ? Number(game.geek_rating) : undefined,
+            avg_rating: game.avg_rating ? Number(game.avg_rating) : undefined,
+            voters: game.voters || undefined,
+            rank: game.rank || undefined,
+            link: game.link || undefined,
+            thumbnail: game.thumbnail || undefined
+          }));
+        }
+
+        // Fallback to games table for existing manual entries
         const { data: gamesData, error: gamesError } = await supabase
           .from('games')
           .select('*')
           .ilike('name', `%${searchQuery.trim()}%`)
-          .limit(10);
+          .limit(5);
 
         if (gamesError) {
           console.error('Error searching games:', gamesError);
           return [];
         }
 
-        // Map the games data to our GameCatalogItem interface
         return (gamesData || []).map((game, index) => ({
-          game_id: index,
+          game_id: 1000000 + index, // Use high numbers to avoid conflicts with catalog
           title: game.name,
           description: undefined,
           year: undefined,

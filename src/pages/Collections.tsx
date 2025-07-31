@@ -1,13 +1,12 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, BookOpen, Users, Star } from 'lucide-react';
+import { ArrowLeft, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { usePlayerCollections } from '@/hooks/usePlayerCollections';
-import { EnhancedAddGameModal } from '@/components/collections/EnhancedAddGameModal';
+import { StreamlinedAddGameModal } from '@/components/collections/StreamlinedAddGameModal';
+import { EnhancedCollectionCard } from '@/components/collections/EnhancedCollectionCard';
 import { usePlayerContext } from '@/context/PlayerContext';
 
 const Collections = () => {
@@ -23,112 +22,6 @@ const Collections = () => {
     navigate('/');
     return null;
   }
-
-  const getComplexityColor = (complexity: string) => {
-    switch (complexity?.toLowerCase()) {
-      case 'light':
-        return 'bg-green-500';
-      case 'medium':
-        return 'bg-blue-500';
-      case 'heavy':
-        return 'bg-red-500';
-      default:
-        return 'bg-gray-500';
-    }
-  };
-
-  const CollectionCard = ({ item }: { item: any }) => (
-    <Card className="relative overflow-hidden hover:shadow-lg transition-shadow duration-200">
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <CardTitle className="text-lg font-semibold text-gray-900 leading-tight">
-              {item.game_name}
-            </CardTitle>
-            {/* Show catalog info if available */}
-            {!item.is_manual && (
-              <div className="flex items-center gap-2 mt-1 text-sm text-gray-600">
-                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                <span>Catalog Game</span>
-              </div>
-            )}
-          </div>
-          <div className={`w-3 h-3 rounded-full ${getComplexityColor(item.complexity)} border border-white shadow-sm`} />
-        </div>
-      </CardHeader>
-      <CardContent className="pt-0">
-        <div className="space-y-3">
-          {/* Game thumbnail */}
-          {item.cover_url && (
-            <div className="w-full h-32 bg-gray-100 rounded-lg overflow-hidden">
-              <img 
-                src={item.cover_url} 
-                alt={item.game_name}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none';
-                }}
-              />
-            </div>
-          )}
-
-          {/* Tags */}
-          {item.tags.length > 0 && (
-            <div className="flex flex-wrap gap-1">
-              {item.tags.map((tag: string, index: number) => (
-                <Badge key={index} variant="secondary" className="text-xs">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-          )}
-
-          {/* Game Info */}
-          <div className="space-y-1 text-sm text-gray-600">
-            <div className="flex items-center gap-2">
-              <span className="font-medium">Complexity:</span>
-              <span className="capitalize">{item.complexity}</span>
-            </div>
-            {item.publisher && (
-              <div className="flex items-center gap-2">
-                <span className="font-medium">Publisher:</span>
-                <span>{item.publisher}</span>
-              </div>
-            )}
-            {item.players && (
-              <div className="flex items-center gap-2">
-                <Users className="w-4 h-4" />
-                <span>{item.players}</span>
-              </div>
-            )}
-          </div>
-
-          {/* Notes */}
-          {item.notes && (
-            <div className="text-sm text-gray-600">
-              <span className="font-medium">Notes:</span>
-              <p className="mt-1 text-xs">{item.notes}</p>
-            </div>
-          )}
-
-          {/* Actions */}
-          <div className="flex gap-2 pt-2">
-            {item.rulebook_url && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => window.open(item.rulebook_url, '_blank')}
-                className="flex items-center gap-1"
-              >
-                <BookOpen className="w-4 h-4" />
-                Rules
-              </Button>
-            )}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
 
   return (
     <div className="min-h-screen bg-gray-50 relative">
@@ -175,7 +68,7 @@ const Collections = () => {
             ) : (
               <div className="grid gap-4">
                 {ownedGames.map((game) => (
-                  <CollectionCard key={game.id} item={game} />
+                  <EnhancedCollectionCard key={game.id} item={game} />
                 ))}
               </div>
             )}
@@ -196,7 +89,7 @@ const Collections = () => {
             ) : (
               <div className="grid gap-4">
                 {wishlistGames.map((game) => (
-                  <CollectionCard key={game.id} item={game} />
+                  <EnhancedCollectionCard key={game.id} item={game} />
                 ))}
               </div>
             )}
@@ -215,8 +108,8 @@ const Collections = () => {
         </Button>
       </div>
 
-      {/* Enhanced Add Game Modal */}
-      <EnhancedAddGameModal
+      {/* Streamlined Add Game Modal */}
+      <StreamlinedAddGameModal
         isOpen={isAddGameModalOpen}
         onClose={() => setIsAddGameModalOpen(false)}
         defaultCollectionType={selectedTab}
