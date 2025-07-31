@@ -22,14 +22,9 @@ export const useGameCatalogSearch = (searchQuery: string) => {
       if (!searchQuery || searchQuery.trim().length < 2) return [];
 
       try {
-        // Direct query to game_catalog table with ILIKE for case-insensitive search
+        // Use the RPC function we created for searching the game catalog
         const { data: catalogData, error: catalogError } = await supabase
-          .from('game_catalog')
-          .select('game_id, title, description, year, geek_rating, avg_rating, voters, rank, link, thumbnail')
-          .ilike('title', `%${searchQuery.trim()}%`)
-          .order('rank', { ascending: true, nullsFirst: false })
-          .order('geek_rating', { ascending: false, nullsFirst: false })
-          .limit(10);
+          .rpc('search_game_catalog', { search_term: searchQuery.trim() });
 
         if (!catalogError && catalogData && catalogData.length > 0) {
           return catalogData.map(game => ({
