@@ -22,9 +22,14 @@ export const useGameCatalogSearch = (searchQuery: string) => {
       if (!searchQuery || searchQuery.trim().length < 2) return [];
 
       try {
-        // Use the RPC function we created for searching the game catalog
+        // Search the game_catalog table directly
         const { data: catalogData, error: catalogError } = await supabase
-          .rpc('search_game_catalog', { search_term: searchQuery.trim() });
+          .from('game_catalog')
+          .select('*')
+          .ilike('title', `%${searchQuery.trim()}%`)
+          .order('rank', { ascending: true, nullsFirst: false })
+          .order('geek_rating', { ascending: false, nullsFirst: false })
+          .limit(10);
 
         if (!catalogError && catalogData && catalogData.length > 0) {
           return catalogData.map(game => ({
