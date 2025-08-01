@@ -39,6 +39,24 @@ export const EnhancedCollectionCard = ({ item, onClick }: EnhancedCollectionCard
     return voters.toString();
   };
 
+  // Function to get a color for tags based on their content
+  const getTagColor = (tag: string, index: number) => {
+    const colors = [
+      'bg-blue-100 text-blue-700 border-blue-200',
+      'bg-green-100 text-green-700 border-green-200',
+      'bg-purple-100 text-purple-700 border-purple-200',
+      'bg-pink-100 text-pink-700 border-pink-200',
+      'bg-indigo-100 text-indigo-700 border-indigo-200',
+      'bg-yellow-100 text-yellow-700 border-yellow-200',
+      'bg-red-100 text-red-700 border-red-200',
+      'bg-teal-100 text-teal-700 border-teal-200'
+    ];
+    
+    // Use tag content hash to consistently assign colors
+    const hash = tag.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return colors[hash % colors.length];
+  };
+
   return (
     <Card 
       className="relative overflow-hidden hover:shadow-md transition-all duration-200 cursor-pointer bg-white"
@@ -113,32 +131,33 @@ export const EnhancedCollectionCard = ({ item, onClick }: EnhancedCollectionCard
           {item.tags.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
               {item.tags.map((tag: string, index: number) => (
-                <Badge key={index} variant="outline" className="text-xs px-2 py-0.5">
+                <Badge 
+                  key={index} 
+                  variant="outline" 
+                  className={`text-xs px-2 py-0.5 ${getTagColor(tag, index)}`}
+                >
                   {tag}
                 </Badge>
               ))}
             </div>
           )}
 
-          {/* Personal Notes Preview */}
+          {/* Personal Notes Preview - More Compact */}
           {item.notes && (
-            <div className="bg-blue-50 border border-blue-200 p-2.5 rounded-lg">
+            <div className="bg-blue-50 border border-blue-200 p-2 rounded-lg">
               <span className="font-medium text-blue-800 text-xs">Your notes:</span>
-              <p className="mt-1 text-sm text-blue-700 line-clamp-2">{item.notes}</p>
+              <p className="mt-0.5 text-xs text-blue-700 line-clamp-2">{item.notes}</p>
             </div>
           )}
 
-          {/* Footer */}
-          <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-            <div className="text-xs text-gray-500">
-              Added {new Date(item.created_at).toLocaleDateString()}
-            </div>
-            {item.is_manual && (
+          {/* Footer - Only Manual Entry Badge */}
+          {item.is_manual && (
+            <div className="flex justify-end pt-2 border-t border-gray-100">
               <Badge variant="outline" className="text-xs px-2 py-0.5 text-gray-600">
                 Manual Entry
               </Badge>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
