@@ -1,5 +1,5 @@
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Star, Dice6, Calendar } from 'lucide-react';
 
@@ -41,13 +41,13 @@ export const EnhancedCollectionCard = ({ item, onClick }: EnhancedCollectionCard
 
   return (
     <Card 
-      className="relative overflow-hidden hover:shadow-lg transition-all duration-200 cursor-pointer bg-white"
+      className="relative overflow-hidden hover:shadow-md transition-all duration-200 cursor-pointer bg-white"
       onClick={onClick}
     >
-      <CardHeader className="pb-4">
-        <div className="flex items-start gap-4">
-          {/* Game Thumbnail - Larger for better visibility */}
-          <div className="flex-shrink-0 w-16 h-16 bg-gray-100 rounded-xl overflow-hidden flex items-center justify-center shadow-sm">
+      <CardHeader className="pb-3">
+        <div className="flex items-start gap-3">
+          {/* Game Thumbnail */}
+          <div className="flex-shrink-0 w-12 h-12 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
             {item.thumbnail || item.cover_url ? (
               <img 
                 src={item.thumbnail || item.cover_url} 
@@ -60,72 +60,60 @@ export const EnhancedCollectionCard = ({ item, onClick }: EnhancedCollectionCard
               />
             ) : null}
             <div className={`${(item.thumbnail || item.cover_url) ? 'hidden' : ''} text-gray-400`}>
-              <Dice6 className="w-8 h-8" />
+              <Dice6 className="w-6 h-6" />
             </div>
           </div>
 
           {/* Game Info */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between mb-2">
-              <CardTitle className="text-xl font-bold text-gray-900 leading-tight">
-                {item.game_name}
-              </CardTitle>
-            </div>
+            <h3 className="text-lg font-bold text-gray-900 leading-tight mb-1">
+              {item.game_name}
+            </h3>
 
-            {/* BGG Ranking */}
-            {item.rank && (
-              <div className="mb-2">
-                <Badge variant="secondary" className="text-sm px-3 py-1 bg-orange-100 text-orange-700 border-orange-200">
-                  Ranked #{item.rank} on BGG
-                </Badge>
+            {/* Metadata Stack */}
+            <div className="space-y-1">
+              {/* First row: Rank + Rating + Year */}
+              <div className="flex items-center gap-3 text-sm">
+                {item.rank && (
+                  <Badge variant="secondary" className="text-xs px-2 py-0.5 bg-orange-100 text-orange-700 border-orange-200">
+                    BGG #{item.rank}
+                  </Badge>
+                )}
+                {item.geek_rating && (
+                  <div className="flex items-center gap-1">
+                    <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
+                    <span className="font-medium text-gray-900">{item.geek_rating}</span>
+                    {item.voters && (
+                      <span className="text-gray-500">({formatVoters(item.voters)})</span>
+                    )}
+                  </div>
+                )}
+                {item.year && (
+                  <div className="flex items-center gap-1 text-gray-500">
+                    <Calendar className="w-3.5 h-3.5" />
+                    <span>{item.year}</span>
+                  </div>
+                )}
               </div>
-            )}
 
-            {/* Rating and Metadata */}
-            <div className="flex items-center gap-4 text-sm mb-3">
-              {item.geek_rating && (
-                <div className="flex items-center gap-1">
-                  <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                  <span className="font-semibold text-gray-900">{item.geek_rating}</span>
-                  {item.voters && (
-                    <span className="text-gray-500">({formatVoters(item.voters)} votes)</span>
-                  )}
-                </div>
-              )}
-              {item.year && (
-                <div className="flex items-center gap-1 text-gray-500">
-                  <Calendar className="w-4 h-4" />
-                  <span>{item.year}</span>
-                </div>
+              {/* Description */}
+              {item.description && (
+                <p className="text-sm text-gray-600 leading-relaxed line-clamp-2">
+                  {item.description}
+                </p>
               )}
             </div>
-
-            {/* Source indicator */}
-            {!item.is_manual && (
-              <div className="text-xs text-green-600 font-medium mb-2 bg-green-50 px-2 py-1 rounded-full inline-block">
-                📚 From BGG Catalog
-              </div>
-            )}
           </div>
         </div>
       </CardHeader>
 
-      <CardContent className="pt-0">
-        <div className="space-y-4">
-          {/* Description - 2-3 lines as requested */}
-          {item.description && (
-            <div className="bg-gray-50 p-3 rounded-lg">
-              <p className="text-sm text-gray-700 leading-relaxed line-clamp-3">
-                {item.description}
-              </p>
-            </div>
-          )}
-
+      <CardContent className="pt-0 pb-3">
+        <div className="space-y-3">
           {/* Tags */}
           {item.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1.5">
               {item.tags.map((tag: string, index: number) => (
-                <Badge key={index} variant="outline" className="text-xs px-2 py-1">
+                <Badge key={index} variant="outline" className="text-xs px-2 py-0.5">
                   {tag}
                 </Badge>
               ))}
@@ -134,20 +122,20 @@ export const EnhancedCollectionCard = ({ item, onClick }: EnhancedCollectionCard
 
           {/* Personal Notes Preview */}
           {item.notes && (
-            <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg">
-              <span className="font-medium text-blue-800 text-sm">Your notes:</span>
+            <div className="bg-blue-50 border border-blue-200 p-2.5 rounded-lg">
+              <span className="font-medium text-blue-800 text-xs">Your notes:</span>
               <p className="mt-1 text-sm text-blue-700 line-clamp-2">{item.notes}</p>
             </div>
           )}
 
-          {/* Footer with complexity and date */}
-          <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-            <div className="text-sm text-gray-500">
-              Added on {new Date(item.created_at).toLocaleDateString()}
+          {/* Footer */}
+          <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+            <div className="text-xs text-gray-500">
+              Added {new Date(item.created_at).toLocaleDateString()}
             </div>
-            {item.complexity && (
-              <Badge variant="outline" className="text-xs px-2 py-1">
-                {item.complexity}
+            {item.is_manual && (
+              <Badge variant="outline" className="text-xs px-2 py-0.5 text-gray-600">
+                Manual Entry
               </Badge>
             )}
           </div>
