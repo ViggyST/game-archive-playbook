@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
@@ -46,23 +45,18 @@ export const StreamlinedAddGameModal = ({ isOpen, onClose, defaultCollectionType
 
   const { data: catalogResults = [], isLoading: isSearching } = useGameCatalogSearch(searchQuery);
 
-  const checkIfGameExists = (gameTitle: string, catalogId?: number) => {
+  const checkIfGameExists = (gameTitle: string) => {
     const allGames = [...ownedGames, ...wishlistGames];
-    return allGames.find(game => {
-      // Check by catalog ID if available (more reliable)
-      if (catalogId && game.catalog_game_id === catalogId) {
-        return true;
-      }
-      // Fallback to title comparison
-      return game.game_name.toLowerCase().trim() === gameTitle.toLowerCase().trim();
-    });
+    return allGames.find(game => 
+      game.game_name.toLowerCase().trim() === gameTitle.toLowerCase().trim()
+    );
   };
 
   const handleGameSelect = (catalogGame: GameCatalogItem) => {
     console.log('Selecting catalog game:', catalogGame);
-    const existingGame = checkIfGameExists(catalogGame.title, catalogGame.game_id);
+    const existingGame = checkIfGameExists(catalogGame.title);
     if (existingGame) {
-      const collectionTypeText = existingGame.id && ownedGames.find(g => g.id === existingGame.id) ? 'owned collection' : 'wishlist';
+      const collectionTypeText = ownedGames.find(g => g.id === existingGame.id) ? 'owned collection' : 'wishlist';
       toast.error(`🎲 "${catalogGame.title}" is already in your ${collectionTypeText}`);
       return;
     }
@@ -73,7 +67,7 @@ export const StreamlinedAddGameModal = ({ isOpen, onClose, defaultCollectionType
   const handleManualEntry = () => {
     const existingGame = checkIfGameExists(searchQuery);
     if (existingGame) {
-      const collectionTypeText = existingGame.id && ownedGames.find(g => g.id === existingGame.id) ? 'owned collection' : 'wishlist';
+      const collectionTypeText = ownedGames.find(g => g.id === existingGame.id) ? 'owned collection' : 'wishlist';
       toast.error(`🎲 "${searchQuery}" is already in your ${collectionTypeText}`);
       return;
     }
@@ -103,9 +97,9 @@ export const StreamlinedAddGameModal = ({ isOpen, onClose, defaultCollectionType
     }
 
     // Final duplicate check before submission
-    const existingGame = checkIfGameExists(gameTitle, selectedGame?.game_id);
+    const existingGame = checkIfGameExists(gameTitle);
     if (existingGame) {
-      const collectionTypeText = existingGame.id && ownedGames.find(g => g.id === existingGame.id) ? 'owned collection' : 'wishlist';
+      const collectionTypeText = ownedGames.find(g => g.id === existingGame.id) ? 'owned collection' : 'wishlist';
       toast.error(`🎲 "${gameTitle}" is already in your ${collectionTypeText}`);
       return;
     }
