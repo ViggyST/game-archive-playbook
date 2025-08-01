@@ -92,6 +92,48 @@ export type Database = {
           },
         ]
       }
+      game_catalog: {
+        Row: {
+          avg_rating: number | null
+          description: string | null
+          game_id: number
+          geek_rating: number | null
+          imported_at: string | null
+          link: string | null
+          rank: number | null
+          thumbnail: string | null
+          title: string
+          voters: number | null
+          year: number | null
+        }
+        Insert: {
+          avg_rating?: number | null
+          description?: string | null
+          game_id: number
+          geek_rating?: number | null
+          imported_at?: string | null
+          link?: string | null
+          rank?: number | null
+          thumbnail?: string | null
+          title: string
+          voters?: number | null
+          year?: number | null
+        }
+        Update: {
+          avg_rating?: number | null
+          description?: string | null
+          game_id?: number
+          geek_rating?: number | null
+          imported_at?: string | null
+          link?: string | null
+          rank?: number | null
+          thumbnail?: string | null
+          title?: string
+          voters?: number | null
+          year?: number | null
+        }
+        Relationships: []
+      }
       games: {
         Row: {
           cover_url: string | null
@@ -222,16 +264,19 @@ export type Database = {
           created_at: string
           id: string
           name: string
+          tag_type: string | null
         }
         Insert: {
           created_at?: string
           id?: string
           name: string
+          tag_type?: string | null
         }
         Update: {
           created_at?: string
           id?: string
           name?: string
+          tag_type?: string | null
         }
         Relationships: []
       }

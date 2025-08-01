@@ -4,11 +4,10 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Check, ChevronDown, X, Plus } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { useAvailableTags, Tag } from '@/hooks/useAvailableTags';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Checkbox } from '@/components/ui/checkbox';
+import { X, Plus } from 'lucide-react';
+import { useAvailableTagsGrouped, GroupedTags } from '@/hooks/useAvailableTagsGrouped';
 
 interface TagSelectorProps {
   selectedTags: string[];
@@ -16,9 +15,8 @@ interface TagSelectorProps {
 }
 
 export const TagSelector = ({ selectedTags, onTagsChange }: TagSelectorProps) => {
-  const [open, setOpen] = useState(false);
   const [customTag, setCustomTag] = useState('');
-  const { data: availableTags = [] } = useAvailableTags();
+  const { data: groupedTags = {} } = useAvailableTagsGrouped();
 
   const handleTagToggle = (tagName: string) => {
     if (selectedTags.includes(tagName)) {
@@ -37,6 +35,10 @@ export const TagSelector = ({ selectedTags, onTagsChange }: TagSelectorProps) =>
       onTagsChange([...selectedTags, customTag.trim()]);
       setCustomTag('');
     }
+  };
+
+  const formatTypeLabel = (type: string) => {
+    return type.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
   };
 
   return (
@@ -61,47 +63,40 @@ export const TagSelector = ({ selectedTags, onTagsChange }: TagSelectorProps) =>
         </div>
       )}
 
-      {/* Tag Selector */}
-      <div className="flex gap-2">
-        <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              role="combobox"
-              aria-expanded={open}
-              className="flex-1 justify-between"
-            >
-              Select tags...
-              <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-full p-0" align="start">
-            <Command>
-              <CommandInput placeholder="Search tags..." />
-              <CommandList>
-                <CommandEmpty>No tags found.</CommandEmpty>
-                <CommandGroup>
-                  {availableTags.map((tag) => (
-                    <CommandItem
-                      key={tag.id}
-                      onSelect={() => handleTagToggle(tag.name)}
-                      className="flex items-center gap-2"
-                    >
-                      <Check
-                        className={cn(
-                          "h-4 w-4",
-                          selectedTags.includes(tag.name) ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      {tag.name}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
-      </div>
+      {/* Grouped Tags Accordion */}
+      {Object.keys(groupedTags).length > 0 && (
+        <div className="border rounded-lg">
+          <Accordion type="multiple" className="w-full">
+            {Object.entries(groupedTags).map(([type, tags]) => (
+              <AccordionItem key={type} value={type} className="border-none">
+                <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                  <span className="font-medium">{formatTypeLabel(type)}</span>
+                  <span className="text-sm text-gray-500 ml-2">({tags.length})</span>
+                </AccordionTrigger>
+                <AccordionContent className="px-4 pb-4">
+                  <div className="grid grid-cols-2 gap-2">
+                    {tags.map(tag => (
+                      <div key={tag.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={tag.id}
+                          checked={selectedTags.includes(tag.name)}
+                          onCheckedChange={() => handleTagToggle(tag.name)}
+                        />
+                        <Label 
+                          htmlFor={tag.id} 
+                          className="text-sm cursor-pointer flex-1 leading-tight"
+                        >
+                          {tag.name}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
+      )}
 
       {/* Custom Tag Input */}
       <div className="flex gap-2">
