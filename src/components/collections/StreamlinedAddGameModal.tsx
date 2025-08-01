@@ -49,14 +49,16 @@ export const StreamlinedAddGameModal = ({ isOpen, onClose, defaultCollectionType
   const checkIfGameExists = (gameTitle: string) => {
     const allGames = [...ownedGames, ...wishlistGames];
     return allGames.find(game => 
-      game.game_name.toLowerCase() === gameTitle.toLowerCase()
+      game.game_name.toLowerCase().trim() === gameTitle.toLowerCase().trim()
     );
   };
 
   const handleGameSelect = (catalogGame: GameCatalogItem) => {
+    console.log('Selecting catalog game:', catalogGame);
     const existingGame = checkIfGameExists(catalogGame.title);
     if (existingGame) {
-      toast.error(`🎲 "${catalogGame.title}" is already in your collection`);
+      const collectionTypeText = existingGame.id && ownedGames.find(g => g.id === existingGame.id) ? 'owned collection' : 'wishlist';
+      toast.error(`🎲 "${catalogGame.title}" is already in your ${collectionTypeText}`);
       return;
     }
     setSelectedGame(catalogGame);
@@ -66,7 +68,8 @@ export const StreamlinedAddGameModal = ({ isOpen, onClose, defaultCollectionType
   const handleManualEntry = () => {
     const existingGame = checkIfGameExists(searchQuery);
     if (existingGame) {
-      toast.error(`🎲 "${searchQuery}" is already in your collection`);
+      const collectionTypeText = existingGame.id && ownedGames.find(g => g.id === existingGame.id) ? 'owned collection' : 'wishlist';
+      toast.error(`🎲 "${searchQuery}" is already in your ${collectionTypeText}`);
       return;
     }
     setShowManualEntry(true);
@@ -83,32 +86,54 @@ export const StreamlinedAddGameModal = ({ isOpen, onClose, defaultCollectionType
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!player?.id) return;
+    if (!player?.id) {
+      toast.error('Please select a player first');
+      return;
+    }
 
     const gameTitle = selectedGame?.title || manualTitle.trim();
-    if (!gameTitle) return;
+    if (!gameTitle) {
+      toast.error('Please enter a game title');
+      return;
+    }
 
     // Final duplicate check before submission
     const existingGame = checkIfGameExists(gameTitle);
     if (existingGame) {
-      toast.error(`🎲 "${gameTitle}" is already in your collection`);
+      const collectionTypeText = existingGame.id && ownedGames.find(g => g.id === existingGame.id) ? 'owned collection' : 'wishlist';
+      toast.error(`🎲 "${gameTitle}" is already in your ${collectionTypeText}`);
       return;
     }
 
     setIsSubmitting(true);
 
     try {
+      console.log('Starting game submission process:', {
+        gameTitle,
+        selectedGame: selectedGame?.title,
+        isManual: !selectedGame,
+        collectionType
+      });
+
       let gameId = null;
 
       if (selectedGame) {
         // Check if this catalog game already exists in our games table
-        let { data: existingGame } = await supabase
+        const { data: existingGameData, error: existingGameError } = await supabase
           .from('games')
           .select('id')
           .eq('name', selectedGame.title)
-          .single();
+          .maybeSingle();
 
-        if (!existingGame) {
+        if (existingGameError) {
+          console.error('Error checking existing game:', existingGameError);
+          throw new Error('Failed to check if game exists');
+        }
+
+        if (existingGameData) {
+          gameId = existingGameData.id;
+          console.log('Using existing game:', gameId);
+        } else {
           // Create new game entry from catalog
           const { data: newGame, error: gameError } = await supabase
             .from('games')
@@ -120,10 +145,12 @@ export const StreamlinedAddGameModal = ({ isOpen, onClose, defaultCollectionType
             .select('id')
             .single();
 
-          if (gameError) throw gameError;
+          if (gameError) {
+            console.error('Error creating game:', gameError);
+            throw gameError;
+          }
           gameId = newGame.id;
-        } else {
-          gameId = existingGame.id;
+          console.log('Created new game:', gameId);
         }
       } else {
         // Manual entry - create new game
@@ -136,8 +163,16 @@ export const StreamlinedAddGameModal = ({ isOpen, onClose, defaultCollectionType
           .select('id')
           .single();
 
-        if (gameError) throw gameError;
+        if (gameError) {
+          console.error('Error creating manual game:', gameError);
+          throw gameError;
+        }
         gameId = newGame.id;
+        console.log('Created new manual game:', gameId);
+      }
+
+      if (!gameId) {
+        throw new Error('Failed to get game ID');
       }
 
       // Add to collection
@@ -153,26 +188,41 @@ export const StreamlinedAddGameModal = ({ isOpen, onClose, defaultCollectionType
         .select('id')
         .single();
 
-      if (collectionError) throw collectionError;
+      if (collectionError) {
+        console.error('Error adding to collection:', collectionError);
+        throw collectionError;
+      }
+
+      console.log('Added to collection:', collection.id);
 
       // Add tags if any
       if (tags.length > 0 && collection) {
         for (const tagName of tags) {
           // Insert tag if it doesn't exist
-          const { data: tag } = await supabase
+          const { data: tag, error: tagError } = await supabase
             .from('tags')
             .upsert({ name: tagName })
             .select('id')
             .single();
 
+          if (tagError) {
+            console.error('Error creating tag:', tagError);
+            continue; // Skip this tag but don't fail the whole operation
+          }
+
           if (tag) {
             // Link tag to collection
-            await supabase
+            const { error: linkError } = await supabase
               .from('collection_tags')
               .insert({
                 collection_id: collection.id,
                 tag_id: tag.id
               });
+
+            if (linkError) {
+              console.error('Error linking tag:', linkError);
+              // Continue - don't fail for tag linking issues
+            }
           }
         }
       }
@@ -184,7 +234,8 @@ export const StreamlinedAddGameModal = ({ isOpen, onClose, defaultCollectionType
       handleClose();
     } catch (error) {
       console.error('Error adding game:', error);
-      toast.error('Failed to add game. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      toast.error(`Failed to add game: ${errorMessage}`);
     } finally {
       setIsSubmitting(false);
     }
