@@ -1,24 +1,20 @@
 
-import { useState } from 'react';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import React from 'react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Checkbox } from '@/components/ui/checkbox';
-import { X, Plus } from 'lucide-react';
-import { useAvailableTagsGrouped, GroupedTags } from '@/hooks/useAvailableTagsGrouped';
+import { Badge } from '@/components/ui/badge';
+import { X } from 'lucide-react';
+import { useAvailableTagsGrouped } from '@/hooks/useAvailableTagsGrouped';
 
 interface TagSelectorProps {
   selectedTags: string[];
   onTagsChange: (tags: string[]) => void;
 }
 
-export const TagSelector = ({ selectedTags, onTagsChange }: TagSelectorProps) => {
-  const [customTag, setCustomTag] = useState('');
-  const { data: groupedTags = {} } = useAvailableTagsGrouped();
+export const TagSelector: React.FC<TagSelectorProps> = ({ selectedTags, onTagsChange }) => {
+  const { data: groupedTags = {}, isLoading } = useAvailableTagsGrouped();
 
-  const handleTagToggle = (tagName: string) => {
+  const handleToggle = (tagName: string) => {
     if (selectedTags.includes(tagName)) {
       onTagsChange(selectedTags.filter(tag => tag !== tagName));
     } else {
@@ -26,35 +22,37 @@ export const TagSelector = ({ selectedTags, onTagsChange }: TagSelectorProps) =>
     }
   };
 
-  const handleRemoveTag = (tagToRemove: string) => {
-    onTagsChange(selectedTags.filter(tag => tag !== tagToRemove));
+  const removeTag = (tagName: string) => {
+    onTagsChange(selectedTags.filter(tag => tag !== tagName));
   };
 
-  const handleAddCustomTag = () => {
-    if (customTag.trim() && !selectedTags.includes(customTag.trim())) {
-      onTagsChange([...selectedTags, customTag.trim()]);
-      setCustomTag('');
-    }
-  };
-
-  const formatTypeLabel = (type: string) => {
-    return type.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-  };
+  if (isLoading) {
+    return (
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-gray-700">Tags</label>
+        <div className="text-sm text-gray-500">Loading tags...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-3">
-      <Label>Tags</Label>
+      <label className="text-sm font-medium text-gray-700">Tags</label>
       
-      {/* Selected Tags */}
+      {/* Selected Tags Display */}
       {selectedTags.length > 0 && (
-        <div className="flex flex-wrap gap-1">
-          {selectedTags.map((tag, index) => (
-            <Badge key={index} variant="secondary" className="flex items-center gap-1 px-2 py-1">
+        <div className="flex flex-wrap gap-2 p-3 bg-gray-50 rounded-lg">
+          {selectedTags.map((tag) => (
+            <Badge
+              key={tag}
+              variant="secondary"
+              className="flex items-center gap-1 bg-orange-100 text-orange-700 border-orange-200"
+            >
               {tag}
               <button
                 type="button"
-                onClick={() => handleRemoveTag(tag)}
-                className="ml-1 hover:text-red-500 transition-colors"
+                onClick={() => removeTag(tag)}
+                className="hover:bg-orange-200 rounded-full p-0.5"
               >
                 <X className="w-3 h-3" />
               </button>
@@ -63,65 +61,45 @@ export const TagSelector = ({ selectedTags, onTagsChange }: TagSelectorProps) =>
         </div>
       )}
 
-      {/* Grouped Tags Accordion */}
-      {Object.keys(groupedTags).length > 0 && (
-        <div className="border rounded-lg">
-          <Accordion type="multiple" className="w-full">
-            {Object.entries(groupedTags).map(([type, tags]) => (
-              <AccordionItem key={type} value={type} className="border-none">
-                <AccordionTrigger className="px-4 py-3 hover:no-underline">
-                  <span className="font-medium">{formatTypeLabel(type)}</span>
-                  <span className="text-sm text-gray-500 ml-2">({tags.length})</span>
-                </AccordionTrigger>
-                <AccordionContent className="px-4 pb-4">
-                  <div className="grid grid-cols-2 gap-2">
-                    {tags.map(tag => (
-                      <div key={tag.id} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={tag.id}
-                          checked={selectedTags.includes(tag.name)}
-                          onCheckedChange={() => handleTagToggle(tag.name)}
-                        />
-                        <Label 
-                          htmlFor={tag.id} 
-                          className="text-sm cursor-pointer flex-1 leading-tight"
-                        >
-                          {tag.name}
-                        </Label>
-                      </div>
-                    ))}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
+      {/* Tag Selection Accordion */}
+      <div className="border rounded-lg">
+        <Accordion type="multiple" className="w-full">
+          {Object.entries(groupedTags).map(([type, tags]) => (
+            <AccordionItem key={type} value={type} className="border-b-0">
+              <AccordionTrigger className="hover:no-underline px-4 py-3">
+                <span className="capitalize font-medium">
+                  {type.replace(/[_-]/g, ' ')} ({tags.length})
+                </span>
+              </AccordionTrigger>
+              <AccordionContent className="px-4 pb-4">
+                <div className="grid grid-cols-2 gap-2">
+                  {tags.map((tag) => (
+                    <div key={tag.id} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={tag.id}
+                        checked={selectedTags.includes(tag.name)}
+                        onCheckedChange={() => handleToggle(tag.name)}
+                      />
+                      <label
+                        htmlFor={tag.id}
+                        className="text-sm cursor-pointer hover:text-gray-900"
+                      >
+                        {tag.name}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
+      </div>
+
+      {Object.keys(groupedTags).length === 0 && (
+        <div className="text-sm text-gray-500 py-4 text-center">
+          No tags available
         </div>
       )}
-
-      {/* Custom Tag Input */}
-      <div className="flex gap-2">
-        <Input
-          placeholder="Add custom tag..."
-          value={customTag}
-          onChange={(e) => setCustomTag(e.target.value)}
-          onKeyPress={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              handleAddCustomTag();
-            }
-          }}
-          className="flex-1"
-        />
-        <Button 
-          type="button" 
-          onClick={handleAddCustomTag} 
-          variant="outline"
-          size="sm"
-          disabled={!customTag.trim()}
-        >
-          <Plus className="w-4 h-4" />
-        </Button>
-      </div>
     </div>
   );
 };

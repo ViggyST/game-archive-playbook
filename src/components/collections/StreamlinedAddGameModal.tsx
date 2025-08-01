@@ -1,4 +1,5 @@
-import { useState } from 'react';
+
+import React, { useState } from 'react';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,7 +23,7 @@ interface StreamlinedAddGameModalProps {
   defaultCollectionType: 'owned' | 'wishlist';
 }
 
-export const StreamlinedAddGameModal = ({ isOpen, onClose, defaultCollectionType }: StreamlinedAddGameModalProps) => {
+export const StreamlinedAddGameModal: React.FC<StreamlinedAddGameModalProps> = ({ isOpen, onClose, defaultCollectionType }) => {
   const { player } = usePlayerContext();
   const queryClient = useQueryClient();
   
