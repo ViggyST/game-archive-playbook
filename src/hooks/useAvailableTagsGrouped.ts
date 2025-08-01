@@ -27,8 +27,12 @@ export const useAvailableTagsGrouped = () => {
         return {};
       }
 
-      // Group tags by type
-      const grouped = (data || []).reduce((acc, tag) => {
+      // Filter out unwanted tags and group by type
+      const filteredData = (data || []).filter(tag => 
+        !['component', 'experience', 'structure'].includes(tag.name.toLowerCase())
+      );
+
+      const grouped = filteredData.reduce((acc, tag) => {
         const type = tag.tag_type || 'Other';
         if (!acc[type]) acc[type] = [];
         acc[type].push(tag);
@@ -37,6 +41,7 @@ export const useAvailableTagsGrouped = () => {
 
       return grouped;
     },
-    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
+    staleTime: 0, // Force refresh
+    gcTime: 0, // Don't cache
   });
 };
