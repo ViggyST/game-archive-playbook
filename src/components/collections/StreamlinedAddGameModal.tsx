@@ -46,16 +46,21 @@ export const StreamlinedAddGameModal = ({ isOpen, onClose, defaultCollectionType
 
   const { data: catalogResults = [], isLoading: isSearching } = useGameCatalogSearch(searchQuery);
 
-  const checkIfGameExists = (gameTitle: string) => {
+  const checkIfGameExists = (gameTitle: string, catalogId?: number) => {
     const allGames = [...ownedGames, ...wishlistGames];
-    return allGames.find(game => 
-      game.game_name.toLowerCase().trim() === gameTitle.toLowerCase().trim()
-    );
+    return allGames.find(game => {
+      // Check by catalog ID if available (more reliable)
+      if (catalogId && game.catalog_game_id === catalogId) {
+        return true;
+      }
+      // Fallback to title comparison
+      return game.game_name.toLowerCase().trim() === gameTitle.toLowerCase().trim();
+    });
   };
 
   const handleGameSelect = (catalogGame: GameCatalogItem) => {
     console.log('Selecting catalog game:', catalogGame);
-    const existingGame = checkIfGameExists(catalogGame.title);
+    const existingGame = checkIfGameExists(catalogGame.title, catalogGame.game_id);
     if (existingGame) {
       const collectionTypeText = existingGame.id && ownedGames.find(g => g.id === existingGame.id) ? 'owned collection' : 'wishlist';
       toast.error(`🎲 "${catalogGame.title}" is already in your ${collectionTypeText}`);
@@ -98,7 +103,7 @@ export const StreamlinedAddGameModal = ({ isOpen, onClose, defaultCollectionType
     }
 
     // Final duplicate check before submission
-    const existingGame = checkIfGameExists(gameTitle);
+    const existingGame = checkIfGameExists(gameTitle, selectedGame?.game_id);
     if (existingGame) {
       const collectionTypeText = existingGame.id && ownedGames.find(g => g.id === existingGame.id) ? 'owned collection' : 'wishlist';
       toast.error(`🎲 "${gameTitle}" is already in your ${collectionTypeText}`);
@@ -108,83 +113,39 @@ export const StreamlinedAddGameModal = ({ isOpen, onClose, defaultCollectionType
     setIsSubmitting(true);
 
     try {
-      console.log('Starting game submission process:', {
+      console.log('Starting collection entry submission:', {
         gameTitle,
         selectedGame: selectedGame?.title,
         isManual: !selectedGame,
         collectionType
       });
 
-      let gameId = null;
+      // Insert directly into collections table
+      const collectionData: any = {
+        player_id: player.id,
+        game_title: gameTitle,
+        collection_type: collectionType,
+        notes: notes || null,
+        is_manual: !selectedGame
+      };
 
+      // Add catalog data if from BGG
       if (selectedGame) {
-        // Check if this catalog game already exists in our games table
-        const { data: existingGameData, error: existingGameError } = await supabase
-          .from('games')
-          .select('id')
-          .eq('name', selectedGame.title)
-          .maybeSingle();
-
-        if (existingGameError) {
-          console.error('Error checking existing game:', existingGameError);
-          throw new Error('Failed to check if game exists');
-        }
-
-        if (existingGameData) {
-          gameId = existingGameData.id;
-          console.log('Using existing game:', gameId);
-        } else {
-          // Create new game entry from catalog - use 'light' as a valid weight value
-          const { data: newGame, error: gameError } = await supabase
-            .from('games')
-            .insert({
-              name: selectedGame.title,
-              cover_url: selectedGame.thumbnail || null,
-              weight: 'light'
-            })
-            .select('id')
-            .single();
-
-          if (gameError) {
-            console.error('Error creating game:', gameError);
-            throw gameError;
-          }
-          gameId = newGame.id;
-          console.log('Created new game:', gameId);
-        }
+        collectionData.catalog_game_id = selectedGame.game_id;
+        collectionData.thumbnail_url = selectedGame.thumbnail || null;
+        collectionData.description = selectedGame.description || null;
+        collectionData.bgg_rank = selectedGame.rank || null;
+        collectionData.geek_rating = selectedGame.geek_rating || null;
+        collectionData.year_published = selectedGame.year || null;
+        collectionData.bgg_link = selectedGame.link || null;
       } else {
-        // Manual entry - create new game with 'light' weight
-        const { data: newGame, error: gameError } = await supabase
-          .from('games')
-          .insert({
-            name: manualTitle.trim(),
-            weight: 'light'
-          })
-          .select('id')
-          .single();
-
-        if (gameError) {
-          console.error('Error creating manual game:', gameError);
-          throw gameError;
-        }
-        gameId = newGame.id;
-        console.log('Created new manual game:', gameId);
+        // Manual entry
+        collectionData.description = manualDescription || null;
       }
 
-      if (!gameId) {
-        throw new Error('Failed to get game ID');
-      }
-
-      // Add to collection
       const { data: collection, error: collectionError } = await supabase
         .from('collections')
-        .insert({
-          player_id: player.id,
-          game_id: gameId,
-          collection_type: collectionType,
-          notes: notes || null,
-          is_manual: !selectedGame
-        })
+        .insert(collectionData)
         .select('id')
         .single();
 
