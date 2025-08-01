@@ -134,13 +134,13 @@ export const StreamlinedAddGameModal = ({ isOpen, onClose, defaultCollectionType
           gameId = existingGameData.id;
           console.log('Using existing game:', gameId);
         } else {
-          // Create new game entry from catalog
+          // Create new game entry from catalog - use 'light' as a valid weight value
           const { data: newGame, error: gameError } = await supabase
             .from('games')
             .insert({
               name: selectedGame.title,
               cover_url: selectedGame.thumbnail || null,
-              weight: 'Medium'
+              weight: 'light'
             })
             .select('id')
             .single();
@@ -153,12 +153,12 @@ export const StreamlinedAddGameModal = ({ isOpen, onClose, defaultCollectionType
           console.log('Created new game:', gameId);
         }
       } else {
-        // Manual entry - create new game
+        // Manual entry - create new game with 'light' weight
         const { data: newGame, error: gameError } = await supabase
           .from('games')
           .insert({
             name: manualTitle.trim(),
-            weight: 'Medium'
+            weight: 'light'
           })
           .select('id')
           .single();
