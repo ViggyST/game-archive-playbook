@@ -120,7 +120,7 @@ export const EnhancedAddGameModal = ({ isOpen, onClose, defaultCollectionType }:
         .from('collections')
         .insert({
           player_id: player.id,
-          game_id: gameId,
+          catalog_game_id: gameId,
           collection_type: collectionType,
           rulebook_url: rulebookUrl || null,
           notes: notes || null,

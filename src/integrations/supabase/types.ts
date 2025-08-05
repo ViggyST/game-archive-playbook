@@ -46,9 +46,9 @@ export type Database = {
       }
       collections: {
         Row: {
+          catalog_game_id: number
           collection_type: Database["public"]["Enums"]["collection_type_enum"]
           created_at: string
-          game_id: string
           id: string
           is_manual: boolean | null
           notes: string | null
@@ -56,9 +56,9 @@ export type Database = {
           rulebook_url: string | null
         }
         Insert: {
+          catalog_game_id: number
           collection_type: Database["public"]["Enums"]["collection_type_enum"]
           created_at?: string
-          game_id: string
           id?: string
           is_manual?: boolean | null
           notes?: string | null
@@ -66,9 +66,9 @@ export type Database = {
           rulebook_url?: string | null
         }
         Update: {
+          catalog_game_id?: number
           collection_type?: Database["public"]["Enums"]["collection_type_enum"]
           created_at?: string
-          game_id?: string
           id?: string
           is_manual?: boolean | null
           notes?: string | null
@@ -77,11 +77,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "collections_game_id_fkey"
-            columns: ["game_id"]
+            foreignKeyName: "collections_catalog_game_id_fkey"
+            columns: ["catalog_game_id"]
             isOneToOne: false
-            referencedRelation: "games"
-            referencedColumns: ["id"]
+            referencedRelation: "game_catalog"
+            referencedColumns: ["game_id"]
           },
           {
             foreignKeyName: "collections_player_id_fkey"

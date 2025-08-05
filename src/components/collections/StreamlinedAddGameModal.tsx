@@ -170,7 +170,7 @@ export const StreamlinedAddGameModal: React.FC<StreamlinedAddGameModalProps> = (
       // Insert into collections table with catalog reference
       const collectionData: any = {
         player_id: player.id,
-        game_id: catalogGameId,
+        catalog_game_id: catalogGameId,
         collection_type: collectionType,
         notes: notes || null,
         is_manual: !selectedGame

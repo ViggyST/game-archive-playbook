@@ -50,75 +50,88 @@ export const AddGameModal = ({ isOpen, onClose, defaultCollectionType }: AddGame
     setIsSubmitting(true);
 
     try {
-      // First, check if game exists in games table
-      let { data: existingGame } = await supabase
-        .from('games')
-        .select('id')
-        .eq('name', gameName.trim())
-        .single();
-
-      let gameId;
+      // First, find or create the game in game_catalog
+      let catalogGameId: number;
       
-      if (!existingGame) {
-        // Create new game
-        const { data: newGame, error: gameError } = await supabase
-          .from('games')
-          .insert({
-            name: gameName.trim(),
-            weight: complexity || 'Medium'
-          })
-          .select('id')
-          .single();
-
-        if (gameError) throw gameError;
-        gameId = newGame.id;
+      // Manual entry - check if game exists in catalog, if not add it
+      const { data: existingCatalogGame } = await supabase
+        .from('game_catalog')
+        .select('game_id')
+        .eq('title', gameName.trim())
+        .maybeSingle();
+        
+      if (existingCatalogGame) {
+        catalogGameId = existingCatalogGame.game_id;
       } else {
-        gameId = existingGame.id;
+        // Add new game to catalog
+        const maxIdResult = await supabase
+          .from('game_catalog')
+          .select('game_id')
+          .order('game_id', { ascending: false })
+          .limit(1)
+          .single();
+          
+        const nextId = maxIdResult.data ? maxIdResult.data.game_id + 1 : 1000000;
+        
+        const { data: newCatalogGame, error: catalogError } = await supabase
+          .from('game_catalog')
+          .insert({
+            game_id: nextId,
+            title: gameName.trim(),
+            description: null,
+            thumbnail: null,
+            year: null,
+            rank: null,
+            geek_rating: null,
+            avg_rating: null,
+            voters: null,
+            link: null
+          })
+          .select('game_id')
+          .single();
+          
+        if (catalogError) throw catalogError;
+        catalogGameId = newCatalogGame.game_id;
       }
 
       // Add to collection
-      const { error: collectionError } = await supabase
+      const { data: collection, error: collectionError } = await supabase
         .from('collections')
         .insert({
           player_id: player.id,
-          game_id: gameId,
+          catalog_game_id: catalogGameId,
           collection_type: collectionType,
           rulebook_url: rulebookUrl || null,
           is_manual: true
-        });
+        })
+        .select('id')
+        .single();
 
       if (collectionError) throw collectionError;
 
       // Add tags if any
-      if (tags.length > 0) {
-        // First, get the collection ID
-        const { data: collection } = await supabase
-          .from('collections')
-          .select('id')
-          .eq('player_id', player.id)
-          .eq('game_id', gameId)
-          .eq('collection_type', collectionType)
-          .single();
+      if (tags.length > 0 && collection) {
+        for (const tagName of tags) {
+          // Insert tag if it doesn't exist
+          const { data: tag, error: tagError } = await supabase
+            .from('tags')
+            .upsert({ name: tagName })
+            .select('id')
+            .single();
 
-        if (collection) {
-          // Insert tags and get their IDs
-          for (const tagName of tags) {
-            // Insert tag if it doesn't exist
-            const { data: tag } = await supabase
-              .from('tags')
-              .upsert({ name: tagName })
-              .select('id')
-              .single();
+          if (tagError) {
+            console.error('Error creating tag:', tagError);
+            continue;
+          }
 
-            if (tag) {
-              // Link tag to collection
-              await supabase
-                .from('collection_tags')
-                .insert({
-                  collection_id: collection.id,
-                  tag_id: tag.id
-                });
-            }
+          if (tag) {
+            // Link tag to collection
+            await supabase
+              .from('collection_tags')
+              .insert({
+                collection_id: collection.id,
+                tag_id: tag.id
+              });
           }
         }
       }
