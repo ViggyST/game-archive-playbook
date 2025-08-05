@@ -126,13 +126,7 @@ export const StreamlinedAddGameModal: React.FC<StreamlinedAddGameModalProps> = (
 
       // Add catalog data if from BGG
       if (selectedGame) {
-        collectionData.catalog_game_id = selectedGame.game_id;
-        collectionData.thumbnail_url = selectedGame.thumbnail || null;
-        collectionData.description = selectedGame.description || null;
-        collectionData.bgg_rank = selectedGame.rank || null;
-        collectionData.geek_rating = selectedGame.geek_rating || null;
-        collectionData.year_published = selectedGame.year || null;
-        collectionData.bgg_link = selectedGame.link || null;
+        // Only include fields that exist in the collections table
       } else {
         // Manual entry
         collectionData.description = manualDescription || null;
