@@ -115,22 +115,64 @@ export const StreamlinedAddGameModal: React.FC<StreamlinedAddGameModalProps> = (
         collectionType
       });
 
-      // Insert directly into collections table
+      // First, create or find the game
+      let gameId: string;
+      
+      if (selectedGame) {
+        // Check if game already exists
+        const { data: existingGame } = await supabase
+          .from('games')
+          .select('id')
+          .eq('name', gameTitle)
+          .maybeSingle();
+          
+        if (existingGame) {
+          gameId = existingGame.id;
+        } else {
+          // Create new game from BGG data
+          const { data: newGame, error: gameError } = await supabase
+            .from('games')
+            .insert({
+              name: gameTitle,
+              cover_url: selectedGame.thumbnail || null,
+              weight: selectedGame.rank ? `${selectedGame.rank}` : null
+            })
+            .select('id')
+            .single();
+            
+          if (gameError) {
+            console.error('Error creating game:', gameError);
+            throw gameError;
+          }
+          gameId = newGame.id;
+        }
+      } else {
+        // Manual entry - create new game
+        const { data: newGame, error: gameError } = await supabase
+          .from('games')
+          .insert({
+            name: gameTitle,
+            cover_url: null,
+            weight: null
+          })
+          .select('id')
+          .single();
+          
+        if (gameError) {
+          console.error('Error creating game:', gameError);
+          throw gameError;
+        }
+        gameId = newGame.id;
+      }
+
+      // Insert into collections table with proper game_id reference
       const collectionData: any = {
         player_id: player.id,
-        game_title: gameTitle,
+        game_id: gameId,
         collection_type: collectionType,
         notes: notes || null,
         is_manual: !selectedGame
       };
-
-      // Add catalog data if from BGG
-      if (selectedGame) {
-        // Only include fields that exist in the collections table
-      } else {
-        // Manual entry
-        collectionData.description = manualDescription || null;
-      }
 
       const { data: collection, error: collectionError } = await supabase
         .from('collections')
