@@ -192,31 +192,42 @@ export const StreamlinedAddGameModal: React.FC<StreamlinedAddGameModalProps> = (
       // Add tags if any
       if (tags.length > 0 && collection) {
         for (const tagName of tags) {
-          // Insert tag if it doesn't exist
-          const { data: tag, error: tagError } = await supabase
+          // First try to find existing tag
+          const { data: existingTag } = await supabase
             .from('tags')
-            .upsert({ name: tagName })
             .select('id')
-            .single();
+            .eq('name', tagName)
+            .maybeSingle();
 
-          if (tagError) {
-            console.error('Error creating tag:', tagError);
-            continue; // Skip this tag but don't fail the whole operation
+          let tagId: string;
+          
+          if (existingTag) {
+            tagId = existingTag.id;
+          } else {
+            // Create new tag if it doesn't exist
+            const { data: newTag, error: tagError } = await supabase
+              .from('tags')
+              .insert({ name: tagName })
+              .select('id')
+              .single();
+
+            if (tagError) {
+              console.error('Error creating tag:', tagError);
+              continue;
+            }
+            tagId = newTag.id;
           }
 
-          if (tag) {
-            // Link tag to collection
-            const { error: linkError } = await supabase
-              .from('collection_tags')
-              .insert({
-                collection_id: collection.id,
-                tag_id: tag.id
-              });
+          // Link tag to collection
+          const { error: linkError } = await supabase
+            .from('collection_tags')
+            .insert({
+              collection_id: collection.id,
+              tag_id: tagId
+            });
 
-            if (linkError) {
-              console.error('Error linking tag:', linkError);
-              // Continue - don't fail for tag linking issues
-            }
+          if (linkError) {
+            console.error('Error linking tag to collection:', linkError);
           }
         }
       }
