@@ -115,60 +115,62 @@ export const StreamlinedAddGameModal: React.FC<StreamlinedAddGameModalProps> = (
         collectionType
       });
 
-      // First, create or find the game
-      let gameId: string;
+      // First, find or create the game in game_catalog
+      let catalogGameId: number;
       
       if (selectedGame) {
-        // Check if game already exists
-        const { data: existingGame } = await supabase
-          .from('games')
-          .select('id')
-          .eq('name', gameTitle)
+        // selectedGame should have game_id from BGG catalog
+        catalogGameId = selectedGame.game_id;
+      } else {
+        // Manual entry - check if game exists in catalog, if not add it
+        const { data: existingCatalogGame } = await supabase
+          .from('game_catalog')
+          .select('game_id')
+          .eq('title', gameTitle)
           .maybeSingle();
           
-        if (existingGame) {
-          gameId = existingGame.id;
+        if (existingCatalogGame) {
+          catalogGameId = existingCatalogGame.game_id;
         } else {
-          // Create new game from BGG data
-          const { data: newGame, error: gameError } = await supabase
-            .from('games')
-            .insert({
-              name: gameTitle,
-              cover_url: selectedGame.thumbnail || null,
-              weight: selectedGame.rank ? `${selectedGame.rank}` : null
-            })
-            .select('id')
+          // Add new game to catalog - generate unique ID for manual entries
+          const maxIdResult = await supabase
+            .from('game_catalog')
+            .select('game_id')
+            .order('game_id', { ascending: false })
+            .limit(1)
             .single();
             
-          if (gameError) {
-            console.error('Error creating game:', gameError);
-            throw gameError;
-          }
-          gameId = newGame.id;
-        }
-      } else {
-        // Manual entry - create new game
-        const { data: newGame, error: gameError } = await supabase
-          .from('games')
-          .insert({
-            name: gameTitle,
-            cover_url: null,
-            weight: null
-          })
-          .select('id')
-          .single();
+          const nextId = maxIdResult.data ? maxIdResult.data.game_id + 1 : 1000000; // Start manual IDs at 1M+
           
-        if (gameError) {
-          console.error('Error creating game:', gameError);
-          throw gameError;
+          const { data: newCatalogGame, error: catalogError } = await supabase
+            .from('game_catalog')
+            .insert({
+              game_id: nextId,
+              title: gameTitle,
+              description: manualDescription || null,
+              thumbnail: null,
+              year: null,
+              rank: null,
+              geek_rating: null,
+              avg_rating: null,
+              voters: null,
+              link: null
+            })
+            .select('game_id')
+            .single();
+            
+          if (catalogError) {
+            console.error('Error adding to game catalog:', catalogError);
+            throw catalogError;
+          }
+          catalogGameId = newCatalogGame.game_id;
         }
-        gameId = newGame.id;
       }
 
-      // Insert into collections table with proper game_id reference
+      // Insert into collections table with catalog reference
       const collectionData: any = {
         player_id: player.id,
-        game_id: gameId,
+        game_id: catalogGameId,
         collection_type: collectionType,
         notes: notes || null,
         is_manual: !selectedGame
