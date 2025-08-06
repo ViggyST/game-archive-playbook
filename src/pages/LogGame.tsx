@@ -1,19 +1,15 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import GameInfoStep from "@/components/log-game/GameInfoStep";
-import SessionDetailsStep from "@/components/log-game/SessionDetailsStep";
-import AddPlayersStep from "@/components/log-game/AddPlayersStep";
-import ScoreEntryStep from "@/components/log-game/ScoreEntryStep";
-import HighlightsStep from "@/components/log-game/HighlightsStep";
-import ReviewSubmitStep from "@/components/log-game/ReviewSubmitStep";
+import LogGameStep1 from "@/components/log-game/LogGameStep1";
+import LogGameStep2 from "@/components/log-game/LogGameStep2";
+import LogGameSummary from "@/components/log-game/LogGameSummary";
 import { useLogGame } from "@/hooks/useLogGame";
 
 export interface GameData {
   name: string;
-  coverImage?: string;
   complexity: 'Light' | 'Medium' | 'Heavy';
   date: Date;
   location: string;
@@ -40,23 +36,20 @@ const LogGame = () => {
   const initialDate = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 12, 0, 0);
   
   const [gameData, setGameData] = useState<GameData>({
-    name: '',
+    name: 'Wingspan', // Default for testing - can be from route params later
     complexity: 'Medium',
     date: initialDate,
     location: '',
-    duration: 60,
+    duration: 90,
     players: [],
     scores: {},
     highlights: ''
   });
 
   const steps = [
-    { id: 1, title: "Game Info", component: GameInfoStep },
-    { id: 2, title: "Session Details", component: SessionDetailsStep },
-    { id: 3, title: "Add Players", component: AddPlayersStep },
-    { id: 4, title: "Score Entry", component: ScoreEntryStep },
-    { id: 5, title: "Highlights", component: HighlightsStep },
-    { id: 6, title: "Review & Submit", component: ReviewSubmitStep }
+    { id: 1, title: "Game & Session Details", component: LogGameStep1 },
+    { id: 2, title: "Players, Scores & Highlights", component: LogGameStep2 },
+    { id: 3, title: "Review & Submit", component: LogGameSummary }
   ];
 
   const currentStepData = steps.find(step => step.id === currentStep);
@@ -78,27 +71,12 @@ const LogGame = () => {
 
   const handleSubmit = async () => {
     console.log("Attempting to save game:", gameData);
-    console.log("Players:", gameData.players);
-    console.log("Scores object:", gameData.scores);
-    console.log("Winner ID:", gameData.winner);
-    
-    // Validate that we have all required data
-    if (gameData.players.length === 0) {
-      console.error("No players found");
-      return;
-    }
-    
-    if (Object.keys(gameData.scores).length === 0) {
-      console.error("No scores found");
-      return;
-    }
     
     try {
       await logGameMutation.mutateAsync(gameData);
       navigate('/dashboard');
     } catch (error) {
       console.error("Error in handleSubmit:", error);
-      // Error handling is done in the hook via toast
     }
   };
 
@@ -109,16 +87,12 @@ const LogGame = () => {
   const canProceed = () => {
     switch (currentStep) {
       case 1:
-        return gameData.name.trim() !== '';
+        return gameData.name.trim() !== '' && gameData.location.trim() !== '';
       case 2:
-        return gameData.location.trim() !== '' && gameData.duration > 0;
+        return gameData.players.length >= 2 && 
+               Object.keys(gameData.scores).length === gameData.players.length &&
+               gameData.winner;
       case 3:
-        return gameData.players.length >= 1;
-      case 4:
-        return gameData.players.length > 0 && Object.keys(gameData.scores).length === gameData.players.length;
-      case 5:
-        return true; // Highlights are optional
-      case 6:
         return true;
       default:
         return true;
@@ -150,7 +124,7 @@ const LogGame = () => {
               </p>
             </div>
             
-            <div className="w-10" /> {/* Spacer for balance */}
+            <div className="w-10" />
           </div>
           
           {/* Progress Bar */}
@@ -171,41 +145,12 @@ const LogGame = () => {
           <CurrentStepComponent 
             gameData={gameData}
             updateGameData={updateGameData}
+            onNext={handleNext}
+            onSubmit={handleSubmit}
+            canProceed={canProceed()}
+            isPending={logGameMutation.isPending}
           />
         )}
-      </div>
-
-      {/* Footer Navigation */}
-      <div className="sticky bottom-0 bg-background/95 backdrop-blur-sm border-t border-border p-6">
-        <div className="flex gap-4">
-          <Button
-            variant="outline"
-            onClick={handleBack}
-            className="flex-1 font-inter"
-            disabled={logGameMutation.isPending}
-          >
-            {currentStep === 1 ? 'Cancel' : 'Back'}
-          </Button>
-          
-          {currentStep < steps.length ? (
-            <Button
-              onClick={handleNext}
-              disabled={!canProceed() || logGameMutation.isPending}
-              className="flex-1 bg-gradient-to-r from-sky-blue-500 to-meeple-gold-500 text-white font-inter hover:opacity-90"
-            >
-              Next
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          ) : (
-            <Button
-              onClick={handleSubmit}
-              disabled={!canProceed() || logGameMutation.isPending}
-              className="flex-1 bg-gradient-to-r from-meeple-gold-500 to-sky-blue-500 text-white font-inter hover:opacity-90"
-            >
-              {logGameMutation.isPending ? 'Saving...' : 'Save Game'}
-            </Button>
-          )}
-        </div>
       </div>
     </div>
   );
