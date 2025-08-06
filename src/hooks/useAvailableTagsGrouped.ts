@@ -27,9 +27,10 @@ export const useAvailableTagsGrouped = () => {
         return {};
       }
 
-      // Filter out unwanted tags and group by type
+      // Filter out unwanted tags and miscellaneous tags, then group by type
       const filteredData = (data || []).filter(tag => 
-        !['component', 'experience', 'structure'].includes(tag.name.toLowerCase())
+        !['component', 'experience', 'structure'].includes(tag.name.toLowerCase()) &&
+        tag.tag_type !== 'miscellaneous'
       );
 
       const grouped = filteredData.reduce((acc, tag) => {

@@ -204,10 +204,13 @@ export const StreamlinedAddGameModal: React.FC<StreamlinedAddGameModalProps> = (
           if (existingTag) {
             tagId = existingTag.id;
           } else {
-            // Create new tag if it doesn't exist
+            // Create new tag if it doesn't exist (mark custom tags as miscellaneous)
             const { data: newTag, error: tagError } = await supabase
               .from('tags')
-              .insert({ name: tagName })
+              .insert({ 
+                name: tagName,
+                tag_type: 'miscellaneous'
+              })
               .select('id')
               .single();
 

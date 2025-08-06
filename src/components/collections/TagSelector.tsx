@@ -4,7 +4,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { X, ChevronDown, Tags } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { X, ChevronDown, Tags, Plus } from 'lucide-react';
 import { useAvailableTagsGrouped } from '@/hooks/useAvailableTagsGrouped';
 
 interface TagSelectorProps {
@@ -15,6 +16,7 @@ interface TagSelectorProps {
 export const TagSelector: React.FC<TagSelectorProps> = ({ selectedTags, onTagsChange }) => {
   const { data: groupedTags = {}, isLoading } = useAvailableTagsGrouped();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [customTagInput, setCustomTagInput] = useState('');
 
   const handleToggle = (tagName: string) => {
     if (selectedTags.includes(tagName)) {
@@ -26,6 +28,21 @@ export const TagSelector: React.FC<TagSelectorProps> = ({ selectedTags, onTagsCh
 
   const removeTag = (tagName: string) => {
     onTagsChange(selectedTags.filter(tag => tag !== tagName));
+  };
+
+  const addCustomTag = () => {
+    const trimmedTag = customTagInput.trim();
+    if (trimmedTag && !selectedTags.includes(trimmedTag)) {
+      onTagsChange([...selectedTags, trimmedTag]);
+      setCustomTagInput('');
+    }
+  };
+
+  const handleCustomTagKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addCustomTag();
+    }
   };
 
   if (isLoading) {
@@ -82,6 +99,31 @@ export const TagSelector: React.FC<TagSelectorProps> = ({ selectedTags, onTagsCh
       {/* Expandable Tag Selection */}
       {isExpanded && (
         <div className="border rounded-md bg-white shadow-sm">
+          {/* Custom Tag Input */}
+          <div className="p-3 border-b bg-gray-50">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">Add Custom Tag</label>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Type your own tag..."
+                  value={customTagInput}
+                  onChange={(e) => setCustomTagInput(e.target.value)}
+                  onKeyPress={handleCustomTagKeyPress}
+                  className="flex-1"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={addCustomTag}
+                  disabled={!customTagInput.trim() || selectedTags.includes(customTagInput.trim())}
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+          
           <Accordion type="multiple" className="w-full">
             {Object.entries(groupedTags).map(([type, tags]) => (
               <AccordionItem key={type} value={type} className="border-b-0 last:border-b-0">
