@@ -97,6 +97,7 @@ export const usePlayerCollections = (collectionType: 'owned' | 'wishlist') => {
       return transformedData;
     },
     enabled: !!player?.id,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0, // Always fetch fresh data
+    gcTime: 1000 * 60 * 5, // Cache for 5 minutes but allow stale
   });
 };

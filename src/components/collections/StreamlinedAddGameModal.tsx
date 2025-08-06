@@ -236,7 +236,8 @@ export const StreamlinedAddGameModal: React.FC<StreamlinedAddGameModalProps> = (
       }
 
       // Refresh the collections data
-      queryClient.invalidateQueries({ queryKey: ['player-collections'] });
+      await queryClient.invalidateQueries({ queryKey: ['player-collections'] });
+      await queryClient.refetchQueries({ queryKey: ['player-collections'] });
       
       toast.success(`🎮 "${gameTitle}" added to your ${collectionType}!`);
       handleClose();
