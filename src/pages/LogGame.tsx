@@ -18,6 +18,7 @@ export interface GameData {
   scores: { [playerId: string]: number };
   winner?: string;
   highlights: string;
+  coverImage?: string;
 }
 
 export interface Player {
@@ -91,7 +92,7 @@ const LogGame = () => {
       case 2:
         return gameData.players.length >= 2 && 
                Object.keys(gameData.scores).length === gameData.players.length &&
-               gameData.winner;
+               Boolean(gameData.winner);
       case 3:
         return true;
       default:

@@ -1,4 +1,3 @@
-
 import { useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { GameData } from "@/pages/LogGame";
