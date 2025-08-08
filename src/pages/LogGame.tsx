@@ -3,8 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import GameInfoStep from "@/components/log-game/GameInfoStep";
-import SessionDetailsStep from "@/components/log-game/SessionDetailsStep";
+import GameSessionInfoStep from "@/components/log-game/GameSessionInfoStep";
 import AddPlayersStep from "@/components/log-game/AddPlayersStep";
 import ScoreEntryStep from "@/components/log-game/ScoreEntryStep";
 import HighlightsStep from "@/components/log-game/HighlightsStep";
@@ -51,12 +50,11 @@ const LogGame = () => {
   });
 
   const steps = [
-    { id: 1, title: "Game Info", component: GameInfoStep },
-    { id: 2, title: "Session Details", component: SessionDetailsStep },
-    { id: 3, title: "Add Players", component: AddPlayersStep },
-    { id: 4, title: "Score Entry", component: ScoreEntryStep },
-    { id: 5, title: "Highlights", component: HighlightsStep },
-    { id: 6, title: "Review & Submit", component: ReviewSubmitStep }
+    { id: 1, title: "Game & Session Info", component: GameSessionInfoStep },
+    { id: 2, title: "Add Players", component: AddPlayersStep },
+    { id: 3, title: "Score Entry", component: ScoreEntryStep },
+    { id: 4, title: "Highlights", component: HighlightsStep },
+    { id: 5, title: "Review & Submit", component: ReviewSubmitStep }
   ];
 
   const currentStepData = steps.find(step => step.id === currentStep);
@@ -109,9 +107,13 @@ const LogGame = () => {
   const canProceed = () => {
     switch (currentStep) {
       case 1:
-        return gameData.name.trim() !== '';
+        return (
+          gameData.name.trim() !== '' &&
+          gameData.location.trim() !== '' &&
+          gameData.duration > 0
+        );
       case 2:
-        return gameData.location.trim() !== '' && gameData.duration > 0;
+        return gameData.players.length >= 1;
       case 3:
         return gameData.players.length >= 1;
       case 4:
