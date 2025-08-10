@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
+import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { GameData } from "@/pages/LogGame";
@@ -112,6 +113,14 @@ export default function GameSessionInfoStep({ gameData, updateGameData }: Props)
   };
 
   const selectDuration = (minutes: number) => updateGameData({ duration: minutes });
+
+  // Helper function to format duration for display
+  const formatDuration = (minutes: number) => {
+    if (minutes < 60) return `${minutes}m`;
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return mins === 0 ? `${hours}h` : `${hours}h ${mins}m`;
+  };
 
   return (
     <div className="px-5 py-4 animate-fade-in">
@@ -292,11 +301,33 @@ export default function GameSessionInfoStep({ gameData, updateGameData }: Props)
           </div>
 
           {/* Duration */}
-          <div className="space-y-2">
+          <div className="space-y-3">
             <div className="flex items-center gap-2">
               <Timer className="h-5 w-5 text-green-600" />
               <Label className="font-inter text-sm font-medium text-gray-700">Duration</Label>
             </div>
+            
+            {/* Slider */}
+            <div className="space-y-2">
+              <div className="relative">
+                <Slider
+                  value={[gameData.duration || 90]}
+                  onValueChange={(values) => selectDuration(values[0])}
+                  min={15}
+                  max={360}
+                  step={15}
+                  className="w-full"
+                />
+                {/* Duration label above slider */}
+                <div className="flex justify-center mt-1">
+                  <span className="text-xs font-medium text-gray-600 bg-gray-100 px-2 py-1 rounded">
+                    {formatDuration(gameData.duration || 90)}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Preset Pills */}
             <div className="flex gap-2 flex-wrap">
               {durationPresets.map((m) => {
                 const isActive = gameData.duration === m;
@@ -306,14 +337,14 @@ export default function GameSessionInfoStep({ gameData, updateGameData }: Props)
                     type="button"
                     variant="outline"
                     className={cn(
-                      "h-9 px-4 rounded-full text-sm font-medium min-w-16",
+                      "h-9 px-4 rounded-full text-sm font-medium min-w-16 transition-all duration-200",
                       isActive
                         ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white border-orange-500 hover:from-orange-600 hover:to-orange-700"
                         : "border-gray-300 bg-gray-50 text-gray-700 hover:bg-gray-100"
                     )}
                     onClick={() => selectDuration(m)}
                   >
-                    {m < 60 ? `${m}m` : m % 60 === 0 ? `${m / 60}h` : `${Math.floor(m / 60)}h ${m % 60}m`}
+                    {formatDuration(m)}
                   </Button>
                 );
               })}
