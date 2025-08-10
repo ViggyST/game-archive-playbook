@@ -43,7 +43,7 @@ const LogGame = () => {
     complexity: 'Medium',
     date: initialDate,
     location: '',
-    duration: 60,
+    duration: 90,
     players: [],
     scores: {},
     highlights: ''
