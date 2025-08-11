@@ -60,9 +60,28 @@ const LogGame = () => {
   const CurrentStepComponent = currentStepData?.component;
 
   const handleNext = () => {
-    if (currentStep < steps.length) {
-      setCurrentStep(currentStep + 1);
+    if (currentStep >= steps.length) return;
+    
+    // Special handling for step 2 (winner-optional flow)
+    if (currentStep === 2) {
+      const element = document.querySelector('[data-step-validation]');
+      if (element && (element as any).handleNextClick) {
+        const shouldProceed = (element as any).handleNextClick();
+        if (shouldProceed) {
+          setCurrentStep(currentStep + 1);
+        }
+        return;
+      }
+      
+      // Fallback logic if element not found
+      const { hasAtLeastOnePlayer, allScoresFinite, hasWinner } = evalStep2(gameData);
+      if (hasAtLeastOnePlayer && allScoresFinite && hasWinner) {
+        setCurrentStep(currentStep + 1);
+      }
+      return;
     }
+    
+    setCurrentStep(currentStep + 1);
   };
 
   const handleBack = () => {
@@ -99,8 +118,13 @@ const LogGame = () => {
     }
   };
 
-  const updateGameData = (updates: Partial<GameData>) => {
-    setGameData(prev => ({ ...prev, ...updates }));
+  const updateGameData = (updates: Partial<GameData & { skipWinner?: boolean }>) => {
+    setGameData(prev => ({ 
+      ...prev, 
+      ...updates,
+      // Clear skipWinner when going back to step 2
+      ...(currentStep === 2 && updates.skipWinner === undefined ? { skipWinner: false } : {})
+    }));
   };
 
   const canProceed = () => {
@@ -112,8 +136,9 @@ const LogGame = () => {
           gameData.duration > 0
         );
       case 2: {
-        const { canProceed } = evalStep2(gameData);
-        return canProceed;
+        // For step 2, enable Next when baseValid (players + scores), winner is optional
+        const { hasAtLeastOnePlayer, allScoresFinite } = evalStep2(gameData);
+        return hasAtLeastOnePlayer && allScoresFinite;
       }
       case 3:
         return true;

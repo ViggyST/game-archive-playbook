@@ -1,5 +1,5 @@
 
-import { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { Plus, Users, X, Trophy, Crown, Minus, MessageSquare, Mic } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -60,9 +60,10 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
     const updatedScores = { ...gameData.scores };
     delete updatedScores[playerId];
     
-    const updatedData: Partial<GameData> = { 
+    const updatedData: Partial<GameData & { skipWinner?: boolean }> = { 
       players: updatedPlayers, 
-      scores: updatedScores 
+      scores: updatedScores,
+      skipWinner: false // Clear skipWinner when removing players
     };
     
     if (gameData.winner === playerId) {
@@ -93,7 +94,8 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
       scores: {
         ...gameData.scores,
         [playerId]: Math.max(0, Math.min(maxScore, score))
-      }
+      },
+      skipWinner: false // Clear skipWinner when editing scores
     });
   };
 
@@ -355,7 +357,7 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
                   : !allScoresFinite
                   ? "Enter a score for each player"
                   : baseValid && !hasWinner
-                  ? "Optionally select a winner or continue without one"
+                  ? "Don't forget to mark a winner."
                   : "Ready to proceed!"
                 }
               </p>
@@ -448,12 +450,41 @@ export default function CombinedPlayersScoresStepWrapper(props: CombinedPlayersS
     setConfirmOpen(false);
   };
 
+  // Expose validation state to parent via data attributes for LogGame to read
+  React.useEffect(() => {
+    const element = document.querySelector('[data-step-validation]');
+    if (element) {
+      element.setAttribute('data-base-valid', String(baseValid));
+      element.setAttribute('data-has-winner', String(hasWinner));
+      element.setAttribute('data-can-proceed', String(validity.canProceed));
+    }
+  }, [baseValid, hasWinner, validity.canProceed]);
+
+  // Handle next button click from parent
+  const handleNextClick = React.useCallback(() => {
+    if (!baseValid) return false; // Block navigation
+    if (hasWinner) return true; // Allow navigation
+    // Show modal for no winner
+    setConfirmOpen(true);
+    return false; // Block navigation until modal is resolved
+  }, [baseValid, hasWinner]);
+
+  // Expose handler to parent
+  React.useEffect(() => {
+    const element = document.querySelector('[data-step-validation]');
+    if (element) {
+      (element as any).handleNextClick = handleNextClick;
+    }
+  }, [handleNextClick]);
+
   return (
     <>
-      <CombinedPlayersScoresStep 
-        gameData={props.gameData}
-        updateGameData={props.updateGameData}
-      />
+      <div data-step-validation>
+        <CombinedPlayersScoresStep 
+          gameData={props.gameData}
+          updateGameData={props.updateGameData}
+        />
+      </div>
       
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <AlertDialogContent>
