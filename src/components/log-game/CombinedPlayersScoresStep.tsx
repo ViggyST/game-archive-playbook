@@ -448,6 +448,13 @@ export default function CombinedPlayersScoresStepWrapper(props: CombinedPlayersS
   const confirmProceedWithoutWinner = () => {
     props.updateGameData({ skipWinner: true });
     setConfirmOpen(false);
+    // Trigger navigation after modal closes
+    setTimeout(() => {
+      const element = document.querySelector('[data-step-validation]');
+      if (element && (element as any).proceedToNext) {
+        (element as any).proceedToNext();
+      }
+    }, 0);
   };
 
   // Expose validation state to parent via data attributes for LogGame to read
@@ -469,13 +476,22 @@ export default function CombinedPlayersScoresStepWrapper(props: CombinedPlayersS
     return false; // Block navigation until modal is resolved
   }, [baseValid, hasWinner]);
 
-  // Expose handler to parent
+  // Function to proceed to next step (called after modal confirmation)
+  const proceedToNext = React.useCallback(() => {
+    const logGameElement = document.querySelector('[data-log-game]');
+    if (logGameElement && (logGameElement as any).proceedToNextStep) {
+      (logGameElement as any).proceedToNextStep();
+    }
+  }, []);
+
+  // Expose handlers to parent
   React.useEffect(() => {
     const element = document.querySelector('[data-step-validation]');
     if (element) {
       (element as any).handleNextClick = handleNextClick;
+      (element as any).proceedToNext = proceedToNext;
     }
-  }, [handleNextClick]);
+  }, [handleNextClick, proceedToNext]);
 
   return (
     <>

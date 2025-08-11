@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -83,6 +83,19 @@ const LogGame = () => {
     
     setCurrentStep(currentStep + 1);
   };
+
+  // Function to proceed to next step (exposed for modal confirmation)
+  const proceedToNextStep = () => {
+    setCurrentStep(currentStep + 1);
+  };
+
+  // Expose proceedToNextStep to child components
+  React.useEffect(() => {
+    const element = document.querySelector('[data-log-game]');
+    if (element) {
+      (element as any).proceedToNextStep = proceedToNextStep;
+    }
+  }, [currentStep]);
 
   const handleBack = () => {
     if (currentStep > 1) {
@@ -188,7 +201,7 @@ const LogGame = () => {
       </div>
 
       {/* Step Content */}
-      <div className="animate-fade-in">
+      <div className="animate-fade-in" data-log-game>
         {CurrentStepComponent && (
           <CurrentStepComponent 
             gameData={gameData}
