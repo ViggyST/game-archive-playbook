@@ -1,12 +1,9 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import GameSessionInfoStep from "@/components/log-game/GameSessionInfoStep";
-import AddPlayersStep from "@/components/log-game/AddPlayersStep";
-import ScoreEntryStep from "@/components/log-game/ScoreEntryStep";
-import HighlightsStep from "@/components/log-game/HighlightsStep";
+import CombinedPlayersScoresStep from "@/components/log-game/CombinedPlayersScoresStep";
 import ReviewSubmitStep from "@/components/log-game/ReviewSubmitStep";
 import { useLogGame } from "@/hooks/useLogGame";
 
@@ -51,10 +48,8 @@ const LogGame = () => {
 
   const steps = [
     { id: 1, title: "Game & Session Info", component: GameSessionInfoStep },
-    { id: 2, title: "Add Players", component: AddPlayersStep },
-    { id: 3, title: "Score Entry", component: ScoreEntryStep },
-    { id: 4, title: "Highlights", component: HighlightsStep },
-    { id: 5, title: "Review & Submit", component: ReviewSubmitStep }
+    { id: 2, title: "Players & Scores", component: CombinedPlayersScoresStep },
+    { id: 3, title: "Review & Submit", component: ReviewSubmitStep }
   ];
 
   const currentStepData = steps.find(step => step.id === currentStep);
@@ -113,14 +108,12 @@ const LogGame = () => {
           gameData.duration > 0
         );
       case 2:
-        return gameData.players.length >= 1;
+        return (
+          gameData.players.length >= 1 && 
+          Object.keys(gameData.scores).length === gameData.players.length &&
+          gameData.winner !== undefined
+        );
       case 3:
-        return gameData.players.length >= 1;
-      case 4:
-        return gameData.players.length > 0 && Object.keys(gameData.scores).length === gameData.players.length;
-      case 5:
-        return true; // Highlights are optional
-      case 6:
         return true;
       default:
         return true;
@@ -168,7 +161,7 @@ const LogGame = () => {
       </div>
 
       {/* Step Content */}
-      <div className="px-6 py-6 animate-fade-in">
+      <div className="animate-fade-in">
         {CurrentStepComponent && (
           <CurrentStepComponent 
             gameData={gameData}
