@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Plus, Users, X, Trophy, Crown, Minus, MessageSquare, Mic } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,11 +8,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { GameData, Player } from "@/pages/LogGame";
+import { evalStep2 } from "@/utils/validation";
 
 interface CombinedPlayersScoresStepProps {
-  gameData: GameData;
-  updateGameData: (updates: Partial<GameData>) => void;
+  gameData: GameData & { skipWinner?: boolean };
+  updateGameData: (updates: Partial<GameData & { skipWinner?: boolean }>) => void;
 }
 
 const AVATAR_COLORS = [
@@ -24,6 +26,10 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
   const [newPlayerName, setNewPlayerName] = useState("");
   const [maxScore, setMaxScore] = useState(500);
   const [showScoring, setShowScoring] = useState(gameData.players.length > 0);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const validity = useMemo(() => evalStep2(gameData), [gameData]);
+  const { hasAtLeastOnePlayer, allScoresFinite, hasWinner } = validity;
 
   const generateAvatar = (name: string, index: number) => {
     const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
@@ -31,11 +37,7 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
     return { initials, colorClass };
   };
 
-  // Validation logic
-  const scoresAreValid = gameData.players.length >= 2 && 
-    gameData.players.every(p => Number.isFinite(gameData.scores[p.id] || 0));
-  const winnerIsValid = gameData.players.filter(p => gameData.winner === p.id).length === 1;
-  const canProceed = scoresAreValid && winnerIsValid;
+  const baseValid = hasAtLeastOnePlayer && allScoresFinite;
 
   const addPlayer = () => {
     if (newPlayerName.trim() && !gameData.players.find(p => p.name === newPlayerName.trim())) {
@@ -102,7 +104,8 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
 
   const toggleWinner = (playerId: string) => {
     updateGameData({
-      winner: gameData.winner === playerId ? undefined : playerId
+      winner: gameData.winner === playerId ? undefined : playerId,
+      skipWinner: false // Clear skip flag if they choose a winner
     });
   };
 
@@ -112,6 +115,15 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
 
   const handleVoiceInput = () => {
     console.log("Voice input would be implemented here");
+  };
+
+  const confirmProceedWithoutWinner = () => {
+    updateGameData({ skipWinner: true });
+    setConfirmOpen(false);
+  };
+
+  const cancelProceed = () => {
+    setConfirmOpen(false);
   };
 
   return (
@@ -227,7 +239,7 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
               Enter Scores
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3">
             {/* Score Range Adjustment */}
             <div className="flex items-center justify-between p-2 bg-gray-50 rounded-lg h-8">
               <span className="font-inter text-xs text-gray-600">Score Range: 0 - {maxScore}</span>
@@ -253,7 +265,7 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
             </div>
 
             {/* Players and Scores - Compact Layout */}
-            <div className="space-y-3">
+            <div className="space-y-2">
               {gameData.players.map((player, index) => {
                 const { initials, colorClass } = generateAvatar(player.name, index);
                 const score = gameData.scores[player.id] || 0;
@@ -269,7 +281,7 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
                     }`}
                   >
                     {/* Row A: Player Info + Score */}
-                    <div className="flex items-center justify-between mb-2 h-9">
+                    <div className="flex items-center justify-between mb-2 h-8">
                       <div className="flex items-center gap-2">
                         <Avatar className="h-7 w-7">
                           <AvatarFallback className={`${colorClass} text-white font-inter font-semibold text-xs`}>
@@ -280,13 +292,13 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
                           {player.name}
                         </span>
                         <Button
-                          variant={isWinner ? "default" : "outline"}
+                          variant="ghost"
                           size="sm"
                           onClick={() => toggleWinner(player.id)}
-                          className={`h-7 px-2 text-xs rounded-full ${
+                          className={`h-7 px-2 text-xs rounded-full transition-all ${
                             isWinner 
-                              ? 'bg-yellow-400 hover:bg-yellow-500 text-yellow-900 border-yellow-400' 
-                              : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                              ? 'bg-yellow-400 hover:bg-yellow-500 text-yellow-900 border border-yellow-400' 
+                              : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
                           }`}
                         >
                           <Crown className="h-3 w-3 mr-1" />
@@ -316,7 +328,7 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
                           variant="outline"
                           size="sm"
                           onClick={() => adjustScore(player.id, -1)}
-                          className="h-9 w-9 rounded-full border-gray-300 bg-gray-50 text-gray-700 hover:bg-gray-100 p-0"
+                          className="h-8 w-8 rounded-full border-gray-300 bg-gray-50 text-gray-700 hover:bg-gray-100 p-0"
                         >
                           -1
                         </Button>
@@ -324,7 +336,7 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
                           type="number"
                           value={score}
                           onChange={(e) => updateScore(player.id, parseInt(e.target.value) || 0)}
-                          className="w-14 text-center font-inter h-9 border-gray-200 rounded-lg text-sm"
+                          className="w-14 text-center font-inter h-8 border-gray-200 rounded-lg text-sm"
                           min="0"
                           max={maxScore}
                         />
@@ -332,7 +344,7 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
                           variant="outline"
                           size="sm"
                           onClick={() => adjustScore(player.id, 1)}
-                          className="h-9 w-9 rounded-full border-gray-300 bg-gray-50 text-gray-700 hover:bg-gray-100 p-0"
+                          className="h-8 w-8 rounded-full border-gray-300 bg-gray-50 text-gray-700 hover:bg-gray-100 p-0"
                         >
                           +1
                         </Button>
@@ -344,13 +356,18 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
             </div>
 
             {/* Validation Info */}
-            {!canProceed && gameData.players.length > 0 && (
-              <div className="text-center p-3 bg-sky-50 rounded-lg h-9 flex items-center justify-center">
-                <p className="text-xs font-inter text-sky-700">
-                  Add scores for all players and mark one winner to continue
-                </p>
-              </div>
-            )}
+            <div className="text-center p-2 bg-sky-50 rounded-lg h-8 flex items-center justify-center">
+              <p className="text-xs font-inter text-sky-700">
+                {!hasAtLeastOnePlayer 
+                  ? "Add at least one player to continue"
+                  : !allScoresFinite
+                  ? "Enter a score for each player"
+                  : baseValid && !hasWinner
+                  ? "Optionally select a winner or continue without one"
+                  : "Ready to proceed!"
+                }
+              </p>
+            </div>
 
             {/* Back to Players Button */}
             <Button
@@ -387,8 +404,8 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
                   value={gameData.highlights}
                   onChange={(e) => updateGameData({ highlights: e.target.value })}
                   placeholder="Capture the moments that made this game session memorable!"
-                  className="h-22 font-inter resize-none pr-10 border-gray-200 rounded-lg text-sm"
-                  rows={4}
+                  className="h-20 font-inter resize-none pr-10 border-gray-200 rounded-lg text-sm"
+                  rows={3}
                 />
                 
                 {/* Voice Input Button */}
@@ -416,8 +433,75 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
           </CardContent>
         </Card>
       )}
+
+      {/* Confirmation Dialog for proceeding without winner */}
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Proceed without a winner?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You haven't marked a winner. You can still save the session without one.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={cancelProceed}>Go back</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmProceedWithoutWinner}>
+              Yes, continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
 
-export default CombinedPlayersScoresStep;
+// Export a wrapper that handles the confirm dialog logic
+export default function CombinedPlayersScoresStepWrapper(props: CombinedPlayersScoresStepProps & { onNext?: () => void }) {
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const validity = useMemo(() => evalStep2(props.gameData), [props.gameData]);
+  const { hasAtLeastOnePlayer, allScoresFinite, hasWinner } = validity;
+  
+  const baseValid = hasAtLeastOnePlayer && allScoresFinite;
+
+  // Expose the validation and confirmation logic to parent
+  const handleNext = () => {
+    if (!baseValid) return;
+    if (hasWinner) {
+      props.onNext?.();
+      return;
+    }
+    // No winner → ask user
+    setConfirmOpen(true);
+  };
+
+  const confirmProceedWithoutWinner = () => {
+    props.updateGameData({ skipWinner: true });
+    setConfirmOpen(false);
+    props.onNext?.();
+  };
+
+  return (
+    <>
+      <CombinedPlayersScoresStep {...props} />
+      
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Proceed without a winner?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You haven't marked a winner. You can still save the session without one.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setConfirmOpen(false)}>Go back</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmProceedWithoutWinner}>
+              Yes, continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+}
+
+export { CombinedPlayersScoresStep };

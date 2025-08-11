@@ -1,11 +1,13 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import GameSessionInfoStep from "@/components/log-game/GameSessionInfoStep";
-import CombinedPlayersScoresStep from "@/components/log-game/CombinedPlayersScoresStep";
+import CombinedPlayersScoresStepWrapper from "@/components/log-game/CombinedPlayersScoresStep";
 import ReviewSubmitStep from "@/components/log-game/ReviewSubmitStep";
 import { useLogGame } from "@/hooks/useLogGame";
+import { evalStep2 } from "@/utils/validation";
 
 export interface GameData {
   name: string;
@@ -18,6 +20,7 @@ export interface GameData {
   scores: { [playerId: string]: number };
   winner?: string;
   highlights: string;
+  skipWinner?: boolean;
 }
 
 export interface Player {
@@ -43,12 +46,13 @@ const LogGame = () => {
     duration: 90,
     players: [],
     scores: {},
-    highlights: ''
+    highlights: '',
+    skipWinner: false
   });
 
   const steps = [
     { id: 1, title: "Game & Session Info", component: GameSessionInfoStep },
-    { id: 2, title: "Players & Scores", component: CombinedPlayersScoresStep },
+    { id: 2, title: "Players & Scores", component: CombinedPlayersScoresStepWrapper },
     { id: 3, title: "Review & Submit", component: ReviewSubmitStep }
   ];
 
@@ -107,12 +111,10 @@ const LogGame = () => {
           gameData.location.trim() !== '' &&
           gameData.duration > 0
         );
-      case 2:
-        // Updated validation logic
-        const scoresAreValid = gameData.players.length >= 2 && 
-          gameData.players.every(p => Number.isFinite(gameData.scores[p.id] || 0));
-        const winnerIsValid = gameData.players.filter(p => gameData.winner === p.id).length === 1;
-        return scoresAreValid && winnerIsValid;
+      case 2: {
+        const { canProceed } = evalStep2(gameData);
+        return canProceed;
+      }
       case 3:
         return true;
       default:
@@ -166,6 +168,7 @@ const LogGame = () => {
           <CurrentStepComponent 
             gameData={gameData}
             updateGameData={updateGameData}
+            onNext={handleNext}
           />
         )}
       </div>
