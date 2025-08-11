@@ -168,7 +168,6 @@ const LogGame = () => {
           <CurrentStepComponent 
             gameData={gameData}
             updateGameData={updateGameData}
-            onNext={handleNext}
           />
         )}
       </div>

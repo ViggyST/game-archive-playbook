@@ -15,6 +15,7 @@ import { evalStep2 } from "@/utils/validation";
 interface CombinedPlayersScoresStepProps {
   gameData: GameData & { skipWinner?: boolean };
   updateGameData: (updates: Partial<GameData & { skipWinner?: boolean }>) => void;
+  onNext?: () => void;
 }
 
 const AVATAR_COLORS = [
@@ -26,7 +27,6 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
   const [newPlayerName, setNewPlayerName] = useState("");
   const [maxScore, setMaxScore] = useState(500);
   const [showScoring, setShowScoring] = useState(gameData.players.length > 0);
-  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const validity = useMemo(() => evalStep2(gameData), [gameData]);
   const { hasAtLeastOnePlayer, allScoresFinite, hasWinner } = validity;
@@ -117,14 +117,6 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
     console.log("Voice input would be implemented here");
   };
 
-  const confirmProceedWithoutWinner = () => {
-    updateGameData({ skipWinner: true });
-    setConfirmOpen(false);
-  };
-
-  const cancelProceed = () => {
-    setConfirmOpen(false);
-  };
 
   return (
     <div className="px-5 py-3 animate-fade-in space-y-4">
@@ -434,55 +426,34 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
         </Card>
       )}
 
-      {/* Confirmation Dialog for proceeding without winner */}
-      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Proceed without a winner?</AlertDialogTitle>
-            <AlertDialogDescription>
-              You haven't marked a winner. You can still save the session without one.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={cancelProceed}>Go back</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmProceedWithoutWinner}>
-              Yes, continue
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 };
 
 // Export a wrapper that handles the confirm dialog logic
-export default function CombinedPlayersScoresStepWrapper(props: CombinedPlayersScoresStepProps & { onNext?: () => void }) {
+interface CombinedPlayersScoresStepWrapperProps {
+  gameData: GameData & { skipWinner?: boolean };
+  updateGameData: (updates: Partial<GameData & { skipWinner?: boolean }>) => void;
+}
+
+export default function CombinedPlayersScoresStepWrapper(props: CombinedPlayersScoresStepWrapperProps) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const validity = useMemo(() => evalStep2(props.gameData), [props.gameData]);
   const { hasAtLeastOnePlayer, allScoresFinite, hasWinner } = validity;
   
   const baseValid = hasAtLeastOnePlayer && allScoresFinite;
 
-  // Expose the validation and confirmation logic to parent
-  const handleNext = () => {
-    if (!baseValid) return;
-    if (hasWinner) {
-      props.onNext?.();
-      return;
-    }
-    // No winner → ask user
-    setConfirmOpen(true);
-  };
-
   const confirmProceedWithoutWinner = () => {
     props.updateGameData({ skipWinner: true });
     setConfirmOpen(false);
-    props.onNext?.();
   };
 
   return (
     <>
-      <CombinedPlayersScoresStep {...props} />
+      <CombinedPlayersScoresStep 
+        gameData={props.gameData}
+        updateGameData={props.updateGameData}
+      />
       
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <AlertDialogContent>
