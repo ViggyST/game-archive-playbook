@@ -31,6 +31,12 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
     return { initials, colorClass };
   };
 
+  // Validation logic
+  const scoresAreValid = gameData.players.length >= 2 && 
+    gameData.players.every(p => Number.isFinite(gameData.scores[p.id] || 0));
+  const winnerIsValid = gameData.players.filter(p => gameData.winner === p.id).length === 1;
+  const canProceed = scoresAreValid && winnerIsValid;
+
   const addPlayer = () => {
     if (newPlayerName.trim() && !gameData.players.find(p => p.name === newPlayerName.trim())) {
       const newPlayer: Player = {
@@ -63,7 +69,6 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
     
     updateGameData(updatedData);
 
-    // If no players left, go back to player adding mode
     if (updatedPlayers.length === 0) {
       setShowScoring(false);
     }
@@ -85,7 +90,7 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
     updateGameData({
       scores: {
         ...gameData.scores,
-        [playerId]: Math.max(0, score)
+        [playerId]: Math.max(0, Math.min(maxScore, score))
       }
     });
   };
@@ -110,11 +115,11 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
   };
 
   return (
-    <div className="px-5 py-4 animate-fade-in space-y-6">
+    <div className="px-5 py-3 animate-fade-in space-y-4">
       {/* Add Players Section */}
       {!showScoring && (
         <Card className="shadow-sm border-border/60 animate-fade-in">
-          <CardHeader className="pb-4">
+          <CardHeader className="pb-3">
             <CardTitle className="font-inter text-lg font-semibold text-foreground flex items-center gap-2">
               <div className="h-5 w-5 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 flex items-center justify-center">
                 <Users className="h-3 w-3 text-white" />
@@ -122,7 +127,7 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
               Add Players
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3">
             {/* Add New Player */}
             <div className="space-y-2">
               <Label htmlFor="playerName" className="font-inter text-sm font-medium text-gray-700">
@@ -135,13 +140,13 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
                   onChange={(e) => setNewPlayerName(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Enter player name..."
-                  className="h-12 text-base border border-gray-200 rounded-lg focus:border-primary flex-1"
+                  className="h-11 text-base border border-gray-200 rounded-lg focus:border-primary flex-1"
                 />
                 <Button 
                   onClick={addPlayer}
                   disabled={!newPlayerName.trim()}
                   size="icon"
-                  className="h-12 w-12 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shrink-0 rounded-lg"
+                  className="h-11 w-11 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shrink-0 rounded-lg"
                 >
                   <Plus className="h-4 w-4" />
                 </Button>
@@ -155,22 +160,22 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
                   Players ({gameData.players.length})
                 </Label>
                 
-                <div className="space-y-3">
+                <div className="space-y-2">
                   {gameData.players.map((player, index) => {
                     const { initials, colorClass } = generateAvatar(player.name, index);
                     
                     return (
                       <div 
                         key={player.id}
-                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors h-12"
                       >
                         <div className="flex items-center gap-3">
-                          <Avatar className="h-10 w-10">
-                            <AvatarFallback className={`${colorClass} text-white font-inter font-semibold`}>
+                          <Avatar className="h-8 w-8">
+                            <AvatarFallback className={`${colorClass} text-white font-inter font-semibold text-xs`}>
                               {initials}
                             </AvatarFallback>
                           </Avatar>
-                          <span className="font-inter font-medium text-gray-900">
+                          <span className="font-inter font-medium text-gray-900 text-sm">
                             {player.name}
                           </span>
                         </div>
@@ -191,7 +196,7 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
                 {/* Confirm Players Button */}
                 <Button
                   onClick={confirmPlayers}
-                  className="w-full h-12 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-inter rounded-lg"
+                  className="w-full h-11 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-inter rounded-lg"
                 >
                   Confirm Players & Enter Scores
                 </Button>
@@ -199,8 +204,8 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
             )}
 
             {/* Player Count Info */}
-            <div className="text-center p-4 bg-sky-blue-50 rounded-lg">
-              <p className="text-sm font-inter text-sky-blue-700">
+            <div className="text-center p-3 bg-sky-50 rounded-lg h-9 flex items-center justify-center">
+              <p className="text-xs font-inter text-sky-700">
                 {gameData.players.length === 0 
                   ? "Add at least one player to continue" 
                   : `Ready! You have ${gameData.players.length} player${gameData.players.length > 1 ? 's' : ''} added.`
@@ -214,7 +219,7 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
       {/* Enter Scores Section */}
       {showScoring && (
         <Card className="shadow-sm border-border/60 animate-fade-in">
-          <CardHeader className="pb-4">
+          <CardHeader className="pb-3">
             <CardTitle className="font-inter text-lg font-semibold text-foreground flex items-center gap-2">
               <div className="h-5 w-5 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 flex items-center justify-center">
                 <Trophy className="h-3 w-3 text-white" />
@@ -222,17 +227,17 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
               Enter Scores
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Max Score Adjustment */}
-            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-              <span className="font-inter text-sm text-gray-900">Score Range: 0 - {maxScore}</span>
+          <CardContent className="space-y-4">
+            {/* Score Range Adjustment */}
+            <div className="flex items-center justify-between p-2 bg-gray-50 rounded-lg h-8">
+              <span className="font-inter text-xs text-gray-600">Score Range: 0 - {maxScore}</span>
               <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => adjustMaxScore(maxScore - 100)}
                   disabled={maxScore <= 100}
-                  className="h-8 px-3 rounded-full border-gray-300 bg-gray-50 text-gray-700 hover:bg-gray-100"
+                  className="h-6 px-2 text-xs rounded-full border-gray-300 bg-gray-50 text-gray-700 hover:bg-gray-100"
                 >
                   -100
                 </Button>
@@ -240,15 +245,15 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
                   variant="outline"
                   size="sm"
                   onClick={() => adjustMaxScore(maxScore + 100)}
-                  className="h-8 px-3 rounded-full border-gray-300 bg-gray-50 text-gray-700 hover:bg-gray-100"
+                  className="h-6 px-2 text-xs rounded-full border-gray-300 bg-gray-50 text-gray-700 hover:bg-gray-100"
                 >
                   +100
                 </Button>
               </div>
             </div>
 
-            {/* Players and Scores */}
-            <div className="space-y-4">
+            {/* Players and Scores - Compact Layout */}
+            <div className="space-y-3">
               {gameData.players.map((player, index) => {
                 const { initials, colorClass } = generateAvatar(player.name, index);
                 const score = gameData.scores[player.id] || 0;
@@ -257,62 +262,45 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
                 return (
                   <div 
                     key={player.id}
-                    className={`p-4 rounded-lg border-2 transition-all ${
+                    className={`p-3 rounded-lg border-2 transition-all ${
                       isWinner 
-                        ? 'border-yellow-400 bg-yellow-50 shadow-lg' 
-                        : 'border-gray-200 bg-white hover:shadow-md'
+                        ? 'border-yellow-400 bg-yellow-50' 
+                        : 'border-gray-200 bg-white'
                     }`}
                   >
-                    {/* Player Header */}
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-10 w-10">
-                          <AvatarFallback className={`${colorClass} text-white font-inter font-semibold`}>
+                    {/* Row A: Player Info + Score */}
+                    <div className="flex items-center justify-between mb-2 h-9">
+                      <div className="flex items-center gap-2">
+                        <Avatar className="h-7 w-7">
+                          <AvatarFallback className={`${colorClass} text-white font-inter font-semibold text-xs`}>
                             {initials}
                           </AvatarFallback>
                         </Avatar>
-                        <div>
-                          <span className="font-inter font-medium text-gray-900">
-                            {player.name}
-                          </span>
-                          {isWinner && (
-                            <div className="flex items-center gap-1 text-orange-600">
-                              <Crown className="h-3 w-3" />
-                              <span className="text-xs font-inter font-medium">Winner</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      
-                      {/* Score Display */}
-                      <div className="text-right">
-                        <div className="text-2xl font-bold text-gray-900">
-                          {score}
-                        </div>
+                        <span className="font-inter font-medium text-gray-900 text-sm">
+                          {player.name}
+                        </span>
                         <Button
                           variant={isWinner ? "default" : "outline"}
                           size="sm"
                           onClick={() => toggleWinner(player.id)}
-                          className={`text-xs mt-1 h-8 px-3 rounded-full ${
+                          className={`h-7 px-2 text-xs rounded-full ${
                             isWinner 
-                              ? 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white' 
-                              : 'border-gray-300 bg-gray-50 text-gray-700 hover:bg-gray-100'
+                              ? 'bg-yellow-400 hover:bg-yellow-500 text-yellow-900 border-yellow-400' 
+                              : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
                           }`}
                         >
-                          {isWinner ? (
-                            <>
-                              <Crown className="h-3 w-3 mr-1" />
-                              Winner
-                            </>
-                          ) : (
-                            'Mark Winner'
-                          )}
+                          <Crown className="h-3 w-3 mr-1" />
+                          {isWinner ? 'Winner' : 'Mark'}
                         </Button>
+                      </div>
+                      
+                      <div className="text-lg font-bold text-gray-900">
+                        {score}
                       </div>
                     </div>
 
-                    {/* Score Controls */}
-                    <div className="space-y-3">
+                    {/* Row B: Score Controls */}
+                    <div className="space-y-2">
                       {/* Slider */}
                       <Slider
                         value={[score]}
@@ -322,54 +310,32 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
                         className="w-full"
                       />
                       
-                      {/* Manual Controls */}
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => adjustScore(player.id, -10)}
-                            className="h-8 w-8 rounded-full border-gray-300 bg-gray-50 text-gray-700 hover:bg-gray-100"
-                          >
-                            <Minus className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => adjustScore(player.id, -1)}
-                            className="h-8 w-8 rounded-full border-gray-300 bg-gray-50 text-gray-700 hover:bg-gray-100"
-                          >
-                            -1
-                          </Button>
-                        </div>
-                        
+                      {/* Compact Controls */}
+                      <div className="flex items-center justify-end gap-1">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => adjustScore(player.id, -1)}
+                          className="h-9 w-9 rounded-full border-gray-300 bg-gray-50 text-gray-700 hover:bg-gray-100 p-0"
+                        >
+                          -1
+                        </Button>
                         <Input
                           type="number"
                           value={score}
                           onChange={(e) => updateScore(player.id, parseInt(e.target.value) || 0)}
-                          className="w-20 text-center font-inter h-8 border-gray-200 rounded-lg"
+                          className="w-14 text-center font-inter h-9 border-gray-200 rounded-lg text-sm"
                           min="0"
                           max={maxScore}
                         />
-                        
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => adjustScore(player.id, 1)}
-                            className="h-8 w-8 rounded-full border-gray-300 bg-gray-50 text-gray-700 hover:bg-gray-100"
-                          >
-                            +1
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => adjustScore(player.id, 10)}
-                            className="h-8 w-8 rounded-full border-gray-300 bg-gray-50 text-gray-700 hover:bg-gray-100"
-                          >
-                            <Plus className="h-3 w-3" />
-                          </Button>
-                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => adjustScore(player.id, 1)}
+                          className="h-9 w-9 rounded-full border-gray-300 bg-gray-50 text-gray-700 hover:bg-gray-100 p-0"
+                        >
+                          +1
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -377,11 +343,11 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
               })}
             </div>
 
-            {/* Winner Info */}
-            {!gameData.winner && gameData.players.length > 0 && (
-              <div className="text-center p-4 bg-sky-blue-50 rounded-lg">
-                <p className="text-sm font-inter text-sky-blue-700">
-                  Don't forget to mark the winner! 👑
+            {/* Validation Info */}
+            {!canProceed && gameData.players.length > 0 && (
+              <div className="text-center p-3 bg-sky-50 rounded-lg h-9 flex items-center justify-center">
+                <p className="text-xs font-inter text-sky-700">
+                  Add scores for all players and mark one winner to continue
                 </p>
               </div>
             )}
@@ -390,7 +356,7 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
             <Button
               variant="outline"
               onClick={() => setShowScoring(false)}
-              className="w-full h-12 border-gray-300 bg-gray-50 text-gray-700 hover:bg-gray-100 font-inter rounded-lg"
+              className="w-full h-11 border-gray-300 bg-gray-50 text-gray-700 hover:bg-gray-100 font-inter rounded-lg"
             >
               ← Back to Add Players
             </Button>
@@ -399,9 +365,9 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
       )}
 
       {/* Game Highlights Section - Always visible when in scoring mode */}
-      {showScoring && (
+      {showScoring && gameData.players.length >= 1 && (
         <Card className="shadow-sm border-border/60 animate-fade-in">
-          <CardHeader className="pb-4">
+          <CardHeader className="pb-3">
             <CardTitle className="font-inter text-lg font-semibold text-foreground flex items-center gap-2">
               <div className="h-5 w-5 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center">
                 <MessageSquare className="h-3 w-3 text-white" />
@@ -409,7 +375,7 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
               Game Highlights
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3">
             {/* Notes Input */}
             <div className="space-y-2">
               <Label htmlFor="highlights" className="font-inter text-sm font-medium text-gray-700">
@@ -421,8 +387,8 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
                   value={gameData.highlights}
                   onChange={(e) => updateGameData({ highlights: e.target.value })}
                   placeholder="Capture the moments that made this game session memorable!"
-                  className="min-h-[120px] font-inter resize-none pr-12 border-gray-200 rounded-lg"
-                  rows={5}
+                  className="h-22 font-inter resize-none pr-10 border-gray-200 rounded-lg text-sm"
+                  rows={4}
                 />
                 
                 {/* Voice Input Button */}
@@ -431,10 +397,10 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
                   variant="ghost"
                   size="icon"
                   onClick={handleVoiceInput}
-                  className="absolute bottom-2 right-2 h-8 w-8 text-gray-400 hover:text-blue-500"
+                  className="absolute bottom-2 right-2 h-6 w-6 text-gray-400 hover:text-blue-500"
                   title="Voice input"
                 >
-                  <Mic className="h-4 w-4" />
+                  <Mic className="h-3 w-3" />
                 </Button>
               </div>
             </div>
@@ -447,13 +413,6 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
                 </span>
               </div>
             )}
-
-            {/* Skip Info */}
-            <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <p className="text-sm font-inter text-gray-600">
-                You can always add highlights later or skip this step entirely.
-              </p>
-            </div>
           </CardContent>
         </Card>
       )}

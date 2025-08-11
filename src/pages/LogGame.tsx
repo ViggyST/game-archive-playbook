@@ -108,11 +108,11 @@ const LogGame = () => {
           gameData.duration > 0
         );
       case 2:
-        return (
-          gameData.players.length >= 1 && 
-          Object.keys(gameData.scores).length === gameData.players.length &&
-          gameData.winner !== undefined
-        );
+        // Updated validation logic
+        const scoresAreValid = gameData.players.length >= 2 && 
+          gameData.players.every(p => Number.isFinite(gameData.scores[p.id] || 0));
+        const winnerIsValid = gameData.players.filter(p => gameData.winner === p.id).length === 1;
+        return scoresAreValid && winnerIsValid;
       case 3:
         return true;
       default:
