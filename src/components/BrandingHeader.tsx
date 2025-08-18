@@ -13,7 +13,7 @@ const BrandingHeader = () => {
     setPlayer(null);
     
     // Redirect to landing page
-    navigate('/landing');
+    navigate('/');
   };
 
   return (
