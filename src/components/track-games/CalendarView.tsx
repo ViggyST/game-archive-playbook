@@ -46,23 +46,21 @@ const CalendarView = () => {
     const dateSessions = getSessionsForDate(date);
     if (dateSessions.length === 0) return [];
     
-    console.log('dots for', format(date, 'yyyy-MM-dd'), dateSessions);
-    
-    // Get unique complexities from the properly joined game data
-    const complexities = [...new Set(dateSessions.map(session => session.game_weight))];
+    // Get unique complexities from the properly joined game data (normalize case)
+    const complexities = [...new Set(dateSessions.map(session => session.game_weight?.toLowerCase()))];
     
     // Create dots in priority order: Light, Medium, Heavy
     const dots = [];
     
-    if (complexities.includes('Light')) {
+    if (complexities.includes('light')) {
       dots.push({ type: 'Light', color: 'bg-green-500' });
     }
     
-    if (complexities.includes('Medium')) {
+    if (complexities.includes('medium')) {
       dots.push({ type: 'Medium', color: 'bg-blue-500' });
     }
     
-    if (complexities.includes('Heavy')) {
+    if (complexities.includes('heavy')) {
       dots.push({ type: 'Heavy', color: 'bg-red-500' });
     }
 
