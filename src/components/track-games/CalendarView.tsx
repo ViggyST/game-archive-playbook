@@ -41,27 +41,40 @@ const CalendarView = () => {
     );
   };
 
-  // Get unique complexity dots for a date
+  // Get complexity dots for a date - shows multiple dots if multiple games of same complexity
   const getComplexityDots = (date: Date) => {
     const dateSessions = getSessionsForDate(date);
     if (dateSessions.length === 0) return [];
     
-    // Get unique complexities from the properly joined game data (normalize case)
-    const complexities = [...new Set(dateSessions.map(session => session.game_weight?.toLowerCase()))];
+    // Count complexities from the properly joined game data (normalize case)
+    const complexityCount = dateSessions.reduce((acc, session) => {
+      const weight = session.game_weight?.toLowerCase();
+      if (weight) {
+        acc[weight] = (acc[weight] || 0) + 1;
+      }
+      return acc;
+    }, {} as Record<string, number>);
     
     // Create dots in priority order: Light, Medium, Heavy
     const dots = [];
     
-    if (complexities.includes('light')) {
-      dots.push({ type: 'Light', color: 'bg-green-500' });
+    // Add multiple dots for each complexity based on count
+    if (complexityCount.light) {
+      for (let i = 0; i < complexityCount.light; i++) {
+        dots.push({ type: 'Light', color: 'bg-green-500' });
+      }
     }
     
-    if (complexities.includes('medium')) {
-      dots.push({ type: 'Medium', color: 'bg-blue-500' });
+    if (complexityCount.medium) {
+      for (let i = 0; i < complexityCount.medium; i++) {
+        dots.push({ type: 'Medium', color: 'bg-blue-500' });
+      }
     }
     
-    if (complexities.includes('heavy')) {
-      dots.push({ type: 'Heavy', color: 'bg-red-500' });
+    if (complexityCount.heavy) {
+      for (let i = 0; i < complexityCount.heavy; i++) {
+        dots.push({ type: 'Heavy', color: 'bg-red-500' });
+      }
     }
 
     return dots;
