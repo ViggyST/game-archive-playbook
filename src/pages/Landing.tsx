@@ -86,19 +86,19 @@ const Landing = () => {
   const onboardingSlides = [
     {
       title: "Log Your Games",
-      subtitle: "Record session date, duration, location, and highlights",
+      subtitle: "Record session dates, scores, and highlights",
       image: "/lovable-uploads/659589f2-c155-4b4c-b55a-072294c0b45a.png",
       bgColor: "bg-orange-50",
     },
     {
       title: "Track Your Stats", 
-      subtitle: "See winrates, top scores, and recent matches",
+      subtitle: "View winrates, top scores, and recent matches",
       image: "/lovable-uploads/6fb51983-559b-4382-b6f2-542fa5f04807.png",
       bgColor: "bg-blue-50",
     },
     {
-      title: "Track Your Collection",
-      subtitle: "Keep tabs on your entire game library",
+      title: "Manage Your Collection",
+      subtitle: "Track your owned and wishlisted games",
       image: "/lovable-uploads/cd50cf35-90e1-4270-ac36-984cf3423aee.png",
       bgColor: "bg-yellow-50",
     }
