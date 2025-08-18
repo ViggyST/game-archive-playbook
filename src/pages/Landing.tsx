@@ -97,9 +97,9 @@ const Landing = () => {
       bgColor: "bg-blue-50",
     },
     {
-      title: "Play Leaderboards",
-      subtitle: "Compare with friends and climb rankings",
-      image: "/lovable-uploads/d2994d75-f847-4b5d-bfcb-72cb28b8efe0.png",
+      title: "Track Your Collection",
+      subtitle: "Keep tabs on your entire game library",
+      image: "/lovable-uploads/cd50cf35-90e1-4270-ac36-984cf3423aee.png",
       bgColor: "bg-yellow-50",
     }
   ];
