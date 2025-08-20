@@ -119,11 +119,6 @@ const CalendarView = () => {
     return acc;
   }, {} as Record<string, any>);
 
-  // Debug log to see what we're working with
-  console.log('Selected date:', selectedDate);
-  console.log('Day sessions raw data:', daysSessions);
-  console.log('Grouped sessions:', groupedSessions);
-
   if (isLoading) {
     return (
       <div className="space-y-6">
