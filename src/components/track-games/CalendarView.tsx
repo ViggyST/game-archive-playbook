@@ -99,9 +99,9 @@ const CalendarView = () => {
     return `${mins}m`;
   };
 
-  // Group sessions by game for the modal
+  // Group sessions by session ID to keep each session separate
   const groupedSessions = daysSessions.reduce((acc, session) => {
-    const key = session.game_name;
+    const key = session.session_id;
     if (!acc[key]) {
       acc[key] = {
         game_name: session.game_name,

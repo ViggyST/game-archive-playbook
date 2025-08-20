@@ -10,6 +10,7 @@ export interface CalendarSession {
 }
 
 export interface GameSession {
+  session_id: string;
   game_name: string;
   player_name: string;
   score: number;
@@ -61,6 +62,7 @@ export const useSessionsByDate = (selectedDate: string) => {
       const { data, error } = await supabase
         .from('sessions')
         .select(`
+          id,
           games!inner(name),
           scores!inner(
             score,
@@ -83,6 +85,7 @@ export const useSessionsByDate = (selectedDate: string) => {
       data.forEach(session => {
         session.scores?.forEach(score => {
           sessions.push({
+            session_id: session.id,
             game_name: session.games?.name || '',
             player_name: score.players?.name || '',
             score: score.score || 0,
