@@ -20,12 +20,11 @@ export interface GameSession {
   highlights: string;
 }
 
-export const useCalendarSessions = (playerId?: string) => {
+export const useCalendarSessions = () => {
   return useQuery({
-    queryKey: ['calendar-sessions', playerId],
+    queryKey: ['calendar-sessions'],
     queryFn: async (): Promise<CalendarSession[]> => {
-      // Build the query with player filtering
-      let query = supabase
+      const { data, error } = await supabase
         .from('sessions')
         .select(`
           id,
@@ -33,18 +32,9 @@ export const useCalendarSessions = (playerId?: string) => {
           games!inner(
             name,
             weight
-          ),
-          scores!inner(
-            player_id
           )
-        `);
-
-      // Filter by player if playerId is provided
-      if (playerId) {
-        query = query.eq('scores.player_id', playerId);
-      }
-
-      const { data, error } = await query.order('date');
+        `)
+        .order('date');
 
       if (error) {
         console.error('Error fetching calendar sessions:', error);
@@ -61,17 +51,15 @@ export const useCalendarSessions = (playerId?: string) => {
 
       return sessions;
     },
-    enabled: playerId ? !!playerId : true,
     staleTime: 5 * 60 * 1000,
   });
 };
 
-export const useSessionsByDate = (selectedDate: string, playerId?: string) => {
+export const useSessionsByDate = (selectedDate: string) => {
   return useQuery({
-    queryKey: ['sessions-by-date', selectedDate, playerId],
+    queryKey: ['sessions-by-date', selectedDate],
     queryFn: async (): Promise<GameSession[]> => {
-      // Build the base query
-      let query = supabase
+      const { data, error } = await supabase
         .from('sessions')
         .select(`
           id,
@@ -79,7 +67,6 @@ export const useSessionsByDate = (selectedDate: string, playerId?: string) => {
           scores!inner(
             score,
             is_winner,
-            player_id,
             players!inner(name)
           ),
           location,
@@ -87,13 +74,6 @@ export const useSessionsByDate = (selectedDate: string, playerId?: string) => {
           highlights
         `)
         .eq('date', selectedDate);
-
-      // Filter by player if playerId is provided
-      if (playerId) {
-        query = query.eq('scores.player_id', playerId);
-      }
-
-      const { data, error } = await query;
 
       if (error) {
         console.error('Error fetching sessions by date:', error);
