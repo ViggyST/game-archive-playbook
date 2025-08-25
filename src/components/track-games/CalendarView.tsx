@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ChevronLeft, ChevronRight, Clock, MapPin, Trophy, Users } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, isSameMonth, isSameDay, isToday } from "date-fns";
 import { useCalendarSessions, useSessionsByDate } from "@/hooks/useCalendarSessions";
+import { usePlayerContext } from "@/context/PlayerContext";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,8 +10,9 @@ import { Card, CardContent } from "@/components/ui/card";
 const CalendarView = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const { data: sessions = [], isLoading } = useCalendarSessions();
-  const { data: daysSessions = [] } = useSessionsByDate(selectedDate || '');
+  const { player } = usePlayerContext();
+  const { data: sessions = [], isLoading } = useCalendarSessions(player?.id);
+  const { data: daysSessions = [] } = useSessionsByDate(selectedDate || '', player?.id);
 
   // Navigate months
   const goToPreviousMonth = () => {
