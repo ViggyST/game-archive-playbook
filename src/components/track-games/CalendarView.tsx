@@ -1,14 +1,17 @@
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, Clock, MapPin, Trophy, Users } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, MapPin, Trophy, Users, Edit2 } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, isSameMonth, isSameDay, isToday } from "date-fns";
 import { useCalendarSessions, useSessionsByDate } from "@/hooks/useCalendarSessions";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { EditSessionModal } from "./EditSessionModal";
 
 const CalendarView = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [editingSession, setEditingSession] = useState<any>(null);
   const { data: sessions = [], isLoading } = useCalendarSessions();
   const { data: daysSessions = [] } = useSessionsByDate(selectedDate || '');
 
@@ -104,10 +107,12 @@ const CalendarView = () => {
     const key = session.session_id;
     if (!acc[key]) {
       acc[key] = {
+        session_id: session.session_id,
         game_name: session.game_name,
         location: session.location,
         duration_minutes: session.duration_minutes,
         highlights: session.highlights,
+        date: selectedDate, // Use selectedDate since all sessions are from the same date
         players: []
       };
     }
@@ -118,6 +123,34 @@ const CalendarView = () => {
     });
     return acc;
   }, {} as Record<string, any>);
+
+  const handleEditSession = (session: any) => {
+    // Transform session data for EditSessionModal
+    const sessionData = {
+      session_id: session.session_id,
+      game_name: session.game_name,
+      date: session.date,
+      location: session.location,
+      duration_minutes: session.duration_minutes,
+      highlights: session.highlights || "",
+      players: session.players.map((player: any, index: number) => ({
+        player_id: `temp-${session.session_id}-${index}`, // Generate temp ID for edit purposes
+        player_name: player.name,
+        score: player.score,
+        is_winner: player.is_winner
+      })),
+      deleted_at: null
+    };
+    setEditingSession(sessionData);
+  };
+
+  const handleSessionUpdated = () => {
+    // Refresh the calendar data by closing and reopening the sheet
+    setEditingSession(null);
+    const currentSelectedDate = selectedDate;
+    setSelectedDate(null);
+    setTimeout(() => setSelectedDate(currentSelectedDate), 100);
+  };
 
   if (isLoading) {
     return (
@@ -302,6 +335,14 @@ const CalendarView = () => {
                         )}
                       </div>
                     </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleEditSession(session)}
+                      className="h-8 w-8 p-0 text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
                   </div>
 
                   {/* Players Grid */}
@@ -366,6 +407,16 @@ const CalendarView = () => {
           </div>
         </SheetContent>
       </Sheet>
+
+      {/* Edit Session Modal */}
+      {editingSession && (
+        <EditSessionModal
+          isOpen={!!editingSession}
+          onClose={() => setEditingSession(null)}
+          sessionData={editingSession}
+          onSessionUpdated={handleSessionUpdated}
+        />
+      )}
     </div>
   );
 };
