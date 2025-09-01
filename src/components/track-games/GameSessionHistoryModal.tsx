@@ -1,5 +1,5 @@
 
-import { Crown, MapPin, Clock, X } from "lucide-react";
+import { Crown, MapPin, Clock, X, Edit2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import {
   Dialog,
@@ -8,7 +8,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import { useGameSessionHistory } from "@/hooks/useGameSessionHistory";
+import { EditSessionModal } from "./EditSessionModal";
 
 interface GameSessionHistoryModalProps {
   isOpen: boolean;
@@ -24,14 +26,15 @@ const GameSessionHistoryModal = ({
   gameName 
 }: GameSessionHistoryModalProps) => {
   const [activePlayerId, setActivePlayerId] = useState<string | null>(null);
+  const [editingSession, setEditingSession] = useState<any>(null);
 
   useEffect(() => {
     const playerId = localStorage.getItem('active_player');
     setActivePlayerId(playerId);
   }, []);
   
-  const { data: myGamesSessions = [], isLoading: isLoadingMyGames, error: myGamesError } = useGameSessionHistory(gameId, activePlayerId);
-  const { data: allGamesSessions = [], isLoading: isLoadingAllGames, error: allGamesError } = useGameSessionHistory(gameId);
+  const { data: myGamesSessions = [], isLoading: isLoadingMyGames, error: myGamesError, refetch: refetchMyGames } = useGameSessionHistory(gameId, activePlayerId);
+  const { data: allGamesSessions = [], isLoading: isLoadingAllGames, error: allGamesError, refetch: refetchAllGames } = useGameSessionHistory(gameId);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -40,6 +43,32 @@ const GameSessionHistoryModal = ({
       day: 'numeric',
       year: 'numeric'
     });
+  };
+
+  const handleEditSession = (session: any) => {
+    // Transform session data for EditSessionModal
+    const sessionData = {
+      session_id: session.session_id,
+      game_name: gameName,
+      date: session.date,
+      location: session.location,
+      duration_minutes: session.duration_minutes,
+      highlights: session.highlights || "",
+      players: session.players.map((player: any, index: number) => ({
+        player_id: `temp-${session.session_id}-${index}`, // Generate temp ID for edit purposes
+        player_name: player.player_name,
+        score: player.score,
+        is_winner: player.is_winner
+      })),
+      deleted_at: null // We'll handle this in the modal
+    };
+    setEditingSession(sessionData);
+  };
+
+  const handleSessionUpdated = () => {
+    refetchMyGames();
+    refetchAllGames();
+    setEditingSession(null);
   };
 
   const renderSessions = (sessions: any[], isLoading: boolean, error: any) => {
@@ -90,15 +119,25 @@ const GameSessionHistoryModal = ({
               <h3 className="font-semibold text-gray-900">
                 {formatDate(session.date)}
               </h3>
-              <div className="flex items-center gap-3 text-xs text-gray-500">
-                <div className="flex items-center gap-1">
-                  <MapPin className="h-3 w-3" />
-                  <span>{session.location}</span>
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3 text-xs text-gray-500">
+                  <div className="flex items-center gap-1">
+                    <MapPin className="h-3 w-3" />
+                    <span>{session.location}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Clock className="h-3 w-3" />
+                    <span>{session.duration_minutes}m</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <Clock className="h-3 w-3" />
-                  <span>{session.duration_minutes}m</span>
-                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleEditSession(session)}
+                  className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600"
+                >
+                  <Edit2 className="h-3 w-3" />
+                </Button>
               </div>
             </div>
 
@@ -170,6 +209,16 @@ const GameSessionHistoryModal = ({
           </TabsContent>
         </Tabs>
       </DialogContent>
+
+      {/* Edit Session Modal */}
+      {editingSession && (
+        <EditSessionModal
+          isOpen={!!editingSession}
+          onClose={() => setEditingSession(null)}
+          sessionData={editingSession}
+          onSessionUpdated={handleSessionUpdated}
+        />
+      )}
     </Dialog>
   );
 };
