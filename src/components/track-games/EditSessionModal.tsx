@@ -116,14 +116,23 @@ export const EditSessionModal = ({
       setLoading(true);
 
       // Update session meta data
+      const payload = {
+        date: formData.date.toISOString().split('T')[0],
+        // normalize optional text fields: "" -> null
+        location:
+          typeof formData.location === 'string' && formData.location.trim() === ''
+            ? null
+            : formData.location,
+        duration_minutes: formData.duration,
+        highlights:
+          typeof formData.highlights === 'string' && formData.highlights.trim() === ''
+            ? null
+            : formData.highlights,
+      };
+
       const { error: sessionError } = await supabase
         .from('sessions')
-        .update({
-          date: formData.date.toISOString().split('T')[0],
-          location: formData.location,
-          duration_minutes: formData.duration,
-          highlights: formData.highlights
-        })
+        .update(payload)
         .eq('id', sessionData.session_id);
 
       if (sessionError) throw sessionError;
