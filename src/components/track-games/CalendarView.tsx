@@ -117,6 +117,8 @@ const CalendarView = () => {
       };
     }
     acc[key].players.push({
+      player_id: session.player_id,
+      score_id: session.score_id,
       name: session.player_name,
       score: session.score,
       is_winner: session.is_winner
@@ -133,8 +135,9 @@ const CalendarView = () => {
       location: session.location,
       duration_minutes: session.duration_minutes,
       highlights: session.highlights || "",
-      players: session.players.map((player: any, index: number) => ({
-        player_id: `temp-${session.session_id}-${index}`, // Generate temp ID for edit purposes
+      players: session.players.map((player: any) => ({
+        player_id: player.player_id,
+        score_id: player.score_id,
         player_name: player.name,
         score: player.score,
         is_winner: player.is_winner
