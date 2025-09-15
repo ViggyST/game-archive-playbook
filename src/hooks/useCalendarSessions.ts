@@ -13,9 +13,7 @@ export interface CalendarSession {
 export interface GameSession {
   session_id: string;
   game_name: string;
-  player_id: string;
   player_name: string;
-  score_id: string;
   score: number;
   is_winner: boolean;
   location: string;
@@ -96,10 +94,8 @@ export const useSessionsByDate = (selectedDate: string) => {
           id,
           games!inner(name),
           scores!inner(
-            id,
             score,
             is_winner,
-            player_id,
             players!inner(name)
           ),
           location,
@@ -121,9 +117,7 @@ export const useSessionsByDate = (selectedDate: string) => {
           sessions.push({
             session_id: session.id,
             game_name: session.games?.name || '',
-            player_id: score.player_id || '',
             player_name: score.players?.name || '',
-            score_id: score.id || '',
             score: score.score || 0,
             is_winner: score.is_winner || false,
             location: session.location || '',

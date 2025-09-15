@@ -19,7 +19,6 @@ import { useToast } from "@/hooks/use-toast";
 
 interface Player {
   player_id: string;
-  score_id: string;
   player_name: string;
   score: number;
   is_winner: boolean;
@@ -147,7 +146,8 @@ export const EditSessionModal = ({
             score: player.score,
             is_winner: player.is_winner
           })
-          .eq('id', player.score_id);
+          .eq('session_id', sessionData.session_id)
+          .eq('player_id', player.player_id);
 
         if (scoreError) throw scoreError;
       }
