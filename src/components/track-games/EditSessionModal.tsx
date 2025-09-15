@@ -19,6 +19,7 @@ import { useToast } from "@/hooks/use-toast";
 
 interface Player {
   player_id: string;
+  score_id: string;
   player_name: string;
   score: number;
   is_winner: boolean;
@@ -138,7 +139,7 @@ export const EditSessionModal = ({
         return;
       }
 
-      // Update scores
+      // Update scores using score_id directly
       for (const player of players) {
         const { error: scoreError } = await supabase
           .from('scores')
@@ -146,8 +147,7 @@ export const EditSessionModal = ({
             score: player.score,
             is_winner: player.is_winner
           })
-          .eq('session_id', sessionData.session_id)
-          .eq('player_id', player.player_id);
+          .eq('id', player.score_id);
 
         if (scoreError) throw scoreError;
       }

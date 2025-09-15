@@ -14,6 +14,8 @@ export interface GameSession {
   session_id: string;
   game_name: string;
   player_name: string;
+  player_id: string;
+  score_id: string;
   score: number;
   is_winner: boolean;
   location: string;
@@ -94,6 +96,8 @@ export const useSessionsByDate = (selectedDate: string) => {
           id,
           games!inner(name),
           scores!inner(
+            id,
+            player_id,
             score,
             is_winner,
             players!inner(name)
@@ -118,6 +122,8 @@ export const useSessionsByDate = (selectedDate: string) => {
             session_id: session.id,
             game_name: session.games?.name || '',
             player_name: score.players?.name || '',
+            player_id: score.player_id || '',
+            score_id: score.id || '',
             score: score.score || 0,
             is_winner: score.is_winner || false,
             location: session.location || '',
