@@ -63,6 +63,7 @@ export const EditSessionModal = ({
   });
 
   const [players, setPlayers] = useState<Player[]>(sessionData.players || []);
+  const [originalPlayers, setOriginalPlayers] = useState<Player[]>([]);
   const [showCalendar, setShowCalendar] = useState(false);
 
   useEffect(() => {
@@ -74,6 +75,8 @@ export const EditSessionModal = ({
       gameName: sessionData.game_name || ""
     });
     setPlayers(sessionData.players || []);
+    // Deep copy to track original player names for change detection
+    setOriginalPlayers(JSON.parse(JSON.stringify(sessionData.players || [])));
   }, [sessionData]);
 
   const formatDuration = (minutes: number) => {
@@ -148,8 +151,53 @@ export const EditSessionModal = ({
         return;
       }
 
-      // Update scores using score_id directly
-      for (const player of players) {
+      // Handle player name changes via RPC before updating scores
+      const updatedPlayers = [...players];
+      
+      for (let i = 0; i < updatedPlayers.length; i++) {
+        const currentPlayer = updatedPlayers[i];
+        const originalPlayer = originalPlayers.find(p => p.player_id === currentPlayer.player_id);
+        
+        if (originalPlayer) {
+          const currentName = currentPlayer.player_name.trim();
+          const originalName = originalPlayer.player_name.trim();
+          
+          // If name has changed, call RPC to handle player retagging
+          if (currentName !== originalName && currentName.length > 0) {
+            try {
+              const rpcResult = await (supabase as any).rpc('session_retag_player', {
+                p_session_id: sessionData.session_id,
+                p_old_player_id: currentPlayer.player_id,
+                p_new_player_name: currentName
+              });
+              
+              const { data: newPlayerId, error: rpcError } = rpcResult;
+
+              if (rpcError) throw rpcError;
+              
+              if (!newPlayerId) throw new Error("Player relink failed: No ID returned");
+
+              // Update the player_id in our local state for subsequent score updates
+              updatedPlayers[i].player_id = newPlayerId;
+              
+              toast({ 
+                title: `Player renamed to ${currentName}`,
+                description: "Player identity updated successfully"
+              });
+            } catch (rpcError: any) {
+              toast({ 
+                title: "Failed to rename player", 
+                description: rpcError.message,
+                variant: "destructive" 
+              });
+              throw rpcError; // Stop the save process
+            }
+          }
+        }
+      }
+
+      // Update scores using potentially updated player_ids
+      for (const player of updatedPlayers) {
         const { error: scoreError } = await supabase
           .from('scores')
           .update({
