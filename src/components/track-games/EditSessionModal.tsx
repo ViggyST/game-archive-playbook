@@ -117,7 +117,7 @@ export const EditSessionModal = ({
 
       // Update session meta data
       const payload = {
-        date: formData.date.toISOString().split('T')[0],
+        date: formData.date.toLocaleDateString('en-CA'),
         // normalize optional text fields: "" -> null
         location:
           typeof formData.location === 'string' && formData.location.trim() === ''
