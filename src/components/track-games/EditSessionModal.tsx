@@ -154,6 +154,32 @@ export const EditSessionModal = ({
       // Handle player name changes via RPC before updating scores
       const updatedPlayers = [...players];
       
+      // CRITICAL VALIDATION: Check for blank names and duplicates before RPC calls
+      for (const player of updatedPlayers) {
+        const currentName = player.player_name.trim();
+        if (currentName.length === 0) {
+          toast({
+            title: "Invalid player name",
+            description: "Player names cannot be blank or whitespace only.",
+            variant: "destructive"
+          });
+          return; // Block the save operation
+        }
+      }
+      
+      // Check for duplicate names within the session (case-insensitive)
+      const normalizedNames = updatedPlayers.map(p => p.player_name.trim().toLowerCase());
+      const duplicates = normalizedNames.filter((name, i, arr) => arr.indexOf(name) !== i);
+      
+      if (duplicates.length > 0) {
+        toast({
+          title: "Duplicate player names",
+          description: "Each player in a session must have a unique name.",
+          variant: "destructive"
+        });
+        return; // Block the save operation
+      }
+      
       for (let i = 0; i < updatedPlayers.length; i++) {
         const currentPlayer = updatedPlayers[i];
         const originalPlayer = originalPlayers.find(p => p.player_id === currentPlayer.player_id);
