@@ -46,21 +46,22 @@ const GameSessionHistoryModal = ({
   };
 
   const handleEditSession = (session: any) => {
-    // Transform session data for EditSessionModal
+    // Transform session data for EditSessionModal - match CalendarView structure
     const sessionData = {
       session_id: session.session_id,
-      game_name: gameName,
+      game_name: session.game_name || gameName, // Use session game name if available, fallback to modal game name
       date: session.date,
       location: session.location,
       duration_minutes: session.duration_minutes,
       highlights: session.highlights || "",
-      players: session.players.map((player: any, index: number) => ({
-        player_id: `temp-${session.session_id}-${index}`, // Generate temp ID for edit purposes
-        player_name: player.player_name,
+      players: session.players.map((player: any) => ({
+        player_id: player.player_id,     // Use real player_id from database
+        score_id: player.score_id,       // Use real score_id from database  
+        player_name: player.name || player.player_name,  // Handle both field name variations
         score: player.score,
         is_winner: player.is_winner
       })),
-      deleted_at: null // We'll handle this in the modal
+      deleted_at: null
     };
     setEditingSession(sessionData);
   };
