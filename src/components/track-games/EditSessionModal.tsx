@@ -140,15 +140,51 @@ export const EditSessionModal = ({
 
       if (sessionError) throw sessionError;
 
-      // Update game name if changed
-      if (formData.gameName !== sessionData.game_name) {
-        // Note: Game name changes require special handling via RPC
-        toast({ 
-          title: "Game name changes need special handling",
-          description: "Please use the game management features to rename games",
-          variant: "destructive"
-        });
-        return;
+      // Handle game name changes via RPC
+      const trimmedGameName = formData.gameName.trim();
+      const originalGameName = sessionData.game_name.trim();
+      
+      if (trimmedGameName !== originalGameName) {
+        // Game name validation
+        if (trimmedGameName.length === 0) {
+          toast({
+            title: "Invalid game name",
+            description: "Game names cannot be blank or whitespace only.",
+            variant: "destructive"
+          });
+          return;
+        }
+        
+        if (trimmedGameName.length < 2) {
+          toast({
+            title: "Game name too short",
+            description: "Game names must be at least 2 characters long.",
+            variant: "destructive"
+          });
+          return;
+        }
+        
+        // Call RPC to handle game retagging
+        try {
+          const { error: gameRpcError } = await (supabase as any).rpc('session_retag_game', {
+            p_session_id: sessionData.session_id,
+            p_new_game_name: trimmedGameName
+          });
+          
+          if (gameRpcError) throw gameRpcError;
+          
+          toast({ 
+            title: `Game renamed to "${trimmedGameName}"`,
+            description: "Game name updated successfully"
+          });
+        } catch (gameError: any) {
+          toast({ 
+            title: "Failed to rename game", 
+            description: gameError.message,
+            variant: "destructive" 
+          });
+          throw gameError; // Stop the save process
+        }
       }
 
       // Handle player name changes via RPC before updating scores
