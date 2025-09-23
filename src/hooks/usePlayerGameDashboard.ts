@@ -96,12 +96,28 @@ export const usePlayerGameDashboard = (sortBy: 'plays' | 'recent' = 'plays') => 
         last_played: stats.last_played
       }));
       
-      // Sort based on criteria
+      // Sort based on criteria with proper tie-breaking
       processedData.sort((a, b) => {
         if (sortBy === 'plays') {
-          return b.total_plays - a.total_plays;
+          // Most Played: sort by plays (desc), then last_played (desc), then name (asc)
+          if (b.total_plays !== a.total_plays) {
+            return b.total_plays - a.total_plays;
+          }
+          const lastPlayedDiff = new Date(b.last_played).getTime() - new Date(a.last_played).getTime();
+          if (lastPlayedDiff !== 0) {
+            return lastPlayedDiff;
+          }
+          return a.game_name.localeCompare(b.game_name);
         } else {
-          return new Date(b.last_played).getTime() - new Date(a.last_played).getTime();
+          // Last Played: sort by last_played (desc), then plays (desc), then name (asc)
+          const lastPlayedDiff = new Date(b.last_played).getTime() - new Date(a.last_played).getTime();
+          if (lastPlayedDiff !== 0) {
+            return lastPlayedDiff;
+          }
+          if (b.total_plays !== a.total_plays) {
+            return b.total_plays - a.total_plays;
+          }
+          return a.game_name.localeCompare(b.game_name);
         }
       });
 

@@ -246,14 +246,24 @@ const GamesDashboard = () => {
 
                   {/* Stats Grid */}
                   <div className="grid grid-cols-4 gap-1.5">
-                    <div className="text-center bg-gray-50 rounded-lg p-2 border border-gray-100">
+                    <div className={`text-center rounded-lg p-2 border ${
+                      sortBy === 'plays' 
+                        ? 'bg-blue-100 border-blue-200' 
+                        : 'bg-gray-50 border-gray-100'
+                    }`}>
                       <div className="flex items-center justify-center gap-1 mb-1">
-                        <Gamepad2 className="h-3 w-3 text-blue-500" />
+                        <Gamepad2 className={`h-3 w-3 ${
+                          sortBy === 'plays' ? 'text-blue-600' : 'text-blue-500'
+                        }`} />
                       </div>
-                      <div className="text-sm font-semibold text-gray-900">
+                      <div className={`text-sm font-semibold ${
+                        sortBy === 'plays' ? 'text-blue-700' : 'text-gray-900'
+                      }`}>
                         {game.total_plays}
                       </div>
-                      <div className="text-xs text-gray-500">Plays</div>
+                      <div className="text-xs text-gray-500">
+                        {sortBy === 'plays' ? 'Plays' : 'Plays'}
+                      </div>
                     </div>
 
                     <div className="text-center bg-gray-50 rounded-lg p-2 border border-gray-100">
@@ -263,7 +273,7 @@ const GamesDashboard = () => {
                       <div className="text-sm font-semibold text-yellow-600">
                         {game.win_rate || 0}%
                       </div>
-                      <div className="text-xs text-gray-500">Win</div>
+                      <div className="text-xs text-gray-500">Win %</div>
                     </div>
 
                     <div className="text-center bg-gray-50 rounded-lg p-2 border border-gray-100">
@@ -276,11 +286,19 @@ const GamesDashboard = () => {
                       <div className="text-xs text-gray-500">Time</div>
                     </div>
 
-                    <div className="text-center bg-gray-50 rounded-lg p-2 border border-gray-100">
+                    <div className={`text-center rounded-lg p-2 border ${
+                      sortBy === 'recent' 
+                        ? 'bg-purple-100 border-purple-200' 
+                        : 'bg-gray-50 border-gray-100'
+                    }`}>
                       <div className="flex items-center justify-center gap-1 mb-1">
-                        <Calendar className="h-3 w-3 text-purple-500" />
+                        <Calendar className={`h-3 w-3 ${
+                          sortBy === 'recent' ? 'text-purple-600' : 'text-purple-500'
+                        }`} />
                       </div>
-                      <div className="text-sm font-semibold text-purple-600">
+                      <div className={`text-sm font-semibold ${
+                        sortBy === 'recent' ? 'text-purple-700' : 'text-purple-600'
+                      }`}>
                         {formatLastPlayed(game.last_played)}
                       </div>
                       <div className="text-xs text-gray-500">Last</div>
