@@ -57,7 +57,7 @@ const GameSessionHistoryModal = ({
       players: session.players.map((player: any) => ({
         player_id: player.player_id,     // Use real player_id from database
         score_id: player.score_id,       // Use real score_id from database  
-        player_name: player.name || player.player_name,  // Handle both field name variations
+        player_name: player.name,        // Use consistent field name from updated hook
         score: player.score,
         is_winner: player.is_winner
       })),
@@ -154,7 +154,7 @@ const GameSessionHistoryModal = ({
                       <Crown className="h-4 w-4 text-yellow-500" />
                     )}
                     <span className={`text-sm ${player.is_winner ? 'font-semibold text-gray-900' : 'text-gray-700'}`}>
-                      {player.player_name}
+                      {player.name}
                     </span>
                   </div>
                   <span className={`text-sm font-medium ${player.is_winner ? 'text-yellow-600' : 'text-gray-600'}`}>
