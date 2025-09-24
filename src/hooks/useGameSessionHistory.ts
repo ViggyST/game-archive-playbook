@@ -1,6 +1,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { QUERY_KEYS } from '@/lib/queryKeys';
 
 interface SessionHistoryData {
   session_id: string;
@@ -12,7 +13,7 @@ interface SessionHistoryData {
   players: {
     player_id: string;
     score_id: string;
-    name: string;
+    name: string;  // Canonical field name
     score: number;
     is_winner: boolean;
   }[];
@@ -20,7 +21,7 @@ interface SessionHistoryData {
 
 export const useGameSessionHistory = (gameId: string | null, filterByPlayer?: string) => {
   return useQuery({
-    queryKey: ['game-session-history', gameId, filterByPlayer],
+    queryKey: QUERY_KEYS.GAME_SESSION_HISTORY(gameId || '', filterByPlayer),
     queryFn: async () => {
       if (!gameId) return [];
 
@@ -43,14 +44,17 @@ export const useGameSessionHistory = (gameId: string | null, filterByPlayer?: st
             players!inner(name)
           )
         `)
-        .eq('game_id', gameId);
+        .eq('game_id', gameId)
+        .is('deleted_at', null)  // Exclude soft-deleted sessions
+        .is('scores.deleted_at', null);  // Exclude soft-deleted scores
 
       // If filtering by player, only get sessions where that player participated
       if (filterByPlayer) {
         const { data: playerSessions } = await supabase
           .from('scores')
           .select('session_id')
-          .eq('player_id', filterByPlayer);
+          .eq('player_id', filterByPlayer)
+          .is('deleted_at', null);  // Exclude soft-deleted scores
         
         if (playerSessions && playerSessions.length > 0) {
           const sessionIds = playerSessions.map(ps => ps.session_id);
@@ -70,13 +74,24 @@ export const useGameSessionHistory = (gameId: string | null, filterByPlayer?: st
 
       // Process the data to group players by session
       const processedSessions: SessionHistoryData[] = sessions?.map((session: any) => {
-        const players = session.scores.map((score: any) => ({
-          player_id: score.player_id,
-          score_id: score.id,
-          name: score.players.name,
-          score: score.score || 0,
-          is_winner: score.is_winner
-        }));
+        const players = session.scores.map((score: any) => {
+          const player = {
+            player_id: score.player_id,
+            score_id: score.id,
+            name: score.players.name,  // Already using canonical 'name' field
+            score: score.score || 0,
+            is_winner: score.is_winner
+          };
+          
+          // Runtime validation in development
+          if (process.env.NODE_ENV === 'development') {
+            if (!player.player_id || !player.score_id) {
+              console.warn('Missing player_id or score_id in SessionHistoryData:', player);
+            }
+          }
+          
+          return player;
+        });
 
         // Sort players by score (highest first)
         players.sort((a, b) => b.score - a.score);

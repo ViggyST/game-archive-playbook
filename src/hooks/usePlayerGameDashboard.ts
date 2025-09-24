@@ -2,6 +2,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { usePlayerContext } from '@/context/PlayerContext';
+import { QUERY_KEYS } from '@/lib/queryKeys';
 
 interface GameDashboardData {
   game_id: string;
@@ -17,13 +18,13 @@ export const usePlayerGameDashboard = (sortBy: 'plays' | 'recent' = 'plays') => 
   const { player } = usePlayerContext();
 
   return useQuery({
-    queryKey: ['player-game-dashboard', player?.id, sortBy],
+    queryKey: QUERY_KEYS.PLAYER_GAME_DASHBOARD(player?.id || '', sortBy),
     queryFn: async () => {
       if (!player?.id) {
         return [];
       }
 
-      // Direct query to get player game stats
+      // Direct query to get player game stats with soft-delete filtering
       const { data: sessionsData, error } = await supabase
         .from('sessions')
         .select(`
@@ -34,7 +35,9 @@ export const usePlayerGameDashboard = (sortBy: 'plays' | 'recent' = 'plays') => 
           games!inner(id, name, weight),
           scores!inner(player_id, is_winner, score)
         `)
-        .eq('scores.player_id', player.id);
+        .eq('scores.player_id', player.id)
+        .is('deleted_at', null)  // Exclude soft-deleted sessions
+        .is('scores.deleted_at', null);  // Exclude soft-deleted scores
 
       if (error) {
         console.error('Error fetching player game stats:', error);
@@ -80,7 +83,8 @@ export const usePlayerGameDashboard = (sortBy: 'plays' | 'recent' = 'plays') => 
           stats.total_duration += session.duration_minutes;
         }
         
-        if (new Date(session.date) > new Date(stats.last_played)) {
+        if (new Date(session.date) > new Date(stats.last_played) && 
+            new Date(session.date) <= new Date()) {  // Only consider dates up to today
           stats.last_played = session.date;
         }
       });

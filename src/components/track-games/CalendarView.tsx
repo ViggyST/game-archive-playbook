@@ -119,7 +119,7 @@ const CalendarView = () => {
     acc[key].players.push({
       player_id: session.player_id,
       score_id: session.score_id,
-      name: session.player_name,
+      name: session.name,  // Use canonical 'name' field from GameSession
       score: session.score,
       is_winner: session.is_winner
     });
@@ -138,7 +138,7 @@ const CalendarView = () => {
       players: session.players.map((player: any) => ({
         player_id: player.player_id, // Use real player_id from database
         score_id: player.score_id,   // Use real score_id from database
-        player_name: player.name,
+        player_name: player.name,    // Map canonical 'name' to expected 'player_name' for EditModal
         score: player.score,
         is_winner: player.is_winner
       })),

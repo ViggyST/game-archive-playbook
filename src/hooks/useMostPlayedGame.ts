@@ -2,6 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { usePlayerContext } from "@/context/PlayerContext";
+import { QUERY_KEYS } from "@/lib/queryKeys";
 
 export interface MostPlayedGame {
   name: string;
@@ -12,11 +13,11 @@ export const useMostPlayedGame = () => {
   const { player } = usePlayerContext();
 
   return useQuery({
-    queryKey: ['most-played-game', player?.id],
+    queryKey: QUERY_KEYS.MOST_PLAYED_GAME(player?.id || ''),
     queryFn: async (): Promise<MostPlayedGame | null> => {
       if (!player?.id) return null;
 
-      // Get games for this specific player
+      // Get games for this specific player with soft-delete filtering
       const { data, error } = await supabase
         .from('scores')
         .select(`
@@ -24,7 +25,9 @@ export const useMostPlayedGame = () => {
             games!inner(name)
           )
         `)
-        .eq('player_id', player.id);
+        .eq('player_id', player.id)
+        .is('deleted_at', null)  // Exclude soft-deleted scores
+        .is('sessions.deleted_at', null);  // Exclude soft-deleted sessions
 
       if (error) {
         console.error('Error fetching most played game:', error);
