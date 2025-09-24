@@ -100,17 +100,22 @@ export const EditSessionModal = ({
 
   // No-op detection: check if any changes were made
   const hasChanges = useMemo(() => {
+    // Normalize dates to ISO format to avoid timezone issues
+    const formDate = formData.date.toISOString().split('T')[0]; // YYYY-MM-DD
+    const sessionDate = sessionData.date; // Already in YYYY-MM-DD format
+    
     // Check form data changes
     const formChanged = 
-      formData.date.toLocaleDateString('en-CA') !== sessionData.date ||
+      formDate !== sessionDate ||
       (formData.location || '') !== (sessionData.location || '') ||
       formData.duration !== (sessionData.duration_minutes || 30) ||
       (formData.highlights || '') !== (sessionData.highlights || '') ||
       formData.gameName !== (sessionData.game_name || '');
 
-    // Check player changes
-    const playersChanged = players.some((player, index) => {
-      const originalPlayer = originalPlayers[index];
+    // Check player changes using score_id map to avoid index issues
+    const originalPlayersMap = new Map(originalPlayers.map(p => [p.score_id, p]));
+    const playersChanged = players.some((player) => {
+      const originalPlayer = originalPlayersMap.get(player.score_id);
       return !originalPlayer ||
         player.name !== originalPlayer.name ||
         player.score !== originalPlayer.score ||
@@ -303,7 +308,7 @@ export const EditSessionModal = ({
         gameId: sessionData.session_id, // Use session_id as fallback
         oldGameId,
         newGameId,
-        date: formData.date.toLocaleDateString('en-CA')
+        date: formData.date.toISOString().split('T')[0]  // Pass normalized date for all edits
       });
 
       toast({ title: "Session updated successfully" });
@@ -323,8 +328,8 @@ export const EditSessionModal = ({
   const isDeleted = !!sessionData.deleted_at;
 
   return (
-    <Dialog open={isOpen} onOpenChange={isSaving ? undefined : onClose}>  // Prevent close during save
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+    <Dialog open={isOpen} onOpenChange={isSaving ? () => {} : onClose}>  {/* Prevent all close actions during save */}
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col" onEscapeKeyDown={isSaving ? (e) => e.preventDefault() : undefined}>  {/* Disable ESC during save */}
         <DialogHeader className="shrink-0">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-lg font-bold">

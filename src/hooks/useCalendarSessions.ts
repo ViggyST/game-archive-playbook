@@ -100,7 +100,7 @@ export const useSessionsByDate = (selectedDate: string) => {
         .eq('date', selectedDate)
         .in('id', playerSessionIds)
         .is('deleted_at', null)  // Exclude soft-deleted sessions
-        .is('scores.deleted_at', null);  // Exclude soft-deleted scores
+        .is('scores.deleted_at', null);  // Explicitly filter nested scores relation
 
       if (error) {
         console.error('Error fetching sessions by date:', error);

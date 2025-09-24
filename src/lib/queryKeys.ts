@@ -29,10 +29,10 @@ export const getInvalidationKeys = (
     newGameId?: string;
     date?: string;
   }
-): Array<readonly string[]> => {
+): ReadonlyArray<ReturnType<typeof QUERY_KEYS[keyof typeof QUERY_KEYS]>> => {
   const { playerId, gameId, oldGameId, newGameId, date } = context;
   
-  const keys: Array<readonly string[]> = [
+  const keys: Array<ReturnType<typeof QUERY_KEYS[keyof typeof QUERY_KEYS]>> = [
     QUERY_KEYS.CALENDAR_SESSIONS(playerId),
     QUERY_KEYS.PLAYER_STATS(playerId),
     QUERY_KEYS.MOST_PLAYED_GAME(playerId),
@@ -40,7 +40,7 @@ export const getInvalidationKeys = (
     QUERY_KEYS.PLAYER_GAME_DASHBOARD(playerId, 'recent'),
   ];
 
-  // Add date-specific invalidation if date is provided
+  // Always add date-specific invalidation for all edit types if date is provided
   if (date) {
     keys.push(QUERY_KEYS.SESSIONS_BY_DATE(date, playerId));
   }
