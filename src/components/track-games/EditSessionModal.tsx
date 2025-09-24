@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { Edit2, Trash2, UndoIcon, Save, X, Crown, Plus } from "lucide-react";
 import {
   Dialog,
@@ -16,17 +16,26 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useQueryClient } from "@tanstack/react-query";
-import { SessionData, SessionPlayer } from "@/types/session";
-import { createCacheInvalidator } from "@/lib/cacheInvalidation";
-import { usePlayerContext } from "@/context/PlayerContext";
 
-// Use canonical SessionPlayer type with 'name' field (not player_name)
-interface Player extends SessionPlayer {
-  // Additional local state if needed
+interface Player {
+  player_id: string;
+  score_id: string;
+  player_name: string;
+  score: number;
+  is_winner: boolean;
 }
 
-// Use canonical SessionData type
+interface SessionData {
+  session_id: string;
+  game_name: string;
+  date: string;
+  location: string;
+  duration_minutes: number;
+  highlights: string;
+  players: Player[];
+  deleted_at?: string | null;
+}
+
 interface EditSessionModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -40,11 +49,9 @@ export const EditSessionModal = ({
   sessionData,
   onSessionUpdated
 }: EditSessionModalProps) => {
-  const [isSaving, setIsSaving] = useState(false);  // Single-flight guard
+  const [loading, setLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const { player } = usePlayerContext();
-  const { invalidateSessionData } = createCacheInvalidator(queryClient);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -68,8 +75,8 @@ export const EditSessionModal = ({
       gameName: sessionData.game_name || ""
     });
     setPlayers(sessionData.players || []);
-  // Deep copy to track original player names for change detection
-  setOriginalPlayers(JSON.parse(JSON.stringify(sessionData.players || [])));
+    // Deep copy to track original player names for change detection
+    setOriginalPlayers(JSON.parse(JSON.stringify(sessionData.players || [])));
   }, [sessionData]);
 
   const formatDuration = (minutes: number) => {
@@ -98,48 +105,18 @@ export const EditSessionModal = ({
     })));
   };
 
-  // No-op detection: check if any changes were made
-  const hasChanges = useMemo(() => {
-    // Check form data changes
-    const formChanged = 
-      formData.date.toLocaleDateString('en-CA') !== sessionData.date ||
-      (formData.location || '') !== (sessionData.location || '') ||
-      formData.duration !== (sessionData.duration_minutes || 30) ||
-      (formData.highlights || '') !== (sessionData.highlights || '') ||
-      formData.gameName !== (sessionData.game_name || '');
-
-    // Check player changes
-    const playersChanged = players.some((player, index) => {
-      const originalPlayer = originalPlayers[index];
-      return !originalPlayer ||
-        player.name !== originalPlayer.name ||
-        player.score !== originalPlayer.score ||
-        player.is_winner !== originalPlayer.is_winner;
-    });
-
-    return formChanged || playersChanged;
-  }, [formData, players, originalPlayers, sessionData]);
-
   const retag = async (playerIndex: number, newName: string) => {
     if (!newName.trim()) return;
     
-    // Update local state only - actual saving happens in handleSave
-    updatePlayer(playerIndex, 'name', newName.trim());
+    // For now, just update local state
+    // The RPC function calls have type issues, so we'll handle this differently
+    updatePlayer(playerIndex, 'player_name', newName.trim());
     toast({ title: "Player name updated locally. Save to persist changes." });
   };
 
   const handleSave = async () => {
-    // Single-flight guard: prevent concurrent saves
-    if (isSaving) return;
-    
-    // Early no-op detection
-    if (!hasChanges) {
-      toast({ title: "No changes to save" });
-      return;
-    }
-
     try {
-      setIsSaving(true);  // Lock the entire pipeline
+      setLoading(true);
 
       // Update session meta data
       const payload = {
@@ -215,7 +192,7 @@ export const EditSessionModal = ({
       
       // CRITICAL VALIDATION: Check for blank names and duplicates before RPC calls
       for (const player of updatedPlayers) {
-        const currentName = player.name.trim();  // Use canonical 'name' field
+        const currentName = player.player_name.trim();
         if (currentName.length === 0) {
           toast({
             title: "Invalid player name",
@@ -227,7 +204,7 @@ export const EditSessionModal = ({
       }
       
       // Check for duplicate names within the session (case-insensitive)
-      const normalizedNames = updatedPlayers.map(p => p.name.trim().toLowerCase());  // Use canonical 'name' field
+      const normalizedNames = updatedPlayers.map(p => p.player_name.trim().toLowerCase());
       const duplicates = normalizedNames.filter((name, i, arr) => arr.indexOf(name) !== i);
       
       if (duplicates.length > 0) {
@@ -244,8 +221,8 @@ export const EditSessionModal = ({
         const originalPlayer = originalPlayers.find(p => p.player_id === currentPlayer.player_id);
         
         if (originalPlayer) {
-          const currentName = currentPlayer.name.trim();  // Use canonical 'name' field
-          const originalName = originalPlayer.name.trim();  // Use canonical 'name' field
+          const currentName = currentPlayer.player_name.trim();
+          const originalName = originalPlayer.player_name.trim();
           
           // If name has changed, call RPC to handle player retagging
           if (currentName !== originalName && currentName.length > 0) {
@@ -294,18 +271,6 @@ export const EditSessionModal = ({
         if (scoreError) throw scoreError;
       }
 
-      // Invalidate relevant caches based on what changed
-      const oldGameId = sessionData.game_name !== formData.gameName ? 'unknown' : undefined;
-      const newGameId = formData.gameName !== sessionData.game_name ? 'unknown' : undefined;
-      
-      await invalidateSessionData('scoreUpdate', {
-        playerId: player?.id || '',
-        gameId: sessionData.session_id, // Use session_id as fallback
-        oldGameId,
-        newGameId,
-        date: formData.date.toLocaleDateString('en-CA')
-      });
-
       toast({ title: "Session updated successfully" });
       onSessionUpdated();
       onClose();
@@ -316,14 +281,14 @@ export const EditSessionModal = ({
         variant: "destructive" 
       });
     } finally {
-      setIsSaving(false);  // Always reset the lock in finally
+      setLoading(false);
     }
   };
 
   const isDeleted = !!sessionData.deleted_at;
 
   return (
-    <Dialog open={isOpen} onOpenChange={isSaving ? undefined : onClose}>  // Prevent close during save
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader className="shrink-0">
           <div className="flex items-center justify-between">
@@ -346,7 +311,7 @@ export const EditSessionModal = ({
                 id="gameName"
                 value={formData.gameName}
                 onChange={(e) => setFormData(prev => ({ ...prev, gameName: e.target.value }))}
-                disabled={isDeleted || isSaving}  // Disable during save
+                disabled={isDeleted}
               />
             </div>
           </div>
@@ -362,7 +327,7 @@ export const EditSessionModal = ({
                 <Label>Date</Label>
                 <Popover open={showCalendar} onOpenChange={setShowCalendar}>
                   <PopoverTrigger asChild>
-                    <Button variant="outline" className="w-full justify-start text-left" disabled={isDeleted || isSaving}>  // Disable during save
+                    <Button variant="outline" className="w-full justify-start text-left" disabled={isDeleted}>
                       {formData.date.toLocaleDateString()}
                     </Button>
                   </PopoverTrigger>
@@ -389,7 +354,7 @@ export const EditSessionModal = ({
                     variant="outline"
                     size="sm"
                     onClick={() => adjustDuration(-15)}
-                    disabled={isDeleted || isSaving}  // Disable during save
+                    disabled={isDeleted}
                   >
                     -15m
                   </Button>
@@ -401,7 +366,7 @@ export const EditSessionModal = ({
                     variant="outline"
                     size="sm"
                     onClick={() => adjustDuration(15)}
-                    disabled={isDeleted || isSaving}  // Disable during save
+                    disabled={isDeleted}
                   >
                     +15m
                   </Button>
@@ -415,7 +380,7 @@ export const EditSessionModal = ({
                 id="location"
                 value={formData.location}
                 onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-                disabled={isDeleted || isSaving}  // Disable during save
+                disabled={isDeleted}
               />
             </div>
 
@@ -426,7 +391,7 @@ export const EditSessionModal = ({
                 value={formData.highlights}
                 onChange={(e) => setFormData(prev => ({ ...prev, highlights: e.target.value }))}
                 rows={3}
-                disabled={isDeleted || isSaving}  // Disable during save
+                disabled={isDeleted}
               />
             </div>
           </div>
@@ -444,27 +409,27 @@ export const EditSessionModal = ({
                     size="sm"
                     onClick={() => toggleWinner(index)}
                     className={`p-1 ${player.is_winner ? 'text-yellow-500' : 'text-gray-400'}`}
-                    disabled={isDeleted || isSaving}  // Disable during save
+                    disabled={isDeleted}
                   >
                     <Crown className="h-4 w-4" />
                   </Button>
                   
                   <div className="flex-1 grid grid-cols-2 gap-2">
                     <Input
-                      value={player.name}  // Use canonical 'name' field
-                      onChange={(e) => updatePlayer(index, 'name', e.target.value)}  // Update 'name' field
+                      value={player.player_name}
+                      onChange={(e) => updatePlayer(index, 'player_name', e.target.value)}
                       onBlur={(e) => {
-                        if (e.target.value !== player.name) {  // Use canonical 'name' field
+                        if (e.target.value !== player.player_name) {
                           retag(index, e.target.value);
                         }
                       }}
-                      disabled={isDeleted || isSaving}  // Disable during save
+                      disabled={isDeleted}
                     />
                     <Input
                       type="number"
                       value={player.score}
                       onChange={(e) => updatePlayer(index, 'score', parseInt(e.target.value) || 0)}
-                      disabled={isDeleted || isSaving}  // Disable during save
+                      disabled={isDeleted}
                     />
                   </div>
                 </div>
@@ -476,15 +441,15 @@ export const EditSessionModal = ({
         {/* Footer Actions */}
         <div className="shrink-0 flex justify-end pt-4 border-t">
           <div className="flex gap-2">
-            <Button variant="outline" onClick={onClose} disabled={isSaving}>  // Disable close during save
+            <Button variant="outline" onClick={onClose}>
               Cancel
             </Button>
             <Button 
               onClick={handleSave} 
-              disabled={isSaving || isDeleted || !hasChanges}  // Comprehensive disable logic
+              disabled={loading || isDeleted}
             >
               <Save className="h-4 w-4 mr-2" />
-              {isSaving ? 'Saving...' : 'Save Changes'}
+              Save Changes
             </Button>
           </div>
         </div>

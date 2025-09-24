@@ -2,20 +2,32 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { usePlayerContext } from "@/context/PlayerContext";
-import { CalendarSession, GameSession } from "@/types/session";
-import { QUERY_KEYS } from "@/lib/queryKeys";
 
-// TODO: Remove boundary adapter by 2025-10-15 - temporary mapping for player_name → name
-const mapLegacyPlayerName = (session: any): GameSession => ({
-  ...session,
-  name: session.player_name || session.name, // Map player_name to canonical name field
-});
+export interface CalendarSession {
+  date: string;
+  game_name: string;
+  game_weight: string;
+  session_id: string;
+}
+
+export interface GameSession {
+  session_id: string;
+  game_name: string;
+  player_name: string;
+  player_id: string;
+  score_id: string;
+  score: number;
+  is_winner: boolean;
+  location: string;
+  duration_minutes: number;
+  highlights: string;
+}
 
 export const useCalendarSessions = () => {
   const { player } = usePlayerContext();
   
   return useQuery({
-    queryKey: QUERY_KEYS.CALENDAR_SESSIONS(player?.id || ''),
+    queryKey: ['calendar-sessions', player?.id],
     queryFn: async (): Promise<CalendarSession[]> => {
       if (!player?.id) return [];
 
@@ -33,8 +45,6 @@ export const useCalendarSessions = () => {
           )
         `)
         .eq('scores.player_id', player.id)
-        .is('deleted_at', null)  // Exclude soft-deleted sessions
-        .is('scores.deleted_at', null)  // Exclude soft-deleted scores
         .order('date');
 
       if (error) {
@@ -61,7 +71,7 @@ export const useSessionsByDate = (selectedDate: string) => {
   const { player } = usePlayerContext();
   
   return useQuery({
-    queryKey: QUERY_KEYS.SESSIONS_BY_DATE(selectedDate, player?.id || ''),
+    queryKey: ['sessions-by-date', selectedDate, player?.id],
     queryFn: async (): Promise<GameSession[]> => {
       if (!player?.id || !selectedDate) return [];
 
@@ -69,8 +79,7 @@ export const useSessionsByDate = (selectedDate: string) => {
       const { data: playerScores, error: scoresError } = await supabase
         .from('scores')
         .select('session_id')
-        .eq('player_id', player.id)
-        .is('deleted_at', null);  // Exclude soft-deleted scores
+        .eq('player_id', player.id);
 
       if (scoresError) {
         console.error('Error fetching player scores:', scoresError);
@@ -98,9 +107,7 @@ export const useSessionsByDate = (selectedDate: string) => {
           highlights
         `)
         .eq('date', selectedDate)
-        .in('id', playerSessionIds)
-        .is('deleted_at', null)  // Exclude soft-deleted sessions
-        .is('scores.deleted_at', null);  // Exclude soft-deleted scores
+        .in('id', playerSessionIds);
 
       if (error) {
         console.error('Error fetching sessions by date:', error);
@@ -111,10 +118,10 @@ export const useSessionsByDate = (selectedDate: string) => {
       const sessions: GameSession[] = [];
       data.forEach(session => {
         session.scores?.forEach(score => {
-          const gameSession: GameSession = {
+          sessions.push({
             session_id: session.id,
             game_name: session.games?.name || '',
-            name: score.players?.name || '',  // Use canonical 'name' field
+            player_name: score.players?.name || '',
             player_id: score.player_id || '',
             score_id: score.id || '',
             score: score.score || 0,
@@ -122,16 +129,7 @@ export const useSessionsByDate = (selectedDate: string) => {
             location: session.location || '',
             duration_minutes: session.duration_minutes || 0,
             highlights: session.highlights || ''
-          };
-          
-          // Runtime validation in development
-          if (process.env.NODE_ENV === 'development') {
-            if (!gameSession.player_id || !gameSession.score_id) {
-              console.warn('Missing player_id or score_id in GameSession:', gameSession);
-            }
-          }
-          
-          sessions.push(gameSession);
+          });
         });
       });
 
