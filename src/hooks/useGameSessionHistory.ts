@@ -25,9 +25,7 @@ export const useGameSessionHistory = (gameId: string | null, filterByPlayer?: st
     queryFn: async () => {
       if (!gameId) return [];
 
-      if (process.env.NODE_ENV === 'development') {
-        console.log('Fetching session history for game:', gameId, 'filterByPlayer:', filterByPlayer);
-      }
+      console.log('Fetching session history for game:', gameId, 'filterByPlayer:', filterByPlayer);
       
       let query = supabase
         .from('sessions')
@@ -109,9 +107,7 @@ export const useGameSessionHistory = (gameId: string | null, filterByPlayer?: st
         };
       }) || [];
 
-      if (process.env.NODE_ENV === 'development') {
-        console.log('Processed session history:', processedSessions);
-      }
+      console.log('Processed session history:', processedSessions);
       return processedSessions;
     },
     enabled: !!gameId,
