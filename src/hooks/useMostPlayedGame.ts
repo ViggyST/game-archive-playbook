@@ -16,6 +16,8 @@ export const useMostPlayedGame = () => {
     queryFn: async (): Promise<MostPlayedGame | null> => {
       if (!player?.id) return null;
 
+      // Using scores!inner(...) pattern: sessions without active scores are filtered out
+      // This provides cleaner UX by excluding sessions where all scores are soft-deleted
       // Query sessions directly to avoid multi-player session double-counting
       // Use scores!inner to ensure we only get sessions where this player participated
       const { data, error } = await supabase

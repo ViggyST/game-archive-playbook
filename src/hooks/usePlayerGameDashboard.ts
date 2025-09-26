@@ -26,6 +26,8 @@ export const usePlayerGameDashboard = (sortBy: 'plays' | 'recent' = 'plays') => 
 
       const todayIST = getCurrentDateIST();
       
+      // Using scores!inner(...) pattern: sessions without active scores are filtered out
+      // This provides cleaner UX by excluding sessions where all scores are soft-deleted
       // Direct query to get player game stats with soft-delete filtering
       const { data: sessionsData, error } = await supabase
         .from('sessions')

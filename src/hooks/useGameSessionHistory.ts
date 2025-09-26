@@ -26,6 +26,8 @@ export const useGameSessionHistory = (gameId: string | null, filterByPlayer?: st
 
       console.log('Fetching session history for game:', gameId, 'filterByPlayer:', filterByPlayer);
       
+      // Using scores!inner(...) pattern: sessions without active scores are filtered out
+      // This provides cleaner UX by excluding sessions where all scores are soft-deleted
       let query = supabase
         .from('sessions')
         .select(`

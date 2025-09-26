@@ -34,6 +34,8 @@ export const useCalendarSessions = () => {
 
       const todayIST = getCurrentDateIST();
       
+      // Using scores!inner(...) pattern: sessions without active scores are filtered out
+      // This provides cleaner UX by excluding sessions where all scores are soft-deleted
       const { data, error } = await supabase
         .from('sessions')
         .select(`
@@ -96,7 +98,8 @@ export const useSessionsByDate = (selectedDate: string) => {
       const playerSessionIds = playerScores?.map(s => s.session_id) || [];
       if (playerSessionIds.length === 0) return [];
 
-      // Then get all players and details for those sessions on the selected date
+      // Using scores!inner(...) pattern: sessions without active scores are filtered out
+      // This provides cleaner UX by excluding sessions where all scores are soft-deleted
       const { data, error } = await supabase
         .from('sessions')
         .select(`
