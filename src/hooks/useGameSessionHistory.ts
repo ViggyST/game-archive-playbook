@@ -43,14 +43,17 @@ export const useGameSessionHistory = (gameId: string | null, filterByPlayer?: st
             players!inner(name)
           )
         `)
-        .eq('game_id', gameId);
+        .eq('game_id', gameId)
+        .is('deleted_at', null)
+        .is('scores.deleted_at', null);
 
       // If filtering by player, only get sessions where that player participated
       if (filterByPlayer) {
         const { data: playerSessions } = await supabase
           .from('scores')
           .select('session_id')
-          .eq('player_id', filterByPlayer);
+          .eq('player_id', filterByPlayer)
+          .is('deleted_at', null);
         
         if (playerSessions && playerSessions.length > 0) {
           const sessionIds = playerSessions.map(ps => ps.session_id);

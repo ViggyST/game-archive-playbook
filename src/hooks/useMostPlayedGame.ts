@@ -16,24 +16,27 @@ export const useMostPlayedGame = () => {
     queryFn: async (): Promise<MostPlayedGame | null> => {
       if (!player?.id) return null;
 
-      // Get games for this specific player
+      // Query sessions directly to avoid multi-player session double-counting
+      // Use scores!inner to ensure we only get sessions where this player participated
       const { data, error } = await supabase
-        .from('scores')
+        .from('sessions')
         .select(`
-          sessions!inner(
-            games!inner(name)
-          )
+          game_id,
+          games!inner(name),
+          scores!inner(player_id)
         `)
-        .eq('player_id', player.id);
+        .eq('scores.player_id', player.id)
+        .is('deleted_at', null)
+        .is('scores.deleted_at', null);
 
       if (error) {
         console.error('Error fetching most played game:', error);
         return null;
       }
 
-      // Count games manually since we can't use complex GROUP BY with Supabase client
-      const gameCounts = data.reduce((acc: Record<string, number>, score) => {
-        const gameName = score.sessions?.games?.name;
+      // Count unique sessions per game (not scores)
+      const gameCounts = data.reduce((acc: Record<string, number>, session) => {
+        const gameName = session.games?.name;
         if (gameName) {
           acc[gameName] = (acc[gameName] || 0) + 1;
         }

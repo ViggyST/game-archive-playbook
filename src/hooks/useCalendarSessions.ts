@@ -2,6 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { usePlayerContext } from "@/context/PlayerContext";
+import { getCurrentDateIST } from "@/lib/utils";
 
 export interface CalendarSession {
   date: string;
@@ -31,6 +32,8 @@ export const useCalendarSessions = () => {
     queryFn: async (): Promise<CalendarSession[]> => {
       if (!player?.id) return [];
 
+      const todayIST = getCurrentDateIST();
+      
       const { data, error } = await supabase
         .from('sessions')
         .select(`
@@ -45,6 +48,9 @@ export const useCalendarSessions = () => {
           )
         `)
         .eq('scores.player_id', player.id)
+        .is('deleted_at', null)
+        .is('scores.deleted_at', null)
+        .lte('date', todayIST)
         .order('date');
 
       if (error) {
@@ -79,7 +85,8 @@ export const useSessionsByDate = (selectedDate: string) => {
       const { data: playerScores, error: scoresError } = await supabase
         .from('scores')
         .select('session_id')
-        .eq('player_id', player.id);
+        .eq('player_id', player.id)
+        .is('deleted_at', null);
 
       if (scoresError) {
         console.error('Error fetching player scores:', scoresError);
@@ -107,7 +114,9 @@ export const useSessionsByDate = (selectedDate: string) => {
           highlights
         `)
         .eq('date', selectedDate)
-        .in('id', playerSessionIds);
+        .in('id', playerSessionIds)
+        .is('deleted_at', null)
+        .is('scores.deleted_at', null);
 
       if (error) {
         console.error('Error fetching sessions by date:', error);
