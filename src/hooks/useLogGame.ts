@@ -1,10 +1,14 @@
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { GameData } from "@/pages/LogGame";
 import { toast } from "sonner";
+import { usePlayerContext } from "@/context/PlayerContext";
 
 export const useLogGame = () => {
+  const queryClient = useQueryClient();
+  const { player } = usePlayerContext();
+
   return useMutation({
     mutationFn: async (gameData: GameData) => {
       console.log("Starting game log process:", gameData);
@@ -153,6 +157,14 @@ export const useLogGame = () => {
     },
     onSuccess: (data) => {
       console.log("Game logged successfully:", data);
+      
+      // Invalidate suggested players cache to refresh suggestions
+      if (player?.id) {
+        queryClient.invalidateQueries({ 
+          queryKey: ['suggested-players', 'global', player.id] 
+        });
+      }
+      
       toast.success("Game logged successfully! 🎮", {
         description: "Your game session has been saved."
       });

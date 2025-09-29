@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { GameData, Player } from "@/pages/LogGame";
+import { SuggestedPlayersChips } from "./SuggestedPlayersChips";
 
 interface AddPlayersStepProps {
   gameData: GameData;
@@ -66,6 +67,33 @@ const AddPlayersStep = ({ gameData, updateGameData }: AddPlayersStepProps) => {
     }
   };
 
+  const handleAddFromSuggestion = (playerId: string, playerName: string, avatarUrl?: string) => {
+    // Check if player already exists by name (case-insensitive)
+    const existingPlayer = gameData.players.find(
+      p => p.name.toLowerCase() === playerName.toLowerCase()
+    );
+    
+    if (existingPlayer) {
+      // Player already added, just return
+      return;
+    }
+
+    // Generate avatar for new player
+    const avatar = generateAvatar(playerName, gameData.players.length);
+    
+    const newPlayer: Player = {
+      id: playerId,
+      name: playerName,
+      avatar: `avatar-${Date.now()}`
+    };
+
+    // Add player and initialize score
+    updateGameData({
+      players: [...gameData.players, newPlayer],
+      scores: { ...gameData.scores, [playerId]: 0 }
+    });
+  };
+
   return (
     <div className="space-y-6 animate-slide-up">
       <Card>
@@ -100,6 +128,13 @@ const AddPlayersStep = ({ gameData, updateGameData }: AddPlayersStepProps) => {
               </Button>
             </div>
           </div>
+
+          {/* Suggested Players Chips */}
+          <SuggestedPlayersChips
+            selectedPlayerIds={gameData.players.map(p => p.id)}
+            gameId={undefined}
+            onAddPlayer={handleAddFromSuggestion}
+          />
 
           {/* Players List */}
           {gameData.players.length > 0 && (
