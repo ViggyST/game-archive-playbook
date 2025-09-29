@@ -45,10 +45,19 @@ export const SuggestedPlayersChips = ({
     gameId
   });
 
-  // Filter out active player if already selected
-  const filteredSuggestions = suggestedPlayers?.filter(
-    (p) => p.id !== activePlayer?.id || !selectedPlayerIds.includes(p.id)
-  ) || [];
+  // Use Set for O(1) lookup performance
+  const selectedIds = new Set(selectedPlayerIds ?? []);
+
+  // Dedupe manually (preserve hook order: active player first, then ranked others)
+  const seen = new Set<string>();
+  const unique = (suggestedPlayers ?? []).filter(p => {
+    if (seen.has(p.id)) return false;
+    seen.add(p.id);
+    return true;
+  });
+
+  // Filter out already selected players
+  const filteredSuggestions = unique.filter(p => !selectedIds.has(p.id));
 
   // Hide section if no suggestions
   if (!isLoading && filteredSuggestions.length === 0) {
@@ -98,7 +107,7 @@ export const SuggestedPlayersChips = ({
                       <Crown className="h-3 w-3 text-meeple-gold-500 fill-meeple-gold-500" />
                     )}
                     <span className="text-sm font-medium">
-                      {isActivePlayer ? 'You' : player.name}
+                      {player.name}
                     </span>
                     {!isActivePlayer && player.coSessionCount > 0 && (
                       <span className="text-xs text-muted-foreground">
