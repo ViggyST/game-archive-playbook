@@ -59,8 +59,11 @@ export const SuggestedPlayersChips = ({
   // Filter out already selected players
   const filteredSuggestions = unique.filter(p => !selectedIds.has(p.id));
 
+  // Always show exactly 5 chips (or fewer if not enough available)
+  const displaySuggestions = filteredSuggestions.slice(0, 5);
+
   // Hide section if no suggestions
-  if (!isLoading && filteredSuggestions.length === 0) {
+  if (!isLoading && displaySuggestions.length === 0) {
     return null;
   }
 
@@ -77,8 +80,8 @@ export const SuggestedPlayersChips = ({
             <Skeleton key={i} className="h-12 w-32 rounded-full" />
           ))
         ) : (
-          // Suggestion chips
-          filteredSuggestions.map((player, index) => {
+          // Suggestion chips (always exactly 5)
+          displaySuggestions.map((player, index) => {
             const isActivePlayer = player.id === activePlayer?.id;
             const { initials, colorClass } = generateAvatar(player.name, index);
             

@@ -23,72 +23,83 @@ export const useSuggestedPlayers = ({
   const { player: activePlayer } = usePlayerContext();
 
   return useQuery({
-    queryKey: ['suggested-players', 'global', activePlayer?.id, selectedPlayerIds],
+    queryKey: ['suggested-players', 'global', activePlayer?.id, gameId],
     queryFn: async (): Promise<SuggestedPlayer[]> => {
       if (!activePlayer?.id) return [];
 
-      // Fetch last 200 sessions where active player participated
-      // Using scores!inner() pattern for soft-delete filtering
-      // Filter out future dates using IST timezone for consistency
-      const { data: playerSessionsData, error: sessionsError } = await supabase
-        .from('sessions')
-        .select(`
-          id,
-          date,
-          scores!inner(
-            player_id,
-            players!inner(
-              id,
-              name,
-              avatar_url
-            )
-          )
-        `)
-        .eq('scores.player_id', activePlayer.id)
+      console.log('Fetching suggested players for:', activePlayer.id);
+      
+      // STEP 1: Get session IDs where active player participated
+      const { data: playerScores, error: scoresError } = await supabase
+        .from('scores')
+        .select('session_id, sessions!inner(date, game_id, deleted_at)')
+        .eq('player_id', activePlayer.id)
         .is('deleted_at', null)
-        .is('scores.deleted_at', null)
-        .lte('date', getCurrentDateIST())
-        .order('date', { ascending: false })
+        .is('sessions.deleted_at', null)
+        .lte('sessions.date', getCurrentDateIST())
+        .order('sessions.date', { ascending: false, foreignTable: 'sessions' })
         .limit(200);
 
-      if (sessionsError) {
-        console.error('Error fetching suggested players:', sessionsError);
+      if (scoresError) {
+        console.error('Error fetching player sessions:', scoresError);
+        return [];
+      }
+
+      if (!playerScores || playerScores.length === 0) {
+        // No sessions yet, return only active player
+        return [{
+          id: activePlayer.id,
+          name: activePlayer.name,
+          coSessionCount: 0,
+          avatar_url: undefined
+        }];
+      }
+
+      const sessionIds = playerScores.map(s => s.session_id);
+
+      // STEP 2: Get ALL scores from those sessions (all co-players)
+      const { data: allScores, error: allScoresError } = await supabase
+        .from('scores')
+        .select(`
+          session_id,
+          player_id,
+          players!inner(id, name, avatar_url),
+          sessions!inner(date, game_id)
+        `)
+        .in('session_id', sessionIds)
+        .is('deleted_at', null);
+
+      if (allScoresError) {
+        console.error('Error fetching all scores:', allScoresError);
         return [];
       }
 
       // Build co-session frequency map
       const coSessionMap = new Map<string, { count: number; lastDate: string; player: any }>();
 
-      playerSessionsData?.forEach((session) => {
-        const sessionDate = session.date;
+      allScores?.forEach((score: any) => {
+        const playerId = score.player_id;
+        const player = score.players;
+        const sessionDate = score.sessions.date;
+
+        // Skip self
+        if (playerId === activePlayer.id) return;
+
+        if (!coSessionMap.has(playerId)) {
+          coSessionMap.set(playerId, {
+            count: 0,
+            lastDate: sessionDate,
+            player: player
+          });
+        }
+
+        const entry = coSessionMap.get(playerId)!;
+        entry.count += 1;
         
-        // Find all OTHER players in this session
-        session.scores?.forEach((score: any) => {
-          const otherPlayerId = score.player_id;
-          const otherPlayer = score.players;
-
-          // Skip self
-          if (otherPlayerId === activePlayer.id) return;
-          
-          // Skip already selected players
-          if (selectedPlayerIds.includes(otherPlayerId)) return;
-
-          if (!coSessionMap.has(otherPlayerId)) {
-            coSessionMap.set(otherPlayerId, {
-              count: 0,
-              lastDate: sessionDate,
-              player: otherPlayer
-            });
-          }
-
-          const entry = coSessionMap.get(otherPlayerId)!;
-          entry.count += 1;
-          
-          // Update last co-play date if this session is more recent
-          if (sessionDate > entry.lastDate) {
-            entry.lastDate = sessionDate;
-          }
-        });
+        // Update last co-play date if this session is more recent
+        if (sessionDate > entry.lastDate) {
+          entry.lastDate = sessionDate;
+        }
       });
 
       // Convert map to array and sort
@@ -109,15 +120,22 @@ export const useSuggestedPlayers = ({
           return (b.lastCoPlayDate || '').localeCompare(a.lastCoPlayDate || '');
         });
 
-      // Return active player first, then top 7 ranked others
+      // Fetch active player's avatar_url
+      const { data: activePlayerData } = await supabase
+        .from('players')
+        .select('id, name, avatar_url')
+        .eq('id', activePlayer.id)
+        .maybeSingle();
+
       const activePlayerSuggestion: SuggestedPlayer = {
         id: activePlayer.id,
         name: activePlayer.name,
         coSessionCount: 0,
-        avatar_url: undefined
+        avatar_url: activePlayerData?.avatar_url
       };
 
-      return [activePlayerSuggestion, ...rankedPlayers.slice(0, 7)];
+      // Return active player first, then top 19 ranked others (total 20)
+      return [activePlayerSuggestion, ...rankedPlayers.slice(0, 19)];
     },
     enabled: !!activePlayer?.id,
     staleTime: 5 * 60 * 1000, // 5 minutes
