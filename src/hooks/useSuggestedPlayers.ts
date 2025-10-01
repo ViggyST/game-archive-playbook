@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { usePlayerContext } from "@/context/PlayerContext";
+import { getCurrentDateIST } from "@/lib/utils";
 
 interface SuggestedPlayer {
   id: string;
@@ -28,6 +29,7 @@ export const useSuggestedPlayers = ({
 
       // Fetch last 200 sessions where active player participated
       // Using scores!inner() pattern for soft-delete filtering
+      // Filter out future dates using IST timezone for consistency
       const { data: playerSessionsData, error: sessionsError } = await supabase
         .from('sessions')
         .select(`
@@ -45,6 +47,7 @@ export const useSuggestedPlayers = ({
         .eq('scores.player_id', activePlayer.id)
         .is('deleted_at', null)
         .is('scores.deleted_at', null)
+        .lte('date', getCurrentDateIST())
         .order('date', { ascending: false })
         .limit(200);
 

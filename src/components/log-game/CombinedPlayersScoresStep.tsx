@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { GameData, Player } from "@/pages/LogGame";
 import { evalStep2 } from "@/utils/validation";
+import { SuggestedPlayersChips } from "./SuggestedPlayersChips";
 
 interface CombinedPlayersScoresStepProps {
   gameData: GameData & { skipWinner?: boolean };
@@ -53,6 +54,29 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
       });
       setNewPlayerName("");
     }
+  };
+
+  const handleAddFromSuggestion = (playerId: string, playerName: string, avatarUrl?: string) => {
+    // Check if player already exists (case-insensitive)
+    const existingPlayer = gameData.players.find(
+      p => p.name.toLowerCase().trim() === playerName.toLowerCase().trim()
+    );
+    
+    if (existingPlayer) {
+      return; // Player already added, no-op
+    }
+    
+    // Add suggested player using their actual DB id
+    const newPlayer: Player = {
+      id: playerId, // Use the actual player id from DB
+      name: playerName,
+      avatar: avatarUrl || `avatar-${Date.now()}`
+    };
+    
+    updateGameData({ 
+      players: [...gameData.players, newPlayer],
+      scores: { ...gameData.scores, [newPlayer.id]: 0 }
+    });
   };
 
   const removePlayer = (playerId: string) => {
@@ -158,6 +182,12 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
                 </Button>
               </div>
             </div>
+
+            {/* Suggested Players */}
+            <SuggestedPlayersChips 
+              selectedPlayerIds={gameData.players.map(p => p.id)}
+              onAddPlayer={handleAddFromSuggestion}
+            />
 
             {/* Players List */}
             {gameData.players.length > 0 && (
