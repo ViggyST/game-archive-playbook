@@ -130,12 +130,19 @@ export const useSuggestedPlayers = ({
           return (b.lastCoPlayDate || '').localeCompare(a.lastCoPlayDate || '');
         });
 
+      // Fetch active player's details including avatar
+      const { data: activePlayerData } = await supabase
+        .from('players')
+        .select('id, name, avatar_url')
+        .eq('id', activePlayer.id)
+        .maybeSingle();
+
       // Return active player first, then top 7 ranked others
       const activePlayerSuggestion: SuggestedPlayer = {
         id: activePlayer.id,
         name: activePlayer.name,
         coSessionCount: 0,
-        avatar_url: undefined
+        avatar_url: activePlayerData?.avatar_url
       };
 
       return [activePlayerSuggestion, ...rankedPlayers.slice(0, 7)];
