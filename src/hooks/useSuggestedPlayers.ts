@@ -32,12 +32,9 @@ export const useSuggestedPlayers = ({
       // STEP 1: Get session IDs where active player participated
       const { data: playerScores, error: scoresError } = await supabase
         .from('scores')
-        .select('session_id, sessions!inner(date, game_id, deleted_at)')
+        .select('session_id, sessions!inner(date, game_id)')
         .eq('player_id', activePlayer.id)
-        .is('deleted_at', null)
-        .is('sessions.deleted_at', null)
         .lte('sessions.date', getCurrentDateIST())
-        .order('sessions.date', { ascending: false, foreignTable: 'sessions' })
         .limit(200);
 
       if (scoresError) {
@@ -67,7 +64,6 @@ export const useSuggestedPlayers = ({
           sessions!inner(date, game_id)
         `)
         .in('session_id', sessionIds)
-        .is('deleted_at', null);
 
       if (allScoresError) {
         console.error('Error fetching all scores:', allScoresError);
