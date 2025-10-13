@@ -14,7 +14,7 @@ const Index = () => {
 
   useEffect(() => {
     if (!player) {
-      navigate('/landing');
+      navigate('/');
     }
   }, [player, navigate]);
 

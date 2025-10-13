@@ -30,7 +30,7 @@ const Landing = () => {
       // Search for player by name (case-insensitive)
       const { data: players, error } = await supabase
         .from('players')
-        .select('id, name')
+        .select('*')
         .ilike('name', playerName.trim());
 
       console.log('Search results:', players);
@@ -62,7 +62,7 @@ const Landing = () => {
       console.log('Found player:', player);
 
       // Set the player in context
-      setPlayer({ id: player.id, name: player.name });
+      setPlayer(player);
 
       console.log('Player set in context:', {
         id: player.id,

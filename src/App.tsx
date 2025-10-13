@@ -3,6 +3,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { PlayerProvider } from "@/context/PlayerContext";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Landing from "./pages/Landing";
 import Index from "./pages/Index";
 import LogGame from "./pages/LogGame";
@@ -21,10 +22,38 @@ function App() {
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Landing />} />
-              <Route path="/dashboard" element={<Index />} />
-              <Route path="/log-game" element={<LogGame />} />
-              <Route path="/track-games" element={<TrackGames />} />
-              <Route path="/collections" element={<Collections />} />
+              <Route 
+                path="/dashboard" 
+                element={
+                  <ProtectedRoute>
+                    <Index />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/log-game" 
+                element={
+                  <ProtectedRoute>
+                    <LogGame />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/track-games" 
+                element={
+                  <ProtectedRoute>
+                    <TrackGames />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/collections" 
+                element={
+                  <ProtectedRoute>
+                    <Collections />
+                  </ProtectedRoute>
+                } 
+              />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

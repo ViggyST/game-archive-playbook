@@ -5,14 +5,11 @@ import { Button } from "@/components/ui/button";
 import { usePlayerContext } from "@/context/PlayerContext";
 
 const BrandingHeader = () => {
-  const { player, setPlayer } = usePlayerContext();
+  const { player, logout } = usePlayerContext();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    // Clear the player from context (this will also clear localStorage)
-    setPlayer(null);
-    
-    // Redirect to landing page
+  const handleLogout = async () => {
+    await logout();
     navigate('/');
   };
 
