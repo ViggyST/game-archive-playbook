@@ -2,15 +2,13 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Session } from '@supabase/supabase-js';
-import type { Database } from '@/integrations/supabase/types';
-
-type Player = Database['public']['Tables']['players']['Row'];
+import { PlayerRow } from '@/types/database';
 
 interface PlayerContextType {
-  player: Player | null;
+  player: PlayerRow | null;
   session: Session | null;
   isLoading: boolean;
-  setPlayer: (player: Player | null) => void;
+  setPlayer: (player: PlayerRow | null) => void;
   logout: () => Promise<void>;
 }
 
@@ -21,7 +19,7 @@ interface PlayerProviderProps {
 }
 
 export const PlayerProvider = ({ children }: PlayerProviderProps) => {
-  const [player, setPlayer] = useState<Player | null>(null);
+  const [player, setPlayer] = useState<PlayerRow | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -30,7 +28,7 @@ export const PlayerProvider = ({ children }: PlayerProviderProps) => {
     try {
       const { data, error } = await supabase
         .from('players')
-        .select('*')
+        .select('id, name, avatar_url, username, auth_uid, created_at, deleted_at')
         .eq('auth_uid', authUid)
         .maybeSingle();
 
@@ -89,7 +87,7 @@ export const PlayerProvider = ({ children }: PlayerProviderProps) => {
               deleted_at: null,
               auth_uid: null,
               username: null
-            } as Player);
+            });
           }
         }
       } catch (error) {
