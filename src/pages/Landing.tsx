@@ -6,14 +6,118 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { usePlayerContext } from "@/context/PlayerContext";
+import { EmailSentModal } from "@/components/auth/EmailSentModal";
+import { z } from "zod";
+
+const emailSchema = z.string().email("Please enter a valid email");
 
 const Landing = () => {
+  // Magic Link state
+  const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [isLoadingMagicLink, setIsLoadingMagicLink] = useState(false);
+  const [showEmailSentModal, setShowEmailSentModal] = useState(false);
+  
+  // Legacy login state
   const [playerName, setPlayerName] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingLegacy, setIsLoadingLegacy] = useState(false);
+  const [showLegacyLogin, setShowLegacyLogin] = useState(false);
+  
   const navigate = useNavigate();
   const { toast } = useToast();
   const { setPlayer } = usePlayerContext();
 
+  const handleMagicLinkSubmit = async () => {
+    // Validate email
+    const result = emailSchema.safeParse(email.trim());
+    if (!result.success) {
+      setEmailError(result.error.errors[0].message);
+      return;
+    }
+    
+    setEmailError("");
+    setIsLoadingMagicLink(true);
+
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email: email.trim(),
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`
+        }
+      });
+
+      if (error) {
+        toast({
+          title: "Failed to send magic link",
+          description: error.message,
+          variant: "destructive",
+        });
+        setIsLoadingMagicLink(false);
+        return;
+      }
+
+      // Success: show toast
+      toast({
+        title: "✅ Check your inbox",
+        description: "We've sent a magic link to your email.",
+      });
+
+      // Wait 2 seconds, then show modal
+      setTimeout(() => {
+        setShowEmailSentModal(true);
+      }, 2000);
+
+    } catch (error) {
+      console.error('Error sending magic link:', error);
+      toast({
+        title: "An error occurred",
+        description: "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingMagicLink(false);
+    }
+  };
+
+  const handleResendMagicLink = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email: email.trim(),
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`
+        }
+      });
+
+      if (error) {
+        toast({
+          title: "Failed to resend",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Magic link resent! ✅",
+        description: "Check your inbox again.",
+      });
+    } catch (error) {
+      console.error('Error resending magic link:', error);
+      toast({
+        title: "Failed to resend",
+        description: "Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleChangeEmail = () => {
+    setEmail("");
+    setEmailError("");
+    setShowEmailSentModal(false);
+  };
+
+  // Legacy login handler
   const handleEnterArchive = async () => {
     if (!playerName.trim()) {
       toast({
@@ -23,7 +127,7 @@ const Landing = () => {
       return;
     }
 
-    setIsLoading(true);
+    setIsLoadingLegacy(true);
     console.log('Searching for player:', playerName.trim());
 
     try {
@@ -43,7 +147,7 @@ const Landing = () => {
           description: "Please try again.",
           variant: "destructive",
         });
-        setIsLoading(false);
+        setIsLoadingLegacy(false);
         return;
       }
 
@@ -53,7 +157,7 @@ const Landing = () => {
           description: "This player is not recognised. Try again.",
           variant: "destructive",
         });
-        setIsLoading(false);
+        setIsLoadingLegacy(false);
         return;
       }
 
@@ -79,7 +183,7 @@ const Landing = () => {
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      setIsLoadingLegacy(false);
     }
   };
 
@@ -179,36 +283,111 @@ const Landing = () => {
             </h3>
           </div>
           
-          <div className="space-y-4">
-            <Input
-              type="text"
-              placeholder="Enter your player name"
-              value={playerName}
-              onChange={(e) => setPlayerName(e.target.value)}
-              className="w-full h-12 text-center text-lg border-2 border-gray-200 rounded-xl focus:border-orange-500 focus:ring-orange-500"
-              onKeyPress={(e) => {
-                if (e.key === 'Enter') {
-                  handleEnterArchive();
-                }
-              }}
-            />
-            
-            <Button
-              onClick={handleEnterArchive}
-              disabled={isLoading}
-              className="w-full h-12 bg-gray-400 hover:bg-gray-500 text-white font-semibold text-lg rounded-xl transition-colors"
-            >
-              {isLoading ? (
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Loading...
-                </div>
-              ) : (
-                <>🎮 Enter Archive</>
-              )}
-            </Button>
-          </div>
+          {/* Magic Link Login (Default) */}
+          {!showLegacyLogin && (
+            <div className="space-y-4">
+              <div>
+                <Input
+                  type="email"
+                  placeholder="Enter your email ID"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setEmailError("");
+                  }}
+                  className={`w-full h-12 text-center text-lg border-2 rounded-xl focus:border-orange-500 focus:ring-orange-500 ${
+                    emailError ? "border-red-500" : "border-gray-200"
+                  }`}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleMagicLinkSubmit();
+                    }
+                  }}
+                />
+                {emailError && (
+                  <p className="text-red-500 text-sm mt-2 text-center">{emailError}</p>
+                )}
+              </div>
+              
+              <Button
+                onClick={handleMagicLinkSubmit}
+                disabled={isLoadingMagicLink}
+                className="w-full h-12 bg-orange-500 hover:bg-orange-600 text-white font-semibold text-lg rounded-xl transition-colors"
+              >
+                {isLoadingMagicLink ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Sending...
+                  </div>
+                ) : (
+                  "Send Magic Link"
+                )}
+              </Button>
+
+              {/* Legacy Login Toggle */}
+              <div className="text-center mt-6">
+                <button
+                  onClick={() => setShowLegacyLogin(true)}
+                  className="text-sm text-gray-500 hover:text-gray-700 underline"
+                >
+                  Having trouble? Use legacy login
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Legacy Login (Hidden by default) */}
+          {showLegacyLogin && (
+            <div className="space-y-4">
+              <Input
+                type="text"
+                placeholder="Enter your player name"
+                value={playerName}
+                onChange={(e) => setPlayerName(e.target.value)}
+                className="w-full h-12 text-center text-lg border-2 border-gray-200 rounded-xl focus:border-orange-500 focus:ring-orange-500"
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    handleEnterArchive();
+                  }
+                }}
+              />
+              
+              <Button
+                onClick={handleEnterArchive}
+                disabled={isLoadingLegacy}
+                className="w-full h-12 bg-gray-400 hover:bg-gray-500 text-white font-semibold text-lg rounded-xl transition-colors"
+              >
+                {isLoadingLegacy ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Loading...
+                  </div>
+                ) : (
+                  <>🎮 Enter Archive</>
+                )}
+              </Button>
+
+              {/* Back to Magic Link */}
+              <div className="text-center mt-4">
+                <button
+                  onClick={() => setShowLegacyLogin(false)}
+                  className="text-sm text-gray-500 hover:text-gray-700 underline"
+                >
+                  ← Back to magic link login
+                </button>
+              </div>
+            </div>
+          )}
         </div>
+
+        {/* Email Sent Modal */}
+        <EmailSentModal
+          isOpen={showEmailSentModal}
+          onClose={() => setShowEmailSentModal(false)}
+          email={email}
+          onResend={handleResendMagicLink}
+          onChangeEmail={handleChangeEmail}
+        />
       </div>
     </div>
   );
