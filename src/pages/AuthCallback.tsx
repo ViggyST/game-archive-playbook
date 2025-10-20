@@ -43,24 +43,10 @@ export default function AuthCallback() {
         toast.success('Welcome back!');
         setTimeout(() => navigate('/dashboard'), 500);
       } else {
-        // Create new player
-        const playerName = email?.split('@')[0] || 'Player';
-        
-        const { data: newPlayer, error: insertError } = await supabase
-          .from('players')
-          .insert({
-            name: playerName,
-            auth_uid: authUid,
-          })
-          .select()
-          .single();
-
-        if (insertError) throw insertError;
-
-        setPlayer(newPlayer);
+        // New user → redirect to registration
         setStatus('success');
-        toast.success('Welcome to The Game Archive!');
-        setTimeout(() => navigate('/dashboard'), 500);
+        toast.info('Let\'s set up your profile!');
+        setTimeout(() => navigate('/register'), 500);
       }
     } catch (error: any) {
       console.error('Auth callback error:', error);

@@ -6,6 +6,7 @@ import { PlayerProvider } from "@/context/PlayerContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Landing from "./pages/Landing";
 import AuthCallback from "./pages/AuthCallback";
+import Register from "./pages/Register";
 import Index from "./pages/Index";
 import LogGame from "./pages/LogGame";
 import TrackGames from "./pages/TrackGames";
@@ -24,7 +25,8 @@ function App() {
             <Routes>
               <Route path="/" element={<Landing />} />
               <Route path="/auth/callback" element={<AuthCallback />} />
-              <Route 
+              <Route path="/register" element={<Register />} />
+              <Route
                 path="/dashboard"
                 element={
                   <ProtectedRoute>
