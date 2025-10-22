@@ -41,13 +41,26 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
     if (manualWinnerSelected || !showScoring) return;
 
     const scoreEntries = Object.entries(gameData.scores);
-    if (scoreEntries.length === 0) return;
+    const allPlayersHaveScores = scoreEntries.length === gameData.players.length;
+
+    // If not all players have scores yet, clear winner (unless manual)
+    if (!allPlayersHaveScores) {
+      if (gameData.winner && !manualWinnerSelected) {
+        updateGameData({ winner: undefined });
+      }
+      return;
+    }
 
     // Find max score
     const maxScore = Math.max(...Object.values(gameData.scores));
     
     // No winner if all zeros
-    if (maxScore === 0) return;
+    if (maxScore === 0) {
+      if (gameData.winner && !manualWinnerSelected) {
+        updateGameData({ winner: undefined });
+      }
+      return;
+    }
 
     // Find all players with max score
     const topPlayers = scoreEntries.filter(([_, score]) => score === maxScore);
