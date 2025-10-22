@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Plus, Users, X, Trophy, Crown, Minus, MessageSquare, Mic } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +12,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { GameData, Player } from "@/pages/LogGame";
 import { evalStep2 } from "@/utils/validation";
 import { SuggestedPlayersChips } from "./SuggestedPlayersChips";
+import { toast } from "sonner";
 
 interface CombinedPlayersScoresStepProps {
   gameData: GameData & { skipWinner?: boolean };
@@ -28,9 +29,53 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
   const [newPlayerName, setNewPlayerName] = useState("");
   const [maxScore, setMaxScore] = useState(500);
   const [showScoring, setShowScoring] = useState(gameData.players.length > 0);
+  const [manualWinnerSelected, setManualWinnerSelected] = useState(false);
+  const [lastAutoWinnerId, setLastAutoWinnerId] = useState<string | null>(null);
 
   const validity = useMemo(() => evalStep2(gameData), [gameData]);
   const { hasAtLeastOnePlayer, allScoresFinite, hasWinner } = validity;
+
+  // Auto-Winner Logic
+  useEffect(() => {
+    // Don't auto-select if user manually chose or not in scoring mode
+    if (manualWinnerSelected || !showScoring) return;
+
+    const scoreEntries = Object.entries(gameData.scores);
+    if (scoreEntries.length === 0) return;
+
+    // Find max score
+    const maxScore = Math.max(...Object.values(gameData.scores));
+    
+    // No winner if all zeros
+    if (maxScore === 0) return;
+
+    // Find all players with max score
+    const topPlayers = scoreEntries.filter(([_, score]) => score === maxScore);
+
+    // Only auto-select if there's ONE clear winner
+    if (topPlayers.length === 1) {
+      const autoWinnerId = topPlayers[0][0];
+      
+      // Only update if different from current
+      if (gameData.winner !== autoWinnerId) {
+        updateGameData({ winner: autoWinnerId });
+        
+        // Show toast only once per auto-winner
+        if (lastAutoWinnerId !== autoWinnerId) {
+          const winnerName = gameData.players.find(p => p.id === autoWinnerId)?.name;
+          toast.success(`👑 ${winnerName} marked as winner (auto-selected)`, {
+            duration: 3000,
+          });
+          setLastAutoWinnerId(autoWinnerId);
+        }
+      }
+    } else if (topPlayers.length > 1) {
+      // Tie detected → clear winner
+      if (gameData.winner && !manualWinnerSelected) {
+        updateGameData({ winner: undefined });
+      }
+    }
+  }, [gameData.scores, gameData.players, gameData.winner, manualWinnerSelected, showScoring, lastAutoWinnerId, updateGameData]);
 
   const generateAvatar = (name: string, index: number) => {
     const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
@@ -121,6 +166,9 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
       },
       skipWinner: false // Clear skipWinner when editing scores
     });
+    // Reset manual selection when editing scores
+    setManualWinnerSelected(false);
+    setLastAutoWinnerId(null);
   };
 
   const adjustScore = (playerId: string, increment: number) => {
@@ -129,10 +177,19 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
   };
 
   const toggleWinner = (playerId: string) => {
+    const newWinner = gameData.winner === playerId ? undefined : playerId;
+    setManualWinnerSelected(true);
     updateGameData({
-      winner: gameData.winner === playerId ? undefined : playerId,
+      winner: newWinner,
       skipWinner: false // Clear skip flag if they choose a winner
     });
+    
+    if (newWinner) {
+      const winnerName = gameData.players.find(p => p.id === playerId)?.name;
+      toast.success(`🏆 ${winnerName} marked as winner manually`, {
+        duration: 2000,
+      });
+    }
   };
 
   const adjustMaxScore = (newMax: number) => {
@@ -325,7 +382,7 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
                               : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
                           }`}
                         >
-                          <Crown className="h-3 w-3 mr-1" />
+                          <Crown className={`h-3 w-3 mr-1 ${isWinner ? 'animate-bounce-in' : ''}`} />
                           {isWinner ? 'Winner' : 'Mark'}
                         </Button>
                       </div>
