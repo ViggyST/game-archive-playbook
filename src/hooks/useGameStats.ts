@@ -18,9 +18,9 @@ export const useGameStats = () => {
         .from('games')
         .select(`
           name,
-          weight,
           sessions!inner(
             duration_minutes,
+            complexity,
             scores!inner(is_winner)
           )
         `);
@@ -48,12 +48,16 @@ export const useGameStats = () => {
         );
         const winRate = totalScores > 0 ? Math.round((totalWins / totalScores) * 100) : 0;
 
+        // Use the most recent session's complexity as the display weight
+        const mostRecentComplexity = sessions[sessions.length - 1]?.complexity || 'medium';
+        const normalizedWeight = mostRecentComplexity.charAt(0).toUpperCase() + mostRecentComplexity.slice(1);
+
         return {
           name: game.name,
           plays,
           avg_duration: avgDuration,
           win_rate: winRate,
-          weight: game.weight || 'Medium'
+          weight: normalizedWeight
         };
       }).filter(game => game.plays > 0); // Only show games that have been played
     },

@@ -36,7 +36,8 @@ export const usePlayerGameDashboard = (sortBy: 'plays' | 'recent' = 'plays') => 
           game_id,
           date,
           duration_minutes,
-          games!inner(id, name, weight),
+          complexity,
+          games!inner(id, name),
           scores!inner(player_id, is_winner, score)
         `)
         .eq('scores.player_id', player.id)
@@ -65,11 +66,15 @@ export const usePlayerGameDashboard = (sortBy: 'plays' | 'recent' = 'plays') => 
         const score = session.scores.find((s: any) => s.player_id === player.id);
         const gameId = game.id;
         
+        // Use session-level complexity
+        const sessionComplexity = session.complexity || 'medium';
+        const normalizedComplexity = sessionComplexity.charAt(0).toUpperCase() + sessionComplexity.slice(1);
+        
         if (!gameStats.has(gameId)) {
           gameStats.set(gameId, {
             game_id: gameId,
             game_name: game.name,
-            complexity: game.weight || 'unknown',
+            complexity: normalizedComplexity,
             total_plays: 0,
             wins: 0,
             total_duration: 0,

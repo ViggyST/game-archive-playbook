@@ -44,9 +44,9 @@ export const useKiritoGameStats = () => {
             is_winner,
             sessions!inner(
               duration_minutes,
+              complexity,
               games!inner(
-                name,
-                weight
+                name
               )
             )
           `)
@@ -68,12 +68,13 @@ export const useKiritoGameStats = () => {
 
         gameStats.forEach(score => {
           const gameName = score.sessions.games.name;
-          const gameWeight = score.sessions.games.weight || 'Medium';
+          const sessionComplexity = score.sessions.complexity || 'medium';
+          const normalizedWeight = sessionComplexity.charAt(0).toUpperCase() + sessionComplexity.slice(1);
           
           if (!gameStatsMap.has(gameName)) {
             gameStatsMap.set(gameName, {
               name: gameName,
-              weight: gameWeight,
+              weight: normalizedWeight,
               sessions: 0,
               wins: 0,
               total_duration: 0
