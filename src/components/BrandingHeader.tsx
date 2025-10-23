@@ -3,13 +3,19 @@ import { useNavigate } from "react-router-dom";
 import { LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePlayerContext } from "@/context/PlayerContext";
+import { useToast } from "@/hooks/use-toast";
 
 const BrandingHeader = () => {
   const { player, logout } = usePlayerContext();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const handleLogout = async () => {
     await logout();
+    toast({
+      title: "Logged out successfully",
+      description: "See you next time! 👋",
+    });
     navigate('/');
   };
 

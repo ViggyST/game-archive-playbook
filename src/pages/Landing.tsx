@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,7 +25,14 @@ const Landing = () => {
   
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { setPlayer } = usePlayerContext();
+  const { session, player, isLoading, setPlayer } = usePlayerContext();
+
+  // Auto-redirect if already authenticated
+  useEffect(() => {
+    if (!isLoading && (session || player)) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [session, player, isLoading, navigate]);
 
   const handleMagicLinkSubmit = async () => {
     // Validate email
