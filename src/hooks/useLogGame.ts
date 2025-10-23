@@ -110,7 +110,7 @@ export const useLogGame = () => {
           location: gameData.location,
           duration_minutes: gameData.duration,
           highlights: gameData.highlights || null,
-          complexity: gameData.complexity?.toLowerCase() || 'medium'
+          complexity: (gameData.complexity?.toLowerCase() || 'medium') as 'light' | 'medium' | 'heavy'
         })
         .select('id')
         .single();

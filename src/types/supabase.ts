@@ -277,7 +277,7 @@ export type Database = {
       }
       sessions: {
         Row: {
-          complexity: string | null
+          complexity: 'light' | 'medium' | 'heavy' | null
           created_at: string | null
           date: string
           deleted_at: string | null
@@ -288,7 +288,7 @@ export type Database = {
           location: string | null
         }
         Insert: {
-          complexity?: string | null
+          complexity?: 'light' | 'medium' | 'heavy' | null
           created_at?: string | null
           date: string
           deleted_at?: string | null
@@ -299,7 +299,7 @@ export type Database = {
           location?: string | null
         }
         Update: {
-          complexity?: string | null
+          complexity?: 'light' | 'medium' | 'heavy' | null
           created_at?: string | null
           date?: string
           deleted_at?: string | null
