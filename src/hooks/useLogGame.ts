@@ -25,7 +25,7 @@ export const useLogGame = () => {
       
       if (existingGame) {
         gameId = existingGame.id;
-        console.log("Using existing game:", gameId);
+        console.log("Using existing game (keeping immutable weight):", gameId);
       } else {
         // Insert new game
         const { data: newGame, error: gameError } = await supabase
@@ -101,7 +101,7 @@ export const useLogGame = () => {
       console.log("Original date:", gameData.date);
       console.log("Formatted date for DB:", formattedDate);
       
-      // Step 3: Insert session
+      // Step 3: Insert session with complexity
       const { data: session, error: sessionError } = await supabase
         .from('sessions')
         .insert({
@@ -109,7 +109,8 @@ export const useLogGame = () => {
           date: formattedDate, // Use formatted date string
           location: gameData.location,
           duration_minutes: gameData.duration,
-          highlights: gameData.highlights || null
+          highlights: gameData.highlights || null,
+          complexity: gameData.complexity?.toLowerCase() || 'medium'
         })
         .select('id')
         .single();

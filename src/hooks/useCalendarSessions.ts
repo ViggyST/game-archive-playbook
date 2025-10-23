@@ -41,9 +41,9 @@ export const useCalendarSessions = () => {
         .select(`
           id,
           date,
+          complexity,
           games!inner(
-            name,
-            weight
+            name
           ),
           scores!inner(
             player_id
@@ -60,11 +60,11 @@ export const useCalendarSessions = () => {
         return [];
       }
 
-      // Transform to flat array of sessions with proper game weight
+      // Transform to flat array of sessions using session complexity
       const sessions: CalendarSession[] = data.map(session => ({
         date: session.date,
         game_name: session.games?.name || '',
-        game_weight: session.games?.weight || 'Medium',
+        game_weight: session.complexity || 'medium',
         session_id: session.id
       }));
 

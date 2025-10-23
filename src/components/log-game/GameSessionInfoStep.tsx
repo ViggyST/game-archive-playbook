@@ -92,6 +92,38 @@ export default function GameSessionInfoStep({ gameData, updateGameData }: Props)
     };
   }, [player?.id]);
 
+  // Prefill complexity from existing game's default weight
+  useEffect(() => {
+    if (!gameData.name || gameData.name.trim().length < 3 || gameData.complexity !== undefined) return;
+    
+    let isMounted = true;
+    async function prefillComplexity() {
+      try {
+        const { data: existingGame } = await supabase
+          .from('games')
+          .select('weight')
+          .ilike('name', gameData.name)
+          .maybeSingle();
+        
+        if (existingGame?.weight && isMounted) {
+          const complexity = existingGame.weight.charAt(0).toUpperCase() + 
+                            existingGame.weight.slice(1).toLowerCase();
+          updateGameData({ 
+            complexity: complexity as 'Light' | 'Medium' | 'Heavy' 
+          });
+        }
+      } catch (err) {
+        console.error('Error prefilling complexity:', err);
+      }
+    }
+    
+    const timeoutId = setTimeout(prefillComplexity, 500);
+    return () => {
+      isMounted = false;
+      clearTimeout(timeoutId);
+    };
+  }, [gameData.name, gameData.complexity, updateGameData]);
+
   const filteredLocations = useMemo(() => {
     const q = locationQuery.trim().toLowerCase();
     if (!q) return allLocations.slice(0, 8);

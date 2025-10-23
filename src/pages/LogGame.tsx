@@ -12,7 +12,7 @@ import { evalStep2 } from "@/utils/validation";
 export interface GameData {
   name: string;
   coverImage?: string;
-  complexity: 'Light' | 'Medium' | 'Heavy';
+  complexity?: 'Light' | 'Medium' | 'Heavy';
   date: Date;
   location: string;
   duration: number;
@@ -40,7 +40,7 @@ const LogGame = () => {
   
   const [gameData, setGameData] = useState<GameData>({
     name: '',
-    complexity: 'Medium',
+    complexity: undefined,
     date: initialDate,
     location: '',
     duration: 90,
@@ -145,6 +145,7 @@ const LogGame = () => {
       case 1:
         return (
           gameData.name.trim() !== '' &&
+          gameData.complexity !== undefined &&
           gameData.location.trim() !== '' &&
           gameData.duration > 0
         );
