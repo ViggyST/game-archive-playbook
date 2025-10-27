@@ -49,12 +49,14 @@ export const PlayerProvider = ({ children }: PlayerProviderProps) => {
   const logout = async () => {
     try {
       await supabase.auth.signOut();
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      // Always clear state and localStorage, even if signOut fails
       setSession(null);
       setPlayer(null);
       localStorage.removeItem('active_player');
       localStorage.removeItem('active_player_name');
-    } catch (error) {
-      console.error('Logout error:', error);
     }
   };
 
