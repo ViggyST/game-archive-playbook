@@ -64,21 +64,31 @@ export const PlayerProvider = ({ children }: PlayerProviderProps) => {
 
     const initAuth = async () => {
       try {
+        console.log('[Auth] Starting session initialization...');
+        
         // Check for active Supabase session
         const { data: { session } } = await supabase.auth.getSession();
+        
+        console.log('[Auth] getSession() resolved:', session ? 'Session found' : 'No session');
         
         if (!isMounted) return;
 
         if (session?.user) {
           // Auth session exists → load player by auth_uid
+          console.log('[Auth] Valid session found, loading player for auth_uid:', session.user.id);
           setSession(session);
           await loadPlayerFromAuth(session.user.id);
+          console.log('[Auth] Player loaded successfully');
         } else {
-          // No session → check legacy localStorage
+          // No session → clear any stale tokens and check legacy localStorage
+          console.log('[Auth] No valid session, clearing stale tokens...');
+          await supabase.auth.signOut();
+          
           const activePlayerId = localStorage.getItem('active_player');
           const activePlayerName = localStorage.getItem('active_player_name');
           
           if (activePlayerId && activePlayerName) {
+            console.log('[Auth] Using legacy localStorage fallback');
             setPlayer({ 
               id: activePlayerId, 
               name: activePlayerName,
@@ -88,25 +98,37 @@ export const PlayerProvider = ({ children }: PlayerProviderProps) => {
               auth_uid: null,
               username: null
             });
+          } else {
+            console.log('[Auth] No legacy player found');
           }
         }
       } catch (error) {
-        console.error('Auth initialization error:', error);
+        console.error('[Auth] Initialization error:', error);
       } finally {
-        if (isMounted) setIsLoading(false);
+        if (isMounted) {
+          console.log('[Auth] Initialization complete, setting isLoading = false');
+          setIsLoading(false);
+        }
       }
     };
 
     initAuth();
 
     // Listen for auth changes (login/logout)
+    // CRITICAL: Callback must be synchronous to prevent Supabase deadlock
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('Auth event:', event);
+      (event, session) => {
+        console.log('[Auth] Event received:', event);
+        
+        // Synchronous state updates
         setSession(session);
         
         if (session?.user) {
-          await loadPlayerFromAuth(session.user.id);
+          // Defer async work to prevent blocking Supabase's event loop
+          setTimeout(() => {
+            console.log('[Auth] Loading player after auth change...');
+            loadPlayerFromAuth(session.user.id);
+          }, 0);
         } else {
           setPlayer(null);
         }
