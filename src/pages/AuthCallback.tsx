@@ -16,31 +16,28 @@ export default function AuthCallback() {
 
   const handleAuthCallback = async () => {
     try {
-      console.log('[AuthCallback] Processing magic link token from URL...');
+      console.log('[AuthCallback] Magic link detected, waiting for Supabase to process...');
       console.log('[AuthCallback] URL hash:', window.location.hash);
       
-      // STEP 1: Exchange the URL token for a session
-      const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(window.location.hash);
+      // Supabase automatically processes magic link tokens in the URL hash
+      // We just need to wait a moment for it to complete
+      await new Promise(resolve => setTimeout(resolve, 500));
       
-      if (exchangeError) {
-        console.error('[AuthCallback] Token exchange failed:', exchangeError);
-        throw exchangeError;
-      }
-      
-      console.log('[AuthCallback] Token exchange successful, fetching session...');
-      
-      // STEP 2: Get the newly created session
+      // Check if we now have a valid session
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
-      if (sessionError) throw sessionError;
+      if (sessionError) {
+        console.error('[AuthCallback] Session error:', sessionError);
+        throw sessionError;
+      }
+      
       if (!session) {
-        throw new Error('No session found after token exchange. The link may have expired.');
+        throw new Error('No session found. The magic link may have expired or already been used.');
       }
 
       console.log('[AuthCallback] Session retrieved for user:', session.user.id);
 
       const authUid = session.user.id;
-      const email = session.user.email;
 
       // Look up player by auth_uid
       const { data: existingPlayer, error: fetchError } = await supabase
@@ -64,9 +61,9 @@ export default function AuthCallback() {
         setTimeout(() => navigate('/register'), 500);
       }
     } catch (error: any) {
-      console.error('Auth callback error:', error);
+      console.error('[AuthCallback] Error:', error);
       setStatus('error');
-      setErrorMessage(error.message || 'Authentication failed. Please try again.');
+      setErrorMessage(error.message || 'Authentication failed. The link may have expired.');
       toast.error('Authentication failed');
     }
   };
