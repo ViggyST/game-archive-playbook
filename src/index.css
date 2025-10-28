@@ -6,6 +6,12 @@
 
 @layer base {
   :root {
+    /* Theme variables */
+    --color-bg: #FFF9F3;
+    --color-text: #1A1A1A;
+    --color-primary: #FF8330;
+    
+    /* Shadcn tokens */
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
@@ -42,6 +48,12 @@
   }
 
   .dark {
+    /* Theme variables */
+    --color-bg: #0F0F10;
+    --color-text: #F2F2F2;
+    --color-primary: #FF9C4A;
+    
+    /* Shadcn tokens */
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
     --card: 222.2 84% 4.9%;
@@ -81,6 +93,11 @@
   * {
     @apply border-border;
   }
+  
+  html {
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
   body {
     @apply bg-background text-foreground;
     font-family: 'Inter', sans-serif;

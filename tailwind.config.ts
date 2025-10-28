@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss";
 
 export default {
-	darkMode: ["class"],
+	darkMode: 'class',
 	content: [
 		"./pages/**/*.{ts,tsx}",
 		"./components/**/*.{ts,tsx}",
@@ -23,7 +23,13 @@ export default {
 				'inter': ['Inter', 'sans-serif'],
 			},
 			colors: {
-				// Game Archive Custom Colors
+				// Game Archive Brand Colors
+				'brand': {
+					DEFAULT: '#FF8330',
+					hover: '#FF9C4A',
+					subtle: '#E67828',
+				},
+				// Legacy colors (kept for backward compatibility)
 				'navy': {
 					DEFAULT: '#1e293b',
 					50: '#f8fafc',
