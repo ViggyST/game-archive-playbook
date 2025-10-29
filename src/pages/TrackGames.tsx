@@ -11,7 +11,7 @@ const TrackGames = () => {
   const [activeTab, setActiveTab] = useState("calendar");
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[var(--bg)]">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-white border-b border-gray-100 shadow-sm">
         <div className="flex items-center justify-between px-4 py-4">
@@ -39,8 +39,8 @@ const TrackGames = () => {
                 group flex flex-col items-center gap-2 py-4 px-3 rounded-xl font-medium text-sm 
                 transition-all duration-200
                 ${activeTab === "calendar" 
-                  ? 'bg-orange-100 text-orange-700 shadow-sm border border-orange-200' 
-                  : 'hover:bg-gray-50 text-gray-600 hover:text-gray-700'
+                  ? 'bg-[var(--brand)]/10 text-[var(--brand)] border-b-2 border-[var(--brand)]' 
+                  : 'text-[var(--text-secondary)] hover:bg-[var(--surface)]'
                 }
               `}
             >
@@ -54,8 +54,8 @@ const TrackGames = () => {
                 group flex flex-col items-center gap-2 py-4 px-3 rounded-xl font-medium text-sm 
                 transition-all duration-200
                 ${activeTab === "games" 
-                  ? 'bg-orange-100 text-orange-700 shadow-sm border border-orange-200' 
-                  : 'hover:bg-gray-50 text-gray-600 hover:text-gray-700'
+                  ? 'bg-[var(--brand)]/10 text-[var(--brand)] border-b-2 border-[var(--brand)]' 
+                  : 'text-[var(--text-secondary)] hover:bg-[var(--surface)]'
                 }
               `}
             >
@@ -69,8 +69,8 @@ const TrackGames = () => {
                 group flex flex-col items-center gap-2 py-4 px-3 rounded-xl font-medium text-sm 
                 transition-all duration-200
                 ${activeTab === "players" 
-                  ? 'bg-orange-100 text-orange-700 shadow-sm border border-orange-200' 
-                  : 'hover:bg-gray-50 text-gray-600 hover:text-gray-700'
+                  ? 'bg-[var(--brand)]/10 text-[var(--brand)] border-b-2 border-[var(--brand)]' 
+                  : 'text-[var(--text-secondary)] hover:bg-[var(--surface)]'
                 }
               `}
             >

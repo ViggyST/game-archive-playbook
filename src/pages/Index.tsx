@@ -10,7 +10,7 @@ const Index = () => {
   const { player } = usePlayerContext();
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 transition-colors font-inter">
+    <div className="min-h-screen bg-[var(--bg)] transition-colors font-inter">
       {/* Top Branding Section */}
       <BrandingHeader />
       

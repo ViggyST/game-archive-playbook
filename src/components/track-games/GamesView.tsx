@@ -116,7 +116,7 @@ const GamesView = () => {
   return (
     <div className="space-y-6">
       {/* Summary Stats Strip */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+      <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-sm p-4">
         <div className="flex gap-3 overflow-x-auto pb-1">
           <div className="flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-full whitespace-nowrap flex-shrink-0">
             <Gamepad2 className="h-4 w-4" />
@@ -168,7 +168,7 @@ const GamesView = () => {
                 className="group cursor-pointer transition-all duration-200"
                 onClick={() => handleGameClick(game)}
               >
-                <div className="bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden p-6">
+                <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden p-6">
                   {/* Game Header */}
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-4">
@@ -179,7 +179,7 @@ const GamesView = () => {
                       
                       {/* Game Name & Badge */}
                       <div className="flex flex-col">
-                        <h3 className="font-bold text-2xl text-gray-900 mb-2">{game.name}</h3>
+                        <h3 className="font-bold text-2xl text-[var(--text-primary)] mb-2">{game.name}</h3>
                         <Badge 
                           variant={getCategoryBadgeVariant(game.weight)}
                           className={`
@@ -213,7 +213,7 @@ const GamesView = () => {
                   <div className="grid grid-cols-3 gap-4 text-center">
                     <div>
                       <div className="text-2xl font-bold text-gray-900">{game.plays}</div>
-                      <div className="text-sm text-gray-500 font-medium">Plays</div>
+                      <div className="text-sm text-[var(--text-secondary)] font-medium">Plays</div>
                     </div>
                     
                     <div>
@@ -236,7 +236,7 @@ const GamesView = () => {
       )}
 
       {/* Complexity Legend */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+      <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-sm p-4">
         <div className="text-center">
           <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">Complexity</h3>
           <div className="flex justify-center gap-6">

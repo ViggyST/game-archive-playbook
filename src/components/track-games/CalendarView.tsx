@@ -64,19 +64,19 @@ const CalendarView = () => {
     // Add multiple dots for each complexity based on count
     if (complexityCount.light) {
       for (let i = 0; i < complexityCount.light; i++) {
-        dots.push({ type: 'Light', color: 'bg-green-500' });
+        dots.push({ type: 'Light', color: 'bg-green-500 dark:bg-green-600' });
       }
     }
     
     if (complexityCount.medium) {
       for (let i = 0; i < complexityCount.medium; i++) {
-        dots.push({ type: 'Medium', color: 'bg-blue-500' });
+        dots.push({ type: 'Medium', color: 'bg-yellow-500 dark:bg-yellow-600' });
       }
     }
     
     if (complexityCount.heavy) {
       for (let i = 0; i < complexityCount.heavy; i++) {
-        dots.push({ type: 'Heavy', color: 'bg-red-500' });
+        dots.push({ type: 'Heavy', color: 'bg-red-500 dark:bg-red-600' });
       }
     }
 
@@ -206,7 +206,7 @@ const CalendarView = () => {
       </div>
 
       {/* Calendar Grid */}
-      <div className="bg-white rounded-3xl border border-gray-100 shadow-lg p-8">
+      <div className="bg-[var(--surface)] rounded-3xl border border-[var(--border)] shadow-lg p-8">
         {/* Day Labels */}
         <div className="grid grid-cols-7 gap-3 mb-6">
           {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
@@ -239,11 +239,11 @@ const CalendarView = () => {
                   relative h-28 rounded-xl border-2 transition-all duration-200 flex flex-col items-center justify-center overflow-hidden p-2
                   ${isCurrentMonth 
                     ? hasGames 
-                      ? 'bg-gradient-to-br from-orange-50 to-orange-100 border-orange-300 text-orange-900 font-semibold shadow-lg hover:shadow-xl cursor-pointer hover:scale-105 transform' 
+                      ? 'bg-[var(--brand)]/10 dark:bg-[var(--brand)]/20 border border-[var(--brand)]/30 dark:border-[var(--brand)]/40 text-[var(--text-primary)] font-semibold shadow-lg hover:shadow-xl cursor-pointer hover:scale-105 transform' 
                       : isTodayDate
-                        ? 'bg-gradient-to-br from-blue-50 to-blue-100 border-blue-300 text-blue-900 font-semibold shadow-sm'
-                        : 'bg-white border-gray-200 text-gray-900 hover:bg-gray-50 hover:border-gray-300 hover:shadow-md'
-                    : 'bg-gray-50 border-gray-100 text-gray-400'
+                        ? 'bg-blue-50 dark:bg-blue-900/20 border border-blue-300 dark:border-blue-700 text-[var(--text-primary)] font-semibold shadow-sm'
+                        : 'bg-[var(--surface)] border border-[var(--border)] text-[var(--text-primary)] hover:bg-[var(--border)]/20 hover:shadow-md'
+                    : 'bg-[var(--border)]/30 border border-[var(--border)] text-[var(--text-secondary)]/50'
                   }
                   ${isTodayDate && !hasGames ? 'ring-2 ring-blue-300 ring-opacity-60' : ''}
                 `}
@@ -282,23 +282,23 @@ const CalendarView = () => {
       </div>
 
       {/* Game Complexity Legend */}
-      <div className="bg-gradient-to-r from-gray-50 to-white rounded-2xl border border-gray-200 shadow-sm p-6">
+      <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-sm p-6">
         <div className="text-center">
           <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-4 font-inter">
             Game Complexity
           </h3>
           <div className="flex justify-center items-center gap-6">
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-green-500 rounded-full border border-white shadow-sm"></div>
-              <span className="text-sm text-gray-500 font-inter">Light</span>
+              <div className="w-3 h-3 bg-green-500 dark:bg-green-600 rounded-full border border-white shadow-sm"></div>
+              <span className="text-sm text-[var(--text-secondary)] font-inter">Light</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-blue-500 rounded-full border border-white shadow-sm"></div>
-              <span className="text-sm text-gray-500 font-inter">Medium</span>
+              <div className="w-3 h-3 bg-yellow-500 dark:bg-yellow-600 rounded-full border border-white shadow-sm"></div>
+              <span className="text-sm text-[var(--text-secondary)] font-inter">Medium</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-red-500 rounded-full border border-white shadow-sm"></div>
-              <span className="text-sm text-gray-500 font-inter">Heavy</span>
+              <div className="w-3 h-3 bg-red-500 dark:bg-red-600 rounded-full border border-white shadow-sm"></div>
+              <span className="text-sm text-[var(--text-secondary)] font-inter">Heavy</span>
             </div>
           </div>
         </div>
@@ -315,7 +315,7 @@ const CalendarView = () => {
           
           <div className="space-y-4 overflow-y-auto h-full pb-20">
             {Object.values(groupedSessions).map((session: any, index) => (
-              <Card key={index} className="bg-gradient-to-br from-white to-gray-50 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
+              <Card key={index} className="bg-[var(--surface)] border border-[var(--border)] shadow-sm hover:shadow-md transition-all duration-200">
                 <CardContent className="p-6">
                   {/* Game Header */}
                   <div className="flex items-start justify-between mb-4">
@@ -399,7 +399,7 @@ const CalendarView = () => {
 
                   {/* Highlights */}
                   {session.highlights && (
-                    <div className="mt-4 p-4 bg-blue-50 rounded-xl border border-blue-100">
+                    <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
                       <h4 className="text-sm font-semibold text-blue-800 mb-2 font-inter">Highlights</h4>
                       <p className="text-sm text-blue-700 font-inter leading-relaxed">{session.highlights}</p>
                     </div>

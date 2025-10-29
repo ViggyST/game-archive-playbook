@@ -116,7 +116,7 @@ const PlayersView = () => {
             className="group cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
             onClick={() => handlePlayerClick(player)}
           >
-            <div className="bg-gradient-to-br from-background/80 to-muted/20 backdrop-blur-xl rounded-2xl border border-border/30 overflow-hidden shadow-lg hover:shadow-xl hover:border-border/60 transition-all duration-300">
+            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   {/* Left: Avatar + Name */}
@@ -150,7 +150,7 @@ const PlayersView = () => {
 
                 {/* Stats Chips */}
                 <div className="grid grid-cols-3 gap-3">
-                  <div className="text-center p-3 bg-gradient-to-br from-sky-blue-500/10 to-sky-blue-500/20 rounded-xl hover:bg-sky-blue-500/30 transition-all duration-300 hover:scale-105 hover:shadow-md group/stat">
+                  <div className="text-center p-3 bg-[var(--brand)]/10 dark:bg-[var(--brand)]/20 border border-[var(--brand)]/20 dark:border-[var(--brand)]/30 rounded-xl hover:bg-[var(--brand)]/20 transition-all duration-300 hover:scale-105 hover:shadow-md group/stat">
                     <Target className="h-5 w-5 text-sky-blue-500 mx-auto mb-2 group-hover/stat:scale-110 transition-transform duration-300" />
                     <div className="font-mono text-lg font-bold text-foreground group-hover/stat:text-sky-blue-500 transition-colors">
                       {player.games_played_with_kirito}
@@ -158,7 +158,7 @@ const PlayersView = () => {
                     <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mt-1">Games</div>
                   </div>
 
-                  <div className="text-center p-3 bg-gradient-to-br from-meeple-gold-500/10 to-meeple-gold-500/20 rounded-xl hover:bg-meeple-gold-500/30 transition-all duration-300 hover:scale-105 hover:shadow-md group/stat">
+                  <div className="text-center p-3 bg-[var(--brand)]/10 dark:bg-[var(--brand)]/20 border border-[var(--brand)]/20 dark:border-[var(--brand)]/30 rounded-xl hover:bg-[var(--brand)]/20 transition-all duration-300 hover:scale-105 hover:shadow-md group/stat">
                     <Trophy className="h-5 w-5 text-meeple-gold-500 mx-auto mb-2 group-hover/stat:scale-110 transition-transform duration-300" />
                     <div className="font-mono text-lg font-bold text-foreground group-hover/stat:text-meeple-gold-500 transition-colors">
                       {player.win_rate_with_kirito}%
@@ -166,7 +166,7 @@ const PlayersView = () => {
                     <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mt-1">Win Rate</div>
                   </div>
 
-                  <div className="text-center p-3 bg-gradient-to-br from-emerald-500/10 to-emerald-500/20 rounded-xl hover:bg-emerald-500/30 transition-all duration-300 hover:scale-105 hover:shadow-md group/stat">
+                  <div className="text-center p-3 bg-[var(--brand)]/10 dark:bg-[var(--brand)]/20 border border-[var(--brand)]/20 dark:border-[var(--brand)]/30 rounded-xl hover:bg-[var(--brand)]/20 transition-all duration-300 hover:scale-105 hover:shadow-md group/stat">
                     <Star className="h-5 w-5 text-emerald-500 mx-auto mb-2 group-hover/stat:scale-110 transition-transform duration-300" />
                     <div className="font-mono text-lg font-bold text-foreground group-hover/stat:text-emerald-500 transition-colors">
                       {player.wins_with_kirito}
