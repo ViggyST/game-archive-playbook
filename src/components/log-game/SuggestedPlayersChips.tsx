@@ -14,7 +14,7 @@ interface SuggestedPlayersChipsProps {
 
 const AVATAR_COLORS = [
   "bg-gradient-to-br from-sky-blue-400 to-sky-blue-600",
-  "bg-gradient-to-br from-meeple-gold-400 to-meeple-gold-600",
+  "bg-gradient-to-br from-[var(--brand)] to-[var(--brand-hover)]",
   "bg-gradient-to-br from-purple-400 to-purple-600",
   "bg-gradient-to-br from-pink-400 to-pink-600",
   "bg-gradient-to-br from-green-400 to-green-600",
@@ -93,7 +93,7 @@ export const SuggestedPlayersChips = ({
                   "h-auto py-2 px-4 rounded-full",
                   "hover:bg-accent hover:scale-105 transition-all",
                   "focus-visible:ring-2 focus-visible:ring-ring",
-                  isActivePlayer && "border-meeple-gold-500 bg-meeple-gold-50"
+                  isActivePlayer && "border-[var(--brand)] bg-[var(--brand)]/10 dark:bg-[var(--brand)]/20"
                 )}
                 onClick={() => onAddPlayer(player.id, player.name, player.avatar_url)}
                 aria-label={`Add ${player.name}`}
@@ -107,7 +107,7 @@ export const SuggestedPlayersChips = ({
                   
                   <div className="flex items-center gap-1.5">
                     {isActivePlayer && (
-                      <Crown className="h-3 w-3 text-meeple-gold-500 fill-meeple-gold-500" />
+                      <Crown className="h-3 w-3 text-[var(--brand)] fill-[var(--brand)]" />
                     )}
                     <span className="text-sm font-medium">
                       {player.name}

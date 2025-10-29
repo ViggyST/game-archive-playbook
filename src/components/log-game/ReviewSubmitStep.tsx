@@ -47,7 +47,7 @@ const ReviewSubmitStep = ({ gameData }: ReviewSubmitStepProps) => {
       <Card>
         <CardHeader>
           <CardTitle className="font-poppins text-xl text-navy flex items-center gap-2">
-            <Trophy className="h-5 w-5 text-meeple-gold-500" />
+            <Trophy className="h-5 w-5 text-[var(--brand)]" />
             Review & Submit
           </CardTitle>
         </CardHeader>
@@ -126,7 +126,7 @@ const ReviewSubmitStep = ({ gameData }: ReviewSubmitStepProps) => {
                     key={player.id}
                     className={`flex items-center justify-between p-3 rounded-lg ${
                       isWinner 
-                        ? 'bg-meeple-gold-50 border border-meeple-gold-200' 
+                        ? 'bg-[var(--brand)]/10 dark:bg-[var(--brand)]/20 border border-[var(--brand)]/20 dark:border-[var(--brand)]/30' 
                         : 'bg-gray-50'
                     }`}
                   >
@@ -147,7 +147,7 @@ const ReviewSubmitStep = ({ gameData }: ReviewSubmitStepProps) => {
                           {player.name}
                         </span>
                         {isWinner && (
-                          <div className="flex items-center gap-1 text-meeple-gold-600">
+                          <div className="flex items-center gap-1 text-[var(--brand)]">
                             <Crown className="h-3 w-3" />
                             <span className="text-xs font-inter font-medium">Winner</span>
                           </div>
@@ -182,8 +182,8 @@ const ReviewSubmitStep = ({ gameData }: ReviewSubmitStepProps) => {
           )}
 
           {/* Summary */}
-          <div className="text-center p-4 bg-gradient-to-r from-sky-blue-50 to-meeple-gold-50 rounded-lg border">
-            <p className="font-inter text-sm text-navy">
+          <div className="text-center p-4 bg-gradient-to-r from-sky-blue-50 to-[var(--brand)]/10 dark:from-sky-blue-900/20 dark:to-[var(--brand)]/20 rounded-lg border border-[var(--brand)]/20 dark:border-[var(--brand)]/30">
+            <p className="font-inter text-sm text-navy dark:text-white">
               🎮 Ready to save this awesome game session? 
               {winnerPlayer && (
                 <span className="block mt-1 font-medium">

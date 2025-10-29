@@ -22,7 +22,7 @@ const PlayerDetailModal = ({ player, isOpen, onClose }: PlayerDetailModalProps) 
   if (!player) return null;
 
   const getPlayerColor = () => {
-    const colors = ["bg-sky-blue-500", "bg-meeple-gold-500", "bg-emerald-500", "bg-purple-500", "bg-pink-500"];
+    const colors = ["bg-sky-blue-500", "bg-[var(--brand)]", "bg-emerald-500", "bg-purple-500", "bg-pink-500"];
     return colors[0]; // Use first color for consistency
   };
 
@@ -54,8 +54,8 @@ const PlayerDetailModal = ({ player, isOpen, onClose }: PlayerDetailModalProps) 
               <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Games</div>
             </div>
 
-            <div className="text-center p-4 bg-gradient-to-br from-meeple-gold-500/10 to-meeple-gold-500/20 rounded-2xl">
-              <Trophy className="h-6 w-6 text-meeple-gold-500 mx-auto mb-2" />
+            <div className="text-center p-4 bg-gradient-to-br from-[var(--brand)]/10 to-[var(--brand)]/20 rounded-2xl">
+              <Trophy className="h-6 w-6 text-[var(--brand)] mx-auto mb-2" />
               <div className="font-mono text-xl font-bold text-foreground">{player.win_rate_with_kirito}%</div>
               <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Win Rate</div>
             </div>
@@ -118,7 +118,7 @@ const PlayerDetailModal = ({ player, isOpen, onClose }: PlayerDetailModalProps) 
                             {game.win_rate}%
                           </div>
                           {game.is_highest_win_rate && (
-                            <Badge variant="outline" className="text-xs bg-meeple-gold-500/10 text-meeple-gold-500 border-meeple-gold-500/20">
+                            <Badge variant="outline" className="text-xs bg-[var(--brand)]/10 text-[var(--brand)] border-[var(--brand)]/20">
                               <Crown className="h-3 w-3 mr-1" />
                               Best
                             </Badge>
@@ -135,7 +135,7 @@ const PlayerDetailModal = ({ player, isOpen, onClose }: PlayerDetailModalProps) 
                       {/* Win Rate Bar */}
                       <div className="w-full bg-muted/30 rounded-full h-2">
                         <div 
-                          className="bg-gradient-to-r from-emerald-500 to-meeple-gold-500 h-2 rounded-full transition-all duration-500"
+                          className="bg-gradient-to-r from-emerald-500 to-[var(--brand)] h-2 rounded-full transition-all duration-500"
                           style={{ width: `${game.win_rate}%` }}
                         />
                       </div>

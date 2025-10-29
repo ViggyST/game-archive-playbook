@@ -70,8 +70,8 @@ const EnhancedPlayerStats = ({ playerName }: EnhancedPlayerStatsProps) => {
 
         <div className="bg-white rounded-2xl p-4 shadow-sm animate-slide-up" style={{ animationDelay: '0.2s' }}>
           <div className="flex items-center gap-2 mb-2">
-            <div className="bg-meeple-gold-50 rounded-full p-2">
-              <Trophy className="h-4 w-4 text-meeple-gold-600" />
+            <div className="bg-[var(--brand)]/10 dark:bg-[var(--brand)]/20 rounded-full p-2">
+              <Trophy className="h-4 w-4 text-[var(--brand)]" />
             </div>
           </div>
           <div className="font-poppins font-bold text-2xl text-navy">

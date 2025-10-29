@@ -19,28 +19,19 @@ const KiritoInsightCards = () => {
       title: "Most Played",
       gameName: insights.mostPlayedGame.name,
       subtitle: `${insights.mostPlayedGame.count} sessions`,
-      emoji: "💜",
-      bgColor: "bg-purple-50",
-      textColor: "text-purple-800",
-      borderColor: "border-purple-200"
+      emoji: "💜"
     },
     insights.bestWinRateGame && {
       title: "Best Win Rate",
       gameName: insights.bestWinRateGame.name,
       subtitle: `${insights.bestWinRateGame.winRate}% wins`,
-      emoji: "💯",
-      bgColor: "bg-green-50",
-      textColor: "text-green-800",
-      borderColor: "border-green-200"
+      emoji: "💯"
     },
     insights.worstWinRateGame && {
       title: "Worst Winrate",
       gameName: insights.worstWinRateGame.name,
       subtitle: `${insights.worstWinRateGame.winRate}% wins`,
-      emoji: "⚡",
-      bgColor: "bg-orange-50",
-      textColor: "text-orange-800",
-      borderColor: "border-orange-200"
+      emoji: "⚡"
     }
   ].filter(Boolean);
 
@@ -49,19 +40,19 @@ const KiritoInsightCards = () => {
       {insightCards.map((card, index) => (
         <div 
           key={card.title}
-          className={`${card.bgColor} ${card.borderColor} border rounded-2xl p-4 shadow-sm hover:shadow-md transition-all duration-300 animate-fade-in`}
+          className="bg-[var(--brand)]/5 dark:bg-[var(--brand)]/10 border border-[var(--brand)]/20 dark:border-[var(--brand)]/30 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all duration-300 animate-fade-in"
           style={{ animationDelay: `${index * 0.1}s` }}
         >
           <div className="flex items-center gap-3">
             <span className="text-2xl">{card.emoji}</span>
             <div className="flex-1">
-              <div className={`text-sm font-medium ${card.textColor} mb-1`}>
+              <div className="text-sm font-medium text-[var(--text-secondary)] mb-1">
                 {card.title}
               </div>
-              <div className={`font-bold text-lg ${card.textColor} mb-1`}>
+              <div className="font-bold text-lg text-[var(--text-primary)] mb-1">
                 {card.gameName}
               </div>
-              <div className={`text-sm ${card.textColor} opacity-75`}>
+              <div className="text-sm text-[var(--text-secondary)] opacity-75">
                 {card.subtitle}
               </div>
             </div>

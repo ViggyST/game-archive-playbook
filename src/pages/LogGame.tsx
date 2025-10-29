@@ -193,7 +193,7 @@ const LogGame = () => {
           <div className="mt-4">
             <div className="w-full bg-muted rounded-full h-2">
               <div 
-                className="bg-gradient-to-r from-sky-blue-500 to-meeple-gold-500 h-2 rounded-full transition-all duration-300"
+                className="bg-gradient-to-r from-sky-blue-500 to-[var(--brand)] h-2 rounded-full transition-all duration-300"
                 style={{ width: `${(currentStep / steps.length) * 100}%` }}
               />
             </div>
@@ -227,7 +227,7 @@ const LogGame = () => {
             <Button
               onClick={handleNext}
               disabled={!canProceed() || logGameMutation.isPending}
-              className="flex-1 bg-gradient-to-r from-sky-blue-500 to-meeple-gold-500 text-white font-inter hover:opacity-90"
+              className="flex-1 bg-gradient-to-r from-sky-blue-500 to-[var(--brand)] text-white font-inter hover:opacity-90"
             >
               Next
               <ArrowRight className="ml-2 h-4 w-4" />
@@ -236,7 +236,7 @@ const LogGame = () => {
             <Button
               onClick={handleSubmit}
               disabled={!canProceed() || logGameMutation.isPending}
-              className="flex-1 bg-gradient-to-r from-meeple-gold-500 to-sky-blue-500 text-white font-inter hover:opacity-90"
+              className="flex-1 bg-gradient-to-r from-[var(--brand)] to-sky-blue-500 text-white font-inter hover:opacity-90"
             >
               {logGameMutation.isPending ? 'Saving...' : 'Save Game'}
             </Button>

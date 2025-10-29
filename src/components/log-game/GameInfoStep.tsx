@@ -50,7 +50,7 @@ const GameInfoStep = ({ gameData, updateGameData }: GameInfoStepProps) => {
       <Card>
         <CardHeader>
           <CardTitle className="font-poppins text-xl text-navy flex items-center gap-2">
-            <Tag className="h-5 w-5 text-meeple-gold-500" />
+            <Tag className="h-5 w-5 text-[var(--brand)]" />
             Game Information
           </CardTitle>
         </CardHeader>

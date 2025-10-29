@@ -60,7 +60,7 @@ const ScoreEntryStep = ({ gameData, updateGameData }: ScoreEntryStepProps) => {
       <Card>
         <CardHeader>
           <CardTitle className="font-poppins text-xl text-navy flex items-center gap-2">
-            <Trophy className="h-5 w-5 text-meeple-gold-500" />
+            <Trophy className="h-5 w-5 text-[var(--brand)]" />
             Enter Scores
           </CardTitle>
         </CardHeader>
@@ -99,7 +99,7 @@ const ScoreEntryStep = ({ gameData, updateGameData }: ScoreEntryStepProps) => {
                   key={player.id}
                   className={`p-4 rounded-lg border-2 transition-all ${
                     isWinner 
-                      ? 'border-meeple-gold-500 bg-meeple-gold-50 shadow-lg' 
+                      ? 'border-[var(--brand)] bg-[var(--brand)]/10 dark:bg-[var(--brand)]/20 shadow-lg' 
                       : 'border-border bg-white hover:shadow-md'
                   }`}
                 >
@@ -116,7 +116,7 @@ const ScoreEntryStep = ({ gameData, updateGameData }: ScoreEntryStepProps) => {
                           {player.name}
                         </span>
                         {isWinner && (
-                          <div className="flex items-center gap-1 text-meeple-gold-600">
+                          <div className="flex items-center gap-1 text-[var(--brand)]">
                             <Crown className="h-3 w-3" />
                             <span className="text-xs font-inter font-medium">Winner</span>
                           </div>
@@ -135,8 +135,8 @@ const ScoreEntryStep = ({ gameData, updateGameData }: ScoreEntryStepProps) => {
                         onClick={() => toggleWinner(player.id)}
                         className={`text-xs mt-1 ${
                           isWinner 
-                            ? 'bg-meeple-gold-500 hover:bg-meeple-gold-600' 
-                            : 'hover:bg-meeple-gold-50 hover:text-meeple-gold-600'
+                            ? 'bg-[var(--brand)] hover:bg-[var(--brand-hover)]' 
+                            : 'hover:bg-[var(--brand)]/10 hover:text-[var(--brand)]'
                         }`}
                       >
                         {isWinner ? (

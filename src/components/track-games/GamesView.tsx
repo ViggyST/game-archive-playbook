@@ -202,7 +202,7 @@ const GamesView = () => {
                         </div>
                       )}
                       {hasWins && (
-                        <div className="text-meeple-gold-500 transition-transform duration-200 group-hover:scale-110">
+                        <div className="text-[var(--brand)] transition-transform duration-200 group-hover:scale-110">
                           <Trophy className="h-6 w-6" />
                         </div>
                       )}
@@ -217,7 +217,7 @@ const GamesView = () => {
                     </div>
                     
                     <div>
-                      <div className={`text-2xl font-bold ${hasWins ? 'text-meeple-gold-500' : 'text-gray-400'}`}>
+                      <div className={`text-2xl font-bold ${hasWins ? 'text-[var(--brand)]' : 'text-gray-400'}`}>
                         {Math.round(game.win_rate)}%
                       </div>
                       <div className="text-sm text-gray-500 font-medium">Win Rate</div>
@@ -287,7 +287,7 @@ const GamesView = () => {
                         <div className="text-xs text-muted-foreground">Total Plays</div>
                       </div>
                       <div className="text-center">
-                        <div className="text-2xl font-poppins font-bold text-meeple-gold-500">
+                        <div className="text-2xl font-poppins font-bold text-[var(--brand)]">
                           {Math.round(selectedGame.win_rate)}%
                         </div>
                         <div className="text-xs text-muted-foreground">Win Rate</div>

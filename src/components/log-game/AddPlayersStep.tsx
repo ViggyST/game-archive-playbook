@@ -99,7 +99,7 @@ const AddPlayersStep = ({ gameData, updateGameData }: AddPlayersStepProps) => {
       <Card>
         <CardHeader>
           <CardTitle className="font-poppins text-xl text-navy flex items-center gap-2">
-            <Users className="h-5 w-5 text-meeple-gold-500" />
+            <Users className="h-5 w-5 text-[var(--brand)]" />
             Add Players
           </CardTitle>
         </CardHeader>
@@ -122,7 +122,7 @@ const AddPlayersStep = ({ gameData, updateGameData }: AddPlayersStepProps) => {
                 onClick={addPlayer}
                 disabled={!newPlayerName.trim()}
                 size="icon"
-                className="bg-meeple-gold-500 hover:bg-meeple-gold-600 text-white shrink-0"
+                className="bg-[var(--brand)] hover:bg-[var(--brand-hover)] text-white shrink-0"
               >
                 <Plus className="h-4 w-4" />
               </Button>

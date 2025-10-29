@@ -17,28 +17,22 @@ const KiritoStatsCards = () => {
 
   const statCards = [
     {
-      icon: <Gamepad2 className="h-5 w-5 text-blue-600" />,
+      icon: <Gamepad2 className="h-5 w-5" />,
       value: stats.gamesPlayed,
       label: "Games Played",
-      emoji: "🎯",
-      gradient: "from-blue-50 to-blue-100",
-      border: "border-blue-200"
+      emoji: "🎯"
     },
     {
-      icon: <Trophy className="h-5 w-5 text-yellow-600" />,
+      icon: <Trophy className="h-5 w-5" />,
       value: stats.gamesWon,
       label: "Games Won",
-      emoji: "🏆",
-      gradient: "from-yellow-50 to-yellow-100",
-      border: "border-yellow-200"
+      emoji: "🏆"
     },
     {
-      icon: <TrendingUp className="h-5 w-5 text-green-600" />,
+      icon: <TrendingUp className="h-5 w-5" />,
       value: `${stats.winRate}%`,
       label: "Win Rate",
-      emoji: "📈",
-      gradient: "from-green-50 to-green-100",
-      border: "border-green-200"
+      emoji: "📈"
     }
   ];
 
@@ -47,20 +41,20 @@ const KiritoStatsCards = () => {
       {statCards.map((stat, index) => (
         <div 
           key={stat.label}
-          className={`relative p-3 rounded-2xl shadow-lg hover:shadow-xl bg-gradient-to-br ${stat.gradient} ${stat.border} border transition-all duration-300 hover:scale-[1.02] animate-fade-in group`}
+          className="relative p-3 rounded-2xl shadow-sm hover:shadow-md bg-gradient-to-br from-[var(--brand)]/10 to-[var(--brand)]/20 dark:from-[var(--brand)]/10 dark:to-[var(--brand)]/15 border border-[var(--brand)]/20 dark:border-[var(--brand)]/30 transition-all duration-200 hover:scale-[1.02] animate-fade-in group"
           style={{ animationDelay: `${index * 0.1}s` }}
         >
           {/* Glass effect overlay */}
-          <div className="absolute inset-0 bg-white/20 rounded-2xl backdrop-blur-sm"></div>
+          <div className="absolute inset-0 bg-white/20 dark:bg-black/10 rounded-2xl backdrop-blur-sm"></div>
           
           <div className="relative z-10">
             <div className="flex items-center justify-center mb-2">
               <span className="text-2xl group-hover:scale-110 transition-transform duration-300">{stat.emoji}</span>
             </div>
-            <div className="text-2xl font-bold text-navy text-center mb-1">
+            <div className="text-2xl font-bold text-[var(--text-primary)] text-center mb-1">
               {stat.value}
             </div>
-            <div className="text-[10px] text-muted-foreground uppercase tracking-wide text-center font-medium">
+            <div className="text-[10px] text-[var(--text-secondary)] uppercase tracking-wide text-center font-medium">
               {stat.label}
             </div>
           </div>

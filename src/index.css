@@ -6,7 +6,19 @@
 
 @layer base {
   :root {
-    /* Theme variables */
+    /* Design System Variables */
+    --surface: #FFFFFF;
+    --bg: #FFF9F3;
+    --border: #E5E5E5;
+    --text-primary: #1A1A1A;
+    --text-secondary: #555555;
+    --brand: #FF8330;
+    --brand-hover: #FF9C4A;
+    --success: #3CB371;
+    --warning: #F6C445;
+    --danger: #E85959;
+    
+    /* Legacy theme variables (for compatibility) */
     --color-bg: #FFF9F3;
     --color-text: #1A1A1A;
     --color-primary: #FF8330;
@@ -48,7 +60,19 @@
   }
 
   .dark {
-    /* Theme variables */
+    /* Design System Variables */
+    --surface: #1A1A1C;
+    --bg: #0F0F10;
+    --border: #3A3A3C;
+    --text-primary: #F2F2F2;
+    --text-secondary: #C3C3C3;
+    --brand: #FF9C4A;
+    --brand-hover: #FFAF66;
+    --success: #2E8B57;
+    --warning: #E5A937;
+    --danger: #E46C6C;
+    
+    /* Legacy theme variables (for compatibility) */
     --color-bg: #0F0F10;
     --color-text: #F2F2F2;
     --color-primary: #FF9C4A;

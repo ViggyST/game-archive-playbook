@@ -50,8 +50,8 @@ const PlayerStatsCard = ({ playerName }: PlayerStatsCardProps) => {
           </div>
           
           <div className="text-center">
-            <div className="bg-meeple-gold-50 rounded-full p-3 w-12 h-12 flex items-center justify-center mx-auto mb-2">
-              <Trophy className="h-5 w-5 text-meeple-gold-600" />
+            <div className="bg-[var(--brand)]/10 dark:bg-[var(--brand)]/20 rounded-full p-3 w-12 h-12 flex items-center justify-center mx-auto mb-2">
+              <Trophy className="h-5 w-5 text-[var(--brand)]" />
             </div>
             <div className="font-poppins font-bold text-lg text-gray-900">{stats.games_won}</div>
             <div className="font-inter text-xs text-gray-600">Games Won</div>
