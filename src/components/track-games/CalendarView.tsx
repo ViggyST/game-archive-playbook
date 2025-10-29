@@ -64,19 +64,19 @@ const CalendarView = () => {
     // Add multiple dots for each complexity based on count
     if (complexityCount.light) {
       for (let i = 0; i < complexityCount.light; i++) {
-        dots.push({ type: 'Light', color: 'bg-green-500 dark:bg-green-600' });
+        dots.push({ type: 'Light', color: 'bg-green-500' });
       }
     }
     
     if (complexityCount.medium) {
       for (let i = 0; i < complexityCount.medium; i++) {
-        dots.push({ type: 'Medium', color: 'bg-yellow-500 dark:bg-yellow-600' });
+        dots.push({ type: 'Medium', color: 'bg-yellow-500' });
       }
     }
     
     if (complexityCount.heavy) {
       for (let i = 0; i < complexityCount.heavy; i++) {
-        dots.push({ type: 'Heavy', color: 'bg-red-500 dark:bg-red-600' });
+        dots.push({ type: 'Heavy', color: 'bg-red-500' });
       }
     }
 
@@ -183,9 +183,9 @@ const CalendarView = () => {
       <div className="flex items-center justify-center relative">
         <button
           onClick={goToPreviousMonth}
-          className="absolute left-0 p-3 rounded-full bg-white border border-gray-200 shadow-sm hover:shadow-md hover:scale-105 transition-all duration-200"
+          className="absolute left-0 p-3 rounded-full bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] shadow-sm hover:shadow-md hover:scale-105 transition-all duration-200"
         >
-          <ChevronLeft className="h-5 w-5 text-gray-600" />
+          <ChevronLeft className="h-5 w-5" />
         </button>
         
         <div className="text-center">
@@ -199,18 +199,18 @@ const CalendarView = () => {
         
         <button
           onClick={goToNextMonth}
-          className="absolute right-0 p-3 rounded-full bg-white border border-gray-200 shadow-sm hover:shadow-md hover:scale-105 transition-all duration-200"
+          className="absolute right-0 p-3 rounded-full bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] shadow-sm hover:shadow-md hover:scale-105 transition-all duration-200"
         >
-          <ChevronRight className="h-5 w-5 text-gray-600" />
+          <ChevronRight className="h-5 w-5" />
         </button>
       </div>
 
       {/* Calendar Grid */}
-      <div className="bg-[var(--surface)] rounded-3xl border border-[var(--border)] shadow-lg p-8">
+      <div className="bg-[var(--surface)] rounded-3xl border border-[var(--border)] shadow-sm dark:shadow-[0_1px_3px_rgba(0,0,0,0.4)] p-6 overflow-hidden">
         {/* Day Labels */}
         <div className="grid grid-cols-7 gap-3 mb-6">
           {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-            <div key={day} className="text-center text-sm font-semibold text-gray-600 py-3 font-inter">
+            <div key={day} className="text-center text-sm font-semibold text-[var(--text-secondary)] py-3 font-inter uppercase tracking-wide">
               {day}
             </div>
           ))}
@@ -236,16 +236,15 @@ const CalendarView = () => {
                 key={date.toISOString()}
                 onClick={() => handleDateClick(date)}
                 className={`
-                  relative h-28 rounded-xl border-2 transition-all duration-200 flex flex-col items-center justify-center overflow-hidden p-2
+                  relative h-28 rounded-xl border transition-all duration-200 flex flex-col items-center justify-center overflow-hidden p-2
                   ${isCurrentMonth 
                     ? hasGames 
-                      ? 'bg-[var(--brand)]/10 dark:bg-[var(--brand)]/20 border border-[var(--brand)]/30 dark:border-[var(--brand)]/40 text-[var(--text-primary)] font-semibold shadow-lg hover:shadow-xl cursor-pointer hover:scale-105 transform' 
+                      ? 'bg-[var(--surface-elevated)] border-[var(--brand)]/35 dark:border-[var(--brand)]/40 text-[var(--text-primary)] font-semibold shadow-md hover:shadow-lg cursor-pointer hover:scale-[1.02] transform ring-1 ring-[var(--brand)]/20' 
                       : isTodayDate
-                        ? 'bg-blue-50 dark:bg-blue-900/20 border border-blue-300 dark:border-blue-700 text-[var(--text-primary)] font-semibold shadow-sm'
-                        : 'bg-[var(--surface)] border border-[var(--border)] text-[var(--text-primary)] hover:bg-[var(--border)]/20 hover:shadow-md'
-                    : 'bg-[var(--border)]/30 border border-[var(--border)] text-[var(--text-secondary)]/50'
+                        ? 'bg-[var(--surface)] outline outline-2 outline-[var(--brand)]/50 border-[var(--border)] text-[var(--text-primary)] font-semibold'
+                        : 'bg-[var(--surface)] border-[var(--border)] text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] hover:border-[var(--brand)]/20 hover:shadow-sm cursor-pointer'
+                    : 'bg-[var(--bg)] border-[var(--border)]/50 text-[var(--text-secondary)]/40 cursor-not-allowed'
                   }
-                  ${isTodayDate && !hasGames ? 'ring-2 ring-blue-300 ring-opacity-60' : ''}
                 `}
               >
                 {/* Date number */}
@@ -262,7 +261,7 @@ const CalendarView = () => {
                     {complexityDots.map((dot, index) => (
                       <span
                         key={index}
-                        className={`w-3 h-3 rounded-full ${dot.color} border border-white shadow-sm`}
+                        className={`w-3 h-3 rounded-full ${dot.color} border-2 border-white/80 dark:border-black/40 ring-1 ring-white/20 dark:ring-black/30 shadow-md`}
                         aria-label={`${dot.type} game`}
                       />
                     ))}
@@ -271,7 +270,7 @@ const CalendarView = () => {
                 
                 {/* Multiple games indicator */}
                 {hasGames && dateSessions.length > 1 && (
-                  <div className="absolute top-2 right-2 w-5 h-5 bg-orange-600 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-md">
+                  <div className="absolute top-2 right-2 min-w-[20px] h-5 px-1.5 bg-[var(--brand)] text-zinc-900 dark:text-zinc-950 rounded-full flex items-center justify-center text-xs font-bold shadow-lg ring-2 ring-white/20 dark:ring-black/30">
                     {dateSessions.length}
                   </div>
                 )}
@@ -282,23 +281,24 @@ const CalendarView = () => {
       </div>
 
       {/* Game Complexity Legend */}
-      <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-sm p-6">
+      <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-sm p-4">
         <div className="text-center">
-          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-4 font-inter">
-            Game Complexity
+          <h3 className="font-poppins font-semibold text-base text-[var(--text-primary)] mb-3">
+            Complexity Legend
           </h3>
+          <p className="text-sm font-medium text-[var(--text-secondary)] mb-2">Game Complexity</p>
           <div className="flex justify-center items-center gap-6">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-green-500 dark:bg-green-600 rounded-full border border-white shadow-sm"></div>
-              <span className="text-sm text-[var(--text-secondary)] font-inter">Light</span>
+            <div className="flex items-center gap-2 text-[var(--text-secondary)]">
+              <span className="w-3 h-3 rounded-full bg-green-500 border border-white/20 dark:border-black/30 ring-1 ring-white/10 dark:ring-black/20"></span>
+              <span className="text-sm">Light (&lt; 2.5 weight)</span>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-yellow-500 dark:bg-yellow-600 rounded-full border border-white shadow-sm"></div>
-              <span className="text-sm text-[var(--text-secondary)] font-inter">Medium</span>
+            <div className="flex items-center gap-2 text-[var(--text-secondary)]">
+              <span className="w-3 h-3 rounded-full bg-yellow-500 border border-white/20 dark:border-black/30 ring-1 ring-white/10 dark:ring-black/20"></span>
+              <span className="text-sm">Medium (2.5-3.5 weight)</span>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-red-500 dark:bg-red-600 rounded-full border border-white shadow-sm"></div>
-              <span className="text-sm text-[var(--text-secondary)] font-inter">Heavy</span>
+            <div className="flex items-center gap-2 text-[var(--text-secondary)]">
+              <span className="w-3 h-3 rounded-full bg-red-500 border border-white/20 dark:border-black/30 ring-1 ring-white/10 dark:ring-black/20"></span>
+              <span className="text-sm">Heavy (&gt; 3.5 weight)</span>
             </div>
           </div>
         </div>

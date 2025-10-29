@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { useKiritoGameStats } from "@/hooks/useKiritoGameStats";
+import { cn } from "@/lib/utils";
 import GamesDashboard from "./GamesDashboard";
 
 const GamesView = () => {
@@ -116,36 +117,36 @@ const GamesView = () => {
   return (
     <div className="space-y-6">
       {/* Summary Stats Strip */}
-      <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-sm p-4">
+      <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-sm dark:shadow-[0_1px_3px_rgba(0,0,0,0.4)] p-4 mb-6">
         <div className="flex gap-3 overflow-x-auto pb-1">
-          <div className="flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-full whitespace-nowrap flex-shrink-0">
-            <Gamepad2 className="h-4 w-4" />
-            <span className="font-semibold">{summary.total_games} Games</span>
+          <div className="flex items-center gap-2 bg-[var(--surface-elevated)] border border-[var(--border)] text-[var(--text-primary)] px-4 py-2.5 rounded-full whitespace-nowrap flex-shrink-0 shadow-sm">
+            <Gamepad2 className="h-4 w-4 text-[var(--brand)]" />
+            <span className="font-semibold text-sm">{summary.total_games} Games</span>
           </div>
           
-          <div className="flex items-center gap-2 bg-orange-50 text-orange-700 px-4 py-2 rounded-full whitespace-nowrap flex-shrink-0">
-            <Trophy className="h-4 w-4" />
-            <span className="font-semibold">{summary.win_rate}% Win Rate</span>
+          <div className="flex items-center gap-2 bg-[var(--surface-elevated)] border border-[var(--border)] text-[var(--text-primary)] px-4 py-2.5 rounded-full whitespace-nowrap flex-shrink-0 shadow-sm">
+            <Trophy className="h-4 w-4 text-[var(--brand)]" />
+            <span className="font-semibold text-sm">{summary.win_rate}% Win Rate</span>
           </div>
           
           {summary.light_games > 0 && (
-            <div className="flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-full whitespace-nowrap flex-shrink-0">
-              <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
-              <span className="font-medium">{summary.light_games} Light</span>
+            <div className="flex items-center gap-2 bg-[var(--surface-elevated)] border border-[var(--border)] text-[var(--text-primary)] px-4 py-2.5 rounded-full whitespace-nowrap flex-shrink-0 shadow-sm">
+              <div className="w-2.5 h-2.5 bg-green-500 rounded-full ring-2 ring-green-500/20"></div>
+              <span className="font-medium text-sm">{summary.light_games} Light</span>
             </div>
           )}
           
           {summary.medium_games > 0 && (
-            <div className="flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-full whitespace-nowrap flex-shrink-0">
-              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-              <span className="font-medium">{summary.medium_games} Medium</span>
+            <div className="flex items-center gap-2 bg-[var(--surface-elevated)] border border-[var(--border)] text-[var(--text-primary)] px-4 py-2.5 rounded-full whitespace-nowrap flex-shrink-0 shadow-sm">
+              <div className="w-2.5 h-2.5 bg-yellow-500 rounded-full ring-2 ring-yellow-500/20"></div>
+              <span className="font-medium text-sm">{summary.medium_games} Medium</span>
             </div>
           )}
           
           {summary.heavy_games > 0 && (
-            <div className="flex items-center gap-2 bg-red-50 text-red-700 px-4 py-2 rounded-full whitespace-nowrap flex-shrink-0">
-              <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-              <span className="font-medium">{summary.heavy_games} Heavy</span>
+            <div className="flex items-center gap-2 bg-[var(--surface-elevated)] border border-[var(--border)] text-[var(--text-primary)] px-4 py-2.5 rounded-full whitespace-nowrap flex-shrink-0 shadow-sm">
+              <div className="w-2.5 h-2.5 bg-red-500 rounded-full ring-2 ring-red-500/20"></div>
+              <span className="font-medium text-sm">{summary.heavy_games} Heavy</span>
             </div>
           )}
         </div>
@@ -168,12 +169,12 @@ const GamesView = () => {
                 className="group cursor-pointer transition-all duration-200"
                 onClick={() => handleGameClick(game)}
               >
-                <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden p-6">
+                <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-sm dark:shadow-[0_1px_3px_rgba(0,0,0,0.4)] hover:shadow-md hover:border-[var(--brand)]/20 transition-all duration-200 p-4 cursor-pointer group">
                   {/* Game Header */}
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-4">
                       {/* Game Icon with hover animation */}
-                      <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center text-2xl transition-transform duration-200 group-hover:scale-110 group-hover:animate-bounce">
+                      <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800/50 rounded-2xl flex items-center justify-center text-2xl transition-transform duration-200 group-hover:scale-110 border border-gray-200 dark:border-gray-700">
                         {getGameIcon(game.name)}
                       </div>
                       
@@ -182,12 +183,12 @@ const GamesView = () => {
                         <h3 className="font-bold text-2xl text-[var(--text-primary)] mb-2">{game.name}</h3>
                         <Badge 
                           variant={getCategoryBadgeVariant(game.weight)}
-                          className={`
-                            text-xs px-3 py-1 rounded-full font-medium w-fit
-                            ${game.weight === 'Light' ? 'bg-emerald-100 text-emerald-700' : ''}
-                            ${game.weight === 'Medium' ? 'bg-blue-100 text-blue-700' : ''}
-                            ${game.weight === 'Heavy' ? 'bg-red-100 text-red-700' : ''}
-                          `}
+                          className={cn(
+                            "text-xs px-3 py-1 rounded-full font-medium w-fit border",
+                            game.weight === 'Light' && 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700/50',
+                            game.weight === 'Medium' && 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 border-yellow-300 dark:border-yellow-700/50',
+                            game.weight === 'Heavy' && 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 border-red-300 dark:border-red-700/50'
+                          )}
                         >
                           {game.weight}
                         </Badge>
@@ -197,7 +198,7 @@ const GamesView = () => {
                     {/* Trophy for wins or perfect record badge */}
                     <div className="flex items-center gap-2">
                       {isPerfectRecord && game.plays > 1 && (
-                        <div className="bg-yellow-50 text-yellow-700 px-2 py-1 rounded-full text-xs font-medium">
+                        <div className="bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-700 px-2 py-1 rounded-full text-xs font-medium">
                           Perfect!
                         </div>
                       )}
@@ -210,22 +211,22 @@ const GamesView = () => {
                   </div>
 
                   {/* Stats Row */}
-                  <div className="grid grid-cols-3 gap-4 text-center">
-                    <div>
-                      <div className="text-2xl font-bold text-gray-900">{game.plays}</div>
-                      <div className="text-sm text-[var(--text-secondary)] font-medium">Plays</div>
+                  <div className="grid grid-cols-3 gap-3 mt-4">
+                    <div className="bg-[var(--surface-elevated)] border border-[var(--border)] rounded-xl p-3 text-center">
+                      <div className="text-lg font-bold text-[var(--text-primary)]">{game.plays}</div>
+                      <div className="text-xs text-[var(--text-secondary)] uppercase tracking-wide">Plays</div>
                     </div>
                     
-                    <div>
-                      <div className={`text-2xl font-bold ${hasWins ? 'text-[var(--brand)]' : 'text-gray-400'}`}>
+                    <div className="bg-[var(--surface-elevated)] border border-[var(--border)] rounded-xl p-3 text-center">
+                      <div className={`text-lg font-bold ${hasWins ? 'text-[var(--brand)]' : 'text-[var(--text-secondary)]'}`}>
                         {Math.round(game.win_rate)}%
                       </div>
-                      <div className="text-sm text-gray-500 font-medium">Win Rate</div>
+                      <div className="text-xs text-[var(--text-secondary)] uppercase tracking-wide">Win Rate</div>
                     </div>
                     
-                    <div>
-                      <div className="text-2xl font-bold text-sky-blue-500">{game.avg_duration}m</div>
-                      <div className="text-sm text-gray-500 font-medium">Avg Time</div>
+                    <div className="bg-[var(--surface-elevated)] border border-[var(--border)] rounded-xl p-3 text-center">
+                      <div className="text-lg font-bold text-[var(--text-primary)]">{game.avg_duration}m</div>
+                      <div className="text-xs text-[var(--text-secondary)] uppercase tracking-wide">Avg Time</div>
                     </div>
                   </div>
                 </div>

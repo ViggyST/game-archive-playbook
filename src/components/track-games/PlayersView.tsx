@@ -76,30 +76,30 @@ const PlayersView = () => {
   return (
     <div className="space-y-6">
       {/* Summary Stats Bar */}
-      <div className="bg-gradient-to-r from-emerald-500/5 via-sky-blue-500/5 to-meeple-gold-500/5 rounded-2xl border border-border/20 shadow-lg backdrop-blur-sm p-6">
+      <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-sm dark:shadow-[0_1px_3px_rgba(0,0,0,0.4)] p-6 mb-6">
         <div className="flex flex-wrap gap-4">
           {/* Unique Players Count */}
-          <div className="flex items-center gap-3 bg-white/60 backdrop-blur-sm rounded-full px-4 py-3 shadow-sm border border-border/20">
-            <Users className="h-5 w-5 text-sky-blue-500" />
+          <div className="flex items-center gap-3 bg-[var(--surface-elevated)] border border-[var(--border)] rounded-full px-5 py-3 shadow-sm">
+            <Users className="h-5 w-5 text-[var(--brand)]" />
             <div>
-              <div className="font-poppins font-bold text-lg text-foreground">
+              <div className="font-poppins font-bold text-xl text-[var(--text-primary)]">
                 {summary.unique_players_count}
               </div>
-              <div className="text-xs font-medium text-muted-foreground">Players</div>
+              <div className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wide">Players</div>
             </div>
           </div>
 
           {/* Most Played With */}
           <div className="flex-1 min-w-0">
-            <div className="text-sm font-medium text-muted-foreground mb-2">Most Played With:</div>
+            <div className="text-sm font-medium text-[var(--text-secondary)] mb-3 uppercase tracking-wide">Most Played With:</div>
             <div className="flex flex-wrap gap-2">
               {summary.most_played_with.map((player, index) => (
                 <Badge 
                   key={player.name}
                   variant="outline" 
-                  className="bg-white/60 backdrop-blur-sm border-border/30 text-foreground font-medium"
+                  className="bg-[var(--surface-elevated)] border-[var(--border)] text-[var(--text-primary)] font-medium px-3 py-1.5 shadow-sm"
                 >
-                  {index === 0 && <Crown className="h-3 w-3 mr-1 text-meeple-gold-500" />}
+                  {index === 0 && <Crown className="h-3 w-3 mr-1.5 text-[var(--brand)]" />}
                   {player.name} ({player.shared_sessions})
                 </Badge>
               ))}
@@ -116,7 +116,7 @@ const PlayersView = () => {
             className="group cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
             onClick={() => handlePlayerClick(player)}
           >
-            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
+            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl overflow-hidden shadow-sm dark:shadow-[0_1px_3px_rgba(0,0,0,0.4)] hover:shadow-md hover:border-[var(--brand)]/20 transition-all duration-300">
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   {/* Left: Avatar + Name */}
@@ -127,13 +127,13 @@ const PlayersView = () => {
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <h3 className="font-poppins font-bold text-xl text-foreground group-hover:text-foreground/90 transition-colors">
+                      <h3 className="font-poppins font-bold text-xl text-[var(--text-primary)] group-hover:text-[var(--text-primary)]/90 transition-colors">
                         {player.name}
                       </h3>
                       {index === 0 && (
                         <div className="flex items-center gap-1 mt-1">
-                          <Crown className="h-4 w-4 text-meeple-gold-500" />
-                          <span className="text-sm font-medium text-meeple-gold-500">Top Opponent</span>
+                          <Crown className="h-4 w-4 text-[var(--brand)]" />
+                          <span className="text-sm font-medium text-[var(--brand)]">Top Opponent</span>
                         </div>
                       )}
                     </div>
@@ -141,8 +141,8 @@ const PlayersView = () => {
 
                   {/* Right: Record */}
                   <div className="text-right">
-                    <div className="text-sm font-medium text-muted-foreground mb-1">Record</div>
-                    <div className="font-mono text-lg font-bold text-foreground">
+                    <div className="text-sm font-medium text-[var(--text-secondary)] mb-1">Record</div>
+                    <div className="font-mono text-lg font-bold text-[var(--text-primary)]">
                       {player.record}
                     </div>
                   </div>
@@ -150,28 +150,25 @@ const PlayersView = () => {
 
                 {/* Stats Chips */}
                 <div className="grid grid-cols-3 gap-3">
-                  <div className="text-center p-3 bg-[var(--brand)]/10 dark:bg-[var(--brand)]/20 border border-[var(--brand)]/20 dark:border-[var(--brand)]/30 rounded-xl hover:bg-[var(--brand)]/20 transition-all duration-300 hover:scale-105 hover:shadow-md group/stat">
-                    <Target className="h-5 w-5 text-sky-blue-500 mx-auto mb-2 group-hover/stat:scale-110 transition-transform duration-300" />
-                    <div className="font-mono text-lg font-bold text-foreground group-hover/stat:text-sky-blue-500 transition-colors">
+                  <div className="bg-[var(--surface-elevated)] border border-[var(--border)] rounded-xl p-3 text-center group/stat hover:border-[var(--brand)]/20 transition-colors">
+                    <div className="font-mono text-lg font-bold text-[var(--text-primary)] group-hover/stat:text-[var(--brand)] transition-colors">
                       {player.games_played_with_kirito}
                     </div>
-                    <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mt-1">Games</div>
+                    <div className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mt-1">Games</div>
                   </div>
 
-                  <div className="text-center p-3 bg-[var(--brand)]/10 dark:bg-[var(--brand)]/20 border border-[var(--brand)]/20 dark:border-[var(--brand)]/30 rounded-xl hover:bg-[var(--brand)]/20 transition-all duration-300 hover:scale-105 hover:shadow-md group/stat">
-                    <Trophy className="h-5 w-5 text-meeple-gold-500 mx-auto mb-2 group-hover/stat:scale-110 transition-transform duration-300" />
-                    <div className="font-mono text-lg font-bold text-foreground group-hover/stat:text-meeple-gold-500 transition-colors">
+                  <div className="bg-[var(--surface-elevated)] border border-[var(--border)] rounded-xl p-3 text-center group/stat hover:border-[var(--brand)]/20 transition-colors">
+                    <div className="font-mono text-lg font-bold text-[var(--text-primary)] group-hover/stat:text-[var(--brand)] transition-colors">
                       {player.win_rate_with_kirito}%
                     </div>
-                    <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mt-1">Win Rate</div>
+                    <div className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mt-1">Win Rate</div>
                   </div>
 
-                  <div className="text-center p-3 bg-[var(--brand)]/10 dark:bg-[var(--brand)]/20 border border-[var(--brand)]/20 dark:border-[var(--brand)]/30 rounded-xl hover:bg-[var(--brand)]/20 transition-all duration-300 hover:scale-105 hover:shadow-md group/stat">
-                    <Star className="h-5 w-5 text-emerald-500 mx-auto mb-2 group-hover/stat:scale-110 transition-transform duration-300" />
-                    <div className="font-mono text-lg font-bold text-foreground group-hover/stat:text-emerald-500 transition-colors">
+                  <div className="bg-[var(--surface-elevated)] border border-[var(--border)] rounded-xl p-3 text-center group/stat hover:border-[var(--brand)]/20 transition-colors">
+                    <div className="font-mono text-lg font-bold text-[var(--text-primary)] group-hover/stat:text-[var(--brand)] transition-colors">
                       {player.wins_with_kirito}
                     </div>
-                    <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mt-1">Wins</div>
+                    <div className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mt-1">Wins</div>
                   </div>
                 </div>
               </div>

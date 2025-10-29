@@ -40,9 +40,9 @@ const GameInfoStep = ({ gameData, updateGameData }: GameInfoStepProps) => {
   };
 
   const complexityColors = {
-    Light: 'bg-green-100 text-green-800 border-green-200',
-    Medium: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-    Heavy: 'bg-red-100 text-red-800 border-red-200'
+    Light: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border-green-300 dark:border-green-700/50',
+    Medium: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 border-yellow-300 dark:border-yellow-700/50',
+    Heavy: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 border-red-300 dark:border-red-700/50'
   };
 
   return (
@@ -99,7 +99,7 @@ const GameInfoStep = ({ gameData, updateGameData }: GameInfoStepProps) => {
                   className={`px-4 py-2 rounded-full border transition-all font-inter text-sm font-medium ${
                     gameData.complexity === complexity
                       ? complexityColors[complexity]
-                      : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
+                      : 'bg-[var(--surface-elevated)] text-[var(--text-secondary)] border-[var(--border)] hover:bg-[var(--surface)] hover:border-[var(--brand)]/20'
                   }`}
                 >
                   {complexity}

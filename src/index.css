@@ -8,6 +8,7 @@
   :root {
     /* Design System Variables */
     --surface: #FFFFFF;
+    --surface-elevated: #F9FAFB;
     --bg: #FFF9F3;
     --border: #E5E5E5;
     --text-primary: #1A1A1A;
@@ -61,11 +62,12 @@
 
   .dark {
     /* Design System Variables */
-    --surface: #1A1A1C;
+    --surface: #161618;
+    --surface-elevated: #1E1E21;
     --bg: #0F0F10;
-    --border: #3A3A3C;
-    --text-primary: #F2F2F2;
-    --text-secondary: #C3C3C3;
+    --border: #2C2C2E;
+    --text-primary: #F5F5F6;
+    --text-secondary: #B0B0B3;
     --brand: #FF9C4A;
     --brand-hover: #FFAF66;
     --success: #2E8B57;
@@ -123,7 +125,7 @@
   }
   
   body {
-    @apply bg-background text-foreground;
+    @apply bg-[var(--bg)] text-foreground;
     font-family: 'Inter', sans-serif;
   }
   
