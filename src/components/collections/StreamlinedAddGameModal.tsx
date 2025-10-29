@@ -296,18 +296,18 @@ export const StreamlinedAddGameModal: React.FC<StreamlinedAddGameModalProps> = (
                         <div className="animate-spin w-6 h-6 border-2 border-orange-500 border-t-transparent rounded-full mx-auto mb-2"></div>
                         <p className="text-gray-600">Searching catalog...</p>
                       </div>
-                    ) : catalogResults.length > 0 ? (
+                     ) : catalogResults.length > 0 ? (
                       <div className="space-y-2">
-                        <Label className="text-sm text-gray-600">Found in BGG Catalog:</Label>
+                        <Label className="text-sm text-[var(--text-secondary)]">Found in BGG Catalog:</Label>
                         <div className="max-h-64 overflow-y-auto space-y-2">
                           {catalogResults.slice(0, 5).map((game) => (
                             <div
                               key={game.game_id}
                               onClick={() => handleGameSelect(game)}
-                              className="p-3 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                              className="p-3 border border-[var(--border)] bg-[var(--surface)] rounded-lg hover:bg-[var(--brand)]/10 dark:hover:bg-[var(--brand)]/20 cursor-pointer transition-colors"
                             >
                               <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                                <div className="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden flex-shrink-0">
                                   {game.thumbnail ? (
                                     <img src={game.thumbnail} alt={game.title} className="w-full h-full object-cover" />
                                   ) : (
@@ -315,8 +315,8 @@ export const StreamlinedAddGameModal: React.FC<StreamlinedAddGameModalProps> = (
                                   )}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <h4 className="font-semibold text-gray-900 truncate">{game.title}</h4>
-                                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                                  <h4 className="font-semibold text-[var(--text-primary)] truncate">{game.title}</h4>
+                                  <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
                                     {game.year && <span>{game.year}</span>}
                                     {game.rank && <span>• Rank #{game.rank}</span>}
                                     {game.geek_rating && <span>• ⭐ {game.geek_rating}</span>}
@@ -328,8 +328,8 @@ export const StreamlinedAddGameModal: React.FC<StreamlinedAddGameModalProps> = (
                         </div>
                       </div>
                     ) : (
-                      <div className="text-center py-8 border rounded-lg bg-gray-50">
-                        <p className="text-gray-600 mb-3">No games found in catalog</p>
+                      <div className="text-center py-8 border border-[var(--border)] rounded-lg bg-[var(--surface)]">
+                        <p className="text-[var(--text-secondary)] mb-3">No games found in catalog</p>
                         <Button variant="outline" onClick={handleManualEntry}>
                           Add "{searchQuery}" manually
                         </Button>

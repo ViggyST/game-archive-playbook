@@ -42,14 +42,14 @@ export const EnhancedCollectionCard = ({ item, onClick }: EnhancedCollectionCard
   // Function to get a color for tags based on their content
   const getTagColor = (tag: string, index: number) => {
     const colors = [
-      'bg-blue-100 text-blue-700 border-blue-200',
-      'bg-green-100 text-green-700 border-green-200',
-      'bg-purple-100 text-purple-700 border-purple-200',
-      'bg-pink-100 text-pink-700 border-pink-200',
-      'bg-indigo-100 text-indigo-700 border-indigo-200',
-      'bg-yellow-100 text-yellow-700 border-yellow-200',
-      'bg-red-100 text-red-700 border-red-200',
-      'bg-teal-100 text-teal-700 border-teal-200'
+      'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700',
+      'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700',
+      'bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-700',
+      'bg-pink-100 text-pink-700 border-pink-200 dark:bg-pink-900/30 dark:text-pink-300 dark:border-pink-700',
+      'bg-indigo-100 text-indigo-700 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-300 dark:border-indigo-700',
+      'bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-700',
+      'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-700',
+      'bg-teal-100 text-teal-700 border-teal-200 dark:bg-teal-900/30 dark:text-teal-300 dark:border-teal-700'
     ];
     
     // Use tag content hash to consistently assign colors
@@ -59,13 +59,13 @@ export const EnhancedCollectionCard = ({ item, onClick }: EnhancedCollectionCard
 
   return (
     <Card 
-      className="relative overflow-hidden hover:shadow-md transition-all duration-200 cursor-pointer bg-white"
+      className="relative overflow-hidden hover:shadow-md transition-all duration-200 cursor-pointer bg-[var(--surface)] border border-[var(--border)]"
       onClick={onClick}
     >
       <CardHeader className="pb-3">
         <div className="flex items-start gap-3">
           {/* Game Thumbnail */}
-          <div className="flex-shrink-0 w-12 h-12 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
+          <div className="flex-shrink-0 w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden flex items-center justify-center">
             {item.thumbnail || item.cover_url ? (
               <img 
                 src={item.thumbnail || item.cover_url} 
@@ -84,7 +84,7 @@ export const EnhancedCollectionCard = ({ item, onClick }: EnhancedCollectionCard
 
           {/* Game Info */}
           <div className="flex-1 min-w-0">
-            <h3 className="text-lg font-bold text-gray-900 leading-tight mb-1">
+            <h3 className="text-lg font-bold text-[var(--text-primary)] leading-tight mb-1">
               {item.game_name}
             </h3>
 
@@ -93,21 +93,21 @@ export const EnhancedCollectionCard = ({ item, onClick }: EnhancedCollectionCard
               {/* First row: Rank + Rating + Year */}
               <div className="flex items-center gap-3 text-sm">
                 {item.rank && (
-                  <Badge variant="secondary" className="text-xs px-2 py-0.5 bg-orange-100 text-orange-700 border-orange-200">
+                  <Badge variant="secondary" className="text-xs px-2 py-0.5 bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-700">
                     BGG #{item.rank}
                   </Badge>
                 )}
                 {item.geek_rating && (
                   <div className="flex items-center gap-1">
                     <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
-                    <span className="font-medium text-gray-900">{item.geek_rating}</span>
+                    <span className="font-medium text-[var(--text-primary)]">{item.geek_rating}</span>
                     {item.voters && (
-                      <span className="text-gray-500">({formatVoters(item.voters)})</span>
+                      <span className="text-[var(--text-secondary)]">({formatVoters(item.voters)})</span>
                     )}
                   </div>
                 )}
                 {item.year && (
-                  <div className="flex items-center gap-1 text-gray-500">
+                  <div className="flex items-center gap-1 text-[var(--text-secondary)]">
                     <Calendar className="w-3.5 h-3.5" />
                     <span>{item.year}</span>
                   </div>
@@ -116,7 +116,7 @@ export const EnhancedCollectionCard = ({ item, onClick }: EnhancedCollectionCard
 
               {/* Description */}
               {item.description && (
-                <p className="text-sm text-gray-600 leading-relaxed line-clamp-2">
+                <p className="text-sm text-[var(--text-secondary)] leading-relaxed line-clamp-2">
                   {item.description}
                 </p>
               )}
@@ -144,16 +144,16 @@ export const EnhancedCollectionCard = ({ item, onClick }: EnhancedCollectionCard
 
           {/* Personal Notes Preview - More Compact */}
           {item.notes && (
-            <div className="bg-blue-50 border border-blue-200 p-2 rounded-lg">
-              <span className="font-medium text-blue-800 text-xs">Your notes:</span>
-              <p className="mt-0.5 text-xs text-blue-700 line-clamp-2">{item.notes}</p>
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 p-2 rounded-lg">
+              <span className="font-medium text-blue-800 dark:text-blue-200 text-xs">Your notes:</span>
+              <p className="mt-0.5 text-xs text-blue-700 dark:text-blue-300 line-clamp-2">{item.notes}</p>
             </div>
           )}
 
           {/* Footer - Only Manual Entry Badge */}
           {item.is_manual && (
-            <div className="flex justify-end pt-2 border-t border-gray-100">
-              <Badge variant="outline" className="text-xs px-2 py-0.5 text-gray-600">
+            <div className="flex justify-end pt-2 border-t border-[var(--border)]">
+              <Badge variant="outline" className="text-xs px-2 py-0.5 text-[var(--text-secondary)]">
                 Manual Entry
               </Badge>
             </div>

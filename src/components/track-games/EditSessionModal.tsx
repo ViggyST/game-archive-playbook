@@ -320,7 +320,7 @@ export const EditSessionModal = ({
 
           {/* Session Details */}
           <div className="space-y-4">
-            <h3 className="font-semibold text-sm text-gray-900">Session Details</h3>
+            <h3 className="font-semibold text-sm text-[var(--text-primary)]">Session Details</h3>
             
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -400,10 +400,10 @@ export const EditSessionModal = ({
 
           {/* Players & Scores */}
           <div className="space-y-4">
-            <h3 className="font-semibold text-sm text-gray-900">Players & Scores</h3>
+            <h3 className="font-semibold text-sm text-[var(--text-primary)]">Players & Scores</h3>
             <div className="space-y-3">
               {players.map((player, index) => (
-                <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                <div key={index} className="flex items-center gap-3 p-3 bg-[var(--surface)] border border-[var(--border)] rounded-lg">
                   <Button
                     variant="ghost"
                     size="sm"

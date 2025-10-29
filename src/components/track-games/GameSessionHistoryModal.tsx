@@ -113,11 +113,11 @@ const GameSessionHistoryModal = ({
         {sessions.map((session) => (
           <div
             key={session.session_id}
-            className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm"
+            className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 shadow-sm"
           >
             {/* Session Info Header */}
             <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold text-gray-900">
+              <h3 className="font-semibold text-[var(--text-primary)]">
                 {formatDate(session.date)}
               </h3>
               <div className="flex items-center gap-2">
@@ -153,11 +153,11 @@ const GameSessionHistoryModal = ({
                     {player.is_winner && (
                       <Crown className="h-4 w-4 text-yellow-500" />
                     )}
-                    <span className={`text-sm ${player.is_winner ? 'font-semibold text-gray-900' : 'text-gray-700'}`}>
+                    <span className={`text-sm ${player.is_winner ? 'font-semibold text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}>
                       {player.name}
                     </span>
                   </div>
-                  <span className={`text-sm font-medium ${player.is_winner ? 'text-yellow-600' : 'text-gray-600'}`}>
+                  <span className={`text-sm font-medium ${player.is_winner ? 'text-yellow-600 dark:text-yellow-500' : 'text-[var(--text-secondary)]'}`}>
                     {player.score}
                   </span>
                 </div>
@@ -166,8 +166,8 @@ const GameSessionHistoryModal = ({
 
             {/* Highlights */}
             {session.highlights && (
-              <div className="pt-2 border-t border-gray-100">
-                <p className="text-xs text-gray-500 italic">
+              <div className="pt-2 border-t border-[var(--border)]">
+                <p className="text-xs text-[var(--text-secondary)] italic">
                   "{session.highlights}"
                 </p>
               </div>
@@ -182,7 +182,7 @@ const GameSessionHistoryModal = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md mx-auto max-h-[80vh] overflow-hidden flex flex-col">
         <DialogHeader className="shrink-0">
-          <DialogTitle className="text-lg font-bold text-gray-900">
+          <DialogTitle className="text-lg font-bold text-[var(--text-primary)]">
             Session History – {gameName}
           </DialogTitle>
         </DialogHeader>

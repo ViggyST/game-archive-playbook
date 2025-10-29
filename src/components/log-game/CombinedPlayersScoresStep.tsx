@@ -273,7 +273,7 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
                     return (
                       <div 
                         key={player.id}
-                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors h-12"
+                        className="flex items-center justify-between p-3 bg-[var(--surface)] border border-[var(--border)] rounded-lg hover:bg-[var(--brand)]/5 transition-colors h-12"
                       >
                         <div className="flex items-center gap-3">
                           <Avatar className="h-8 w-8">
@@ -281,7 +281,7 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
                               {initials}
                             </AvatarFallback>
                           </Avatar>
-                          <span className="font-inter font-medium text-gray-900 text-sm">
+                          <span className="font-inter font-medium text-[var(--text-primary)] text-sm">
                             {player.name}
                           </span>
                         </div>
@@ -370,8 +370,8 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
                     key={player.id}
                     className={`p-3 rounded-lg border-2 transition-all ${
                       isWinner 
-                        ? 'border-yellow-400 bg-yellow-50' 
-                        : 'border-gray-200 bg-white'
+                        ? 'border-yellow-400 bg-yellow-50 dark:bg-yellow-900/20' 
+                        : 'border-[var(--border)] bg-[var(--surface)]'
                     }`}
                   >
                     {/* Row A: Player Info + Score */}
@@ -382,7 +382,7 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
                             {initials}
                           </AvatarFallback>
                         </Avatar>
-                        <span className="font-inter font-medium text-gray-900 text-sm">
+                        <span className="font-inter font-medium text-[var(--text-primary)] text-sm">
                           {player.name}
                         </span>
                         <Button
@@ -392,7 +392,7 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
                           className={`h-7 px-2 text-xs rounded-full transition-all ${
                             isWinner 
                               ? 'bg-yellow-400 hover:bg-yellow-500 text-yellow-900 border border-yellow-400' 
-                              : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                              : 'border border-[var(--border)] bg-[var(--surface)] text-[var(--text-primary)] hover:bg-[var(--brand)]/5'
                           }`}
                         >
                           <Crown className={`h-3 w-3 mr-1 ${isWinner ? 'animate-bounce-in' : ''}`} />
@@ -400,7 +400,7 @@ const CombinedPlayersScoresStep = ({ gameData, updateGameData }: CombinedPlayers
                         </Button>
                       </div>
                       
-                      <div className="text-lg font-bold text-gray-900">
+                      <div className="text-lg font-bold text-[var(--text-primary)]">
                         {score}
                       </div>
                     </div>

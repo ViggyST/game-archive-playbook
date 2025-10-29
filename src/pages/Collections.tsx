@@ -24,9 +24,9 @@ const Collections = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 relative">
+    <div className="min-h-screen bg-[var(--bg)] relative">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+      <div className="bg-[var(--surface)] shadow-sm border-b border-[var(--border)]">
         <div className="max-w-md mx-auto px-4 py-4">
           <div className="flex items-center gap-4">
             <Button
@@ -38,8 +38,8 @@ const Collections = () => {
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">🎒 My Collection</h1>
-              <p className="text-sm text-gray-600">View owned games & wishlist</p>
+              <h1 className="text-xl font-bold text-[var(--text-primary)]">🎒 My Collection</h1>
+              <p className="text-sm text-[var(--text-secondary)]">View owned games & wishlist</p>
             </div>
           </div>
         </div>
@@ -57,13 +57,13 @@ const Collections = () => {
             {isLoadingOwned ? (
               <div className="text-center py-8">
                 <div className="animate-spin w-6 h-6 border-2 border-orange-500 border-t-transparent rounded-full mx-auto mb-2"></div>
-                <p className="text-gray-600">Loading your collection...</p>
+                <p className="text-[var(--text-secondary)]">Loading your collection...</p>
               </div>
             ) : ownedGames.length === 0 ? (
               <div className="text-center py-12">
                 <div className="text-6xl mb-4">🎮</div>
-                <p className="text-gray-600 mb-6">No games in your collection yet!</p>
-                <p className="text-sm text-gray-500 mb-4">Tap the + button to add your first game</p>
+                <p className="text-[var(--text-secondary)] mb-6">No games in your collection yet!</p>
+                <p className="text-sm text-[var(--text-secondary)] mb-4">Tap the + button to add your first game</p>
               </div>
             ) : (
               <div className="grid gap-4">
@@ -78,13 +78,13 @@ const Collections = () => {
             {isLoadingWishlist ? (
               <div className="text-center py-8">
                 <div className="animate-spin w-6 h-6 border-2 border-orange-500 border-t-transparent rounded-full mx-auto mb-2"></div>
-                <p className="text-gray-600">Loading your wishlist...</p>
+                <p className="text-[var(--text-secondary)]">Loading your wishlist...</p>
               </div>
             ) : wishlistGames.length === 0 ? (
               <div className="text-center py-12">
                 <div className="text-6xl mb-4">📝</div>
-                <p className="text-gray-600 mb-6">No games in your wishlist yet!</p>
-                <p className="text-sm text-gray-500 mb-4">Tap the + button to add games you want</p>
+                <p className="text-[var(--text-secondary)] mb-6">No games in your wishlist yet!</p>
+                <p className="text-sm text-[var(--text-secondary)] mb-4">Tap the + button to add games you want</p>
               </div>
             ) : (
               <div className="grid gap-4">
