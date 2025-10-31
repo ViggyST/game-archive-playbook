@@ -35,6 +35,31 @@ const Landing = () => {
     }
   }, [session, player, isLoading, navigate]);
 
+  // PWA-specific session restoration
+  useEffect(() => {
+    // Detect if running as PWA
+    const isPWA = 
+      window.matchMedia('(display-mode: standalone)').matches ||
+      (window.navigator as any).standalone === true;
+
+    if (isPWA && !isLoading) {
+      console.log('[Landing] Running in PWA mode, checking for session...');
+      console.log('[Landing] Display mode:', window.matchMedia('(display-mode: standalone)').matches ? 'standalone' : 'browser');
+      console.log('[Landing] iOS standalone:', (window.navigator as any).standalone);
+      
+      // Check if we have a valid session
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session?.user) {
+          console.log('[Landing] ✅ Valid session found in PWA, redirecting to dashboard');
+          // Force full page navigation to ensure session is loaded
+          window.location.href = '/dashboard';
+        } else {
+          console.log('[Landing] No session found in PWA storage');
+        }
+      });
+    }
+  }, [isLoading]);
+
   const handleMagicLinkSubmit = async () => {
     // Validate email
     const result = emailSchema.safeParse(email.trim());

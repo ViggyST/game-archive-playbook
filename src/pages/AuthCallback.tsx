@@ -37,6 +37,21 @@ export default function AuthCallback() {
 
       console.log('[AuthCallback] Session retrieved for user:', session.user.id);
 
+      // CRITICAL FIX: Explicitly persist session to current storage context
+      // This ensures the session is saved to PWA storage, not just Safari storage
+      const { error: setSessionError } = await supabase.auth.setSession({
+        access_token: session.access_token,
+        refresh_token: session.refresh_token,
+      });
+
+      if (setSessionError) {
+        console.error('[AuthCallback] Error persisting session:', setSessionError);
+        throw setSessionError;
+      }
+
+      console.log('[AuthCallback] ✅ Session persisted to storage');
+      console.log('[AuthCallback] Storage context:', window.matchMedia('(display-mode: standalone)').matches ? 'PWA' : 'Browser');
+
       const authUid = session.user.id;
 
       // Look up player by auth_uid
@@ -53,12 +68,16 @@ export default function AuthCallback() {
         setPlayer(existingPlayer);
         setStatus('success');
         toast.success('Welcome back!');
-        setTimeout(() => navigate('/dashboard'), 500);
+        setTimeout(() => {
+          window.location.href = '/dashboard';
+        }, 500);
       } else {
         // New user → redirect to registration
         setStatus('success');
         toast.info('Let\'s set up your profile!');
-        setTimeout(() => navigate('/register'), 500);
+        setTimeout(() => {
+          window.location.href = '/register';
+        }, 500);
       }
     } catch (error: any) {
       console.error('[AuthCallback] Error:', error);
