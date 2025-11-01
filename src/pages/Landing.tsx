@@ -24,6 +24,9 @@ const Landing = () => {
   const [isLoadingLegacy, setIsLoadingLegacy] = useState(false);
   const [showLegacyLogin, setShowLegacyLogin] = useState(false);
   
+  // OTP Test state
+  const [isLoadingOtpTest, setIsLoadingOtpTest] = useState(false);
+  
   const navigate = useNavigate();
   const { toast } = useToast();
   const { session, player, isLoading, setPlayer } = usePlayerContext();
@@ -217,6 +220,46 @@ const Landing = () => {
       });
     } finally {
       setIsLoadingLegacy(false);
+    }
+  };
+
+  // OTP Test handler
+  const handleOtpTest = async () => {
+    setIsLoadingOtpTest(true);
+    
+    try {
+      console.log('[OTP Test] Sending OTP to test email...');
+      
+      const { data, error } = await supabase.auth.signInWithOtp({
+        email: "your-test-email@example.com", // Replace with your actual test email
+        options: { 
+          shouldCreateUser: true 
+        }
+      });
+
+      if (error) {
+        console.error('[OTP Test] OTP send failed:', error.message);
+        toast({
+          title: "Failed to send OTP",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        console.log('[OTP Test] OTP email sent:', data);
+        toast({
+          title: "✅ OTP email sent successfully!",
+          description: "Check your inbox for the 6-digit code. Refresh Supabase dashboard to see the Email OTP template.",
+        });
+      }
+    } catch (error: any) {
+      console.error('[OTP Test] Error:', error);
+      toast({
+        title: "An error occurred",
+        description: "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingOtpTest(false);
     }
   };
 
@@ -416,6 +459,38 @@ const Landing = () => {
               </div>
             </div>
           )}
+        </div>
+
+        {/* 🧪 TEMPORARY: OTP Test Button - Remove after verifying Email OTP template */}
+        <div className="w-full max-w-md mt-12 pt-8 border-t border-zinc-200 dark:border-zinc-800">
+          <div className="text-center mb-4">
+            <p className="text-xs text-zinc-400 dark:text-zinc-500 mb-2">
+              🧪 Developer Test (Temporary)
+            </p>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
+              Click to trigger Supabase Email OTP flow
+            </p>
+          </div>
+          
+          <Button
+            onClick={handleOtpTest}
+            disabled={isLoadingOtpTest}
+            variant="outline"
+            className="w-full h-10 border-2 border-purple-300 dark:border-purple-700 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950 font-medium text-sm rounded-xl transition-colors"
+          >
+            {isLoadingOtpTest ? (
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 border-2 border-purple-600 dark:border-purple-400 border-t-transparent rounded-full animate-spin"></div>
+                Sending OTP...
+              </div>
+            ) : (
+              "🧪 Send OTP Test"
+            )}
+          </Button>
+          
+          <p className="text-xs text-zinc-400 dark:text-zinc-500 text-center mt-3">
+            This will send a 6-digit code to your test email and activate the Email OTP template in Supabase
+          </p>
         </div>
 
         {/* Email Sent Modal */}
