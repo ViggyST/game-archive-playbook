@@ -21,6 +21,7 @@ export function OTPInputModal({
   isVerifying 
 }: OTPInputModalProps) {
   const [otp, setOtp] = useState("");
+  const [error, setError] = useState("");
   const [resendCooldown, setResendCooldown] = useState(60);
   const [isResending, setIsResending] = useState(false);
   const [canResend, setCanResend] = useState(false);
@@ -41,6 +42,7 @@ export function OTPInputModal({
   useEffect(() => {
     if (isOpen) {
       setOtp("");
+      setError("");
       setResendCooldown(60);
       setCanResend(false);
     }
@@ -55,7 +57,18 @@ export function OTPInputModal({
 
   const handleVerify = async () => {
     if (otp.length !== 6) return;
-    await onVerify(otp);
+    
+    setError(""); // Clear previous errors
+    
+    try {
+      await onVerify(otp);
+      // If successful, the modal will be closed by parent component
+    } catch (err: any) {
+      // Display error in modal
+      setError(err.message || "Invalid code. Please try again.");
+      // Clear OTP input so user can try again
+      setOtp("");
+    }
   };
 
   const handleResend = async () => {
@@ -87,7 +100,10 @@ export function OTPInputModal({
           <InputOTP
             maxLength={6}
             value={otp}
-            onChange={(value) => setOtp(value)}
+            onChange={(value) => {
+              setOtp(value);
+              setError(""); // Clear error when user starts typing
+            }}
             disabled={isVerifying}
           >
             <InputOTPGroup>
@@ -99,6 +115,13 @@ export function OTPInputModal({
               <InputOTPSlot index={5} />
             </InputOTPGroup>
           </InputOTP>
+
+          {/* Error Message */}
+          {error && (
+            <div className="w-full px-4 py-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+              <p className="text-sm text-red-600 dark:text-red-400 text-center">{error}</p>
+            </div>
+          )}
 
           {/* Verify Button */}
           <Button

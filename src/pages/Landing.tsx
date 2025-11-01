@@ -131,13 +131,15 @@ const Landing = () => {
       });
 
       if (error) {
-        toast({
-          title: "Invalid code",
-          description: "Invalid or expired code. Please request a new one.",
-          variant: "destructive",
-        });
+        console.error('[OTP] Verification failed:', error);
         setIsVerifyingOtp(false);
-        return;
+        
+        // Return error message to be displayed in modal
+        throw new Error(
+          error.message.includes('expired') || error.message.includes('invalid')
+            ? "Invalid or expired code. Please try again or request a new code."
+            : error.message
+        );
       }
 
       // OTP verified successfully - now do post-auth logic
@@ -181,12 +183,9 @@ const Landing = () => {
 
     } catch (error: any) {
       console.error('[OTP] Verification error:', error);
-      toast({
-        title: "Verification failed",
-        description: error.message || "Please try again.",
-        variant: "destructive",
-      });
       setIsVerifyingOtp(false);
+      // Re-throw to be handled by modal
+      throw error;
     }
   };
 
