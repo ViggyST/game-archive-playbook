@@ -67,8 +67,11 @@ export function OTPInputModal({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      // Only allow closing via the "Change email" button, not by clicking outside
+      if (!open) return;
+    }}>
+      <DialogContent className="sm:max-w-md" onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className="text-2xl font-poppins text-center">
             Enter Verification Code

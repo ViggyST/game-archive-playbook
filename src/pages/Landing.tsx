@@ -63,6 +63,9 @@ const Landing = () => {
 
   // Step 1: Request OTP
   const handleRequestOtp = async () => {
+    // Prevent double-clicking
+    if (isRequestingOtp) return;
+    
     // Validate email
     const result = emailSchema.safeParse(email.trim());
     if (!result.success) {
@@ -74,6 +77,8 @@ const Landing = () => {
     setIsRequestingOtp(true);
 
     try {
+      console.log('[OTP] Requesting OTP for:', email.trim());
+      
       const { error } = await supabase.auth.signInWithOtp({
         email: email.trim(),
         options: {
@@ -82,6 +87,7 @@ const Landing = () => {
       });
 
       if (error) {
+        console.error('[OTP] Failed to send:', error);
         toast({
           title: "Failed to send code",
           description: error.message,
@@ -92,21 +98,26 @@ const Landing = () => {
       }
 
       // Success: show OTP modal
+      console.log('[OTP] Code sent successfully, opening modal');
+      
       toast({
         title: "✅ Code sent",
         description: "A 6-digit code has been sent to your email.",
       });
 
-      setShowOtpModal(true);
+      // Ensure modal opens after state update
+      setTimeout(() => {
+        setShowOtpModal(true);
+        setIsRequestingOtp(false);
+      }, 100);
 
     } catch (error) {
-      console.error('Error sending OTP:', error);
+      console.error('[OTP] Error sending OTP:', error);
       toast({
         title: "An error occurred",
         description: "Please try again.",
         variant: "destructive",
       });
-    } finally {
       setIsRequestingOtp(false);
     }
   };
