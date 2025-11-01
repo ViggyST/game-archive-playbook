@@ -227,11 +227,36 @@ const Landing = () => {
   const handleOtpTest = async () => {
     setIsLoadingOtpTest(true);
     
+    // Validate email before sending
+    const trimmedEmail = email.trim();
+
+    if (!trimmedEmail) {
+      toast({
+        title: "Email required",
+        description: "Please enter your email address in the input field above",
+        variant: "destructive",
+      });
+      setIsLoadingOtpTest(false);
+      return;
+    }
+
     try {
-      console.log('[OTP Test] Sending OTP to test email...');
+      emailSchema.parse(trimmedEmail);
+    } catch (validationError) {
+      toast({
+        title: "Invalid email",
+        description: "Please enter a valid email address",
+        variant: "destructive",
+      });
+      setIsLoadingOtpTest(false);
+      return;
+    }
+    
+    try {
+      console.log('[OTP Test] Sending OTP to:', trimmedEmail);
       
       const { data, error } = await supabase.auth.signInWithOtp({
-        email: "your-test-email@example.com", // Replace with your actual test email
+        email: trimmedEmail,
         options: { 
           shouldCreateUser: true 
         }
