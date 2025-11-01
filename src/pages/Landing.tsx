@@ -6,26 +6,24 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { usePlayerContext } from "@/context/PlayerContext";
-import { EmailSentModal } from "@/components/auth/EmailSentModal";
+import { OTPInputModal } from "@/components/auth/OTPInputModal";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { z } from "zod";
 
 const emailSchema = z.string().email("Please enter a valid email");
 
 const Landing = () => {
-  // Magic Link state
+  // OTP state
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
-  const [isLoadingMagicLink, setIsLoadingMagicLink] = useState(false);
-  const [showEmailSentModal, setShowEmailSentModal] = useState(false);
+  const [isRequestingOtp, setIsRequestingOtp] = useState(false);
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
   
   // Legacy login state
   const [playerName, setPlayerName] = useState("");
   const [isLoadingLegacy, setIsLoadingLegacy] = useState(false);
   const [showLegacyLogin, setShowLegacyLogin] = useState(false);
-  
-  // OTP Test state
-  const [isLoadingOtpTest, setIsLoadingOtpTest] = useState(false);
   
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -63,7 +61,8 @@ const Landing = () => {
     }
   }, [isLoading]);
 
-  const handleMagicLinkSubmit = async () => {
+  // Step 1: Request OTP
+  const handleRequestOtp = async () => {
     // Validate email
     const result = emailSchema.safeParse(email.trim());
     if (!result.success) {
@@ -72,55 +71,124 @@ const Landing = () => {
     }
     
     setEmailError("");
-    setIsLoadingMagicLink(true);
+    setIsRequestingOtp(true);
 
     try {
       const { error } = await supabase.auth.signInWithOtp({
         email: email.trim(),
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`
+          shouldCreateUser: true
         }
       });
 
       if (error) {
         toast({
-          title: "Failed to send magic link",
+          title: "Failed to send code",
           description: error.message,
           variant: "destructive",
         });
-        setIsLoadingMagicLink(false);
+        setIsRequestingOtp(false);
         return;
       }
 
-      // Success: show toast
+      // Success: show OTP modal
       toast({
-        title: "✅ Check your inbox",
-        description: "We've sent a magic link to your email.",
+        title: "✅ Code sent",
+        description: "A 6-digit code has been sent to your email.",
       });
 
-      // Wait 2 seconds, then show modal
-      setTimeout(() => {
-        setShowEmailSentModal(true);
-      }, 2000);
+      setShowOtpModal(true);
 
     } catch (error) {
-      console.error('Error sending magic link:', error);
+      console.error('Error sending OTP:', error);
       toast({
         title: "An error occurred",
         description: "Please try again.",
         variant: "destructive",
       });
     } finally {
-      setIsLoadingMagicLink(false);
+      setIsRequestingOtp(false);
     }
   };
 
-  const handleResendMagicLink = async () => {
+  // Step 2: Verify OTP
+  const handleVerifyOtp = async (otp: string) => {
+    setIsVerifyingOtp(true);
+
+    try {
+      const { data, error } = await supabase.auth.verifyOtp({
+        email: email.trim(),
+        token: otp,
+        type: 'email'
+      });
+
+      if (error) {
+        toast({
+          title: "Invalid code",
+          description: "Invalid or expired code. Please request a new one.",
+          variant: "destructive",
+        });
+        setIsVerifyingOtp(false);
+        return;
+      }
+
+      // OTP verified successfully - now do post-auth logic
+      console.log('[OTP] Verification successful, checking player...');
+
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        throw new Error('No session found after OTP verification');
+      }
+
+      const authUid = session.user.id;
+
+      // Look up player by auth_uid (same as before)
+      const { data: existingPlayer, error: fetchError } = await supabase
+        .from('players')
+        .select('*')
+        .eq('auth_uid', authUid)
+        .maybeSingle();
+
+      if (fetchError) throw fetchError;
+
+      if (existingPlayer) {
+        // Existing player found - redirect to dashboard
+        setPlayer(existingPlayer);
+        toast({
+          title: "Welcome back! 🎮",
+          description: `Logged in as ${existingPlayer.name}`,
+        });
+        setShowOtpModal(false);
+        window.location.href = '/dashboard';
+      } else {
+        // New player - redirect to registration
+        toast({
+          title: "Welcome! 👋",
+          description: "Let's set up your profile.",
+        });
+        setShowOtpModal(false);
+        window.location.href = '/register';
+      }
+
+    } catch (error: any) {
+      console.error('[OTP] Verification error:', error);
+      toast({
+        title: "Verification failed",
+        description: error.message || "Please try again.",
+        variant: "destructive",
+      });
+      setIsVerifyingOtp(false);
+    }
+  };
+
+  // Resend OTP
+  const handleResendOtp = async () => {
     try {
       const { error } = await supabase.auth.signInWithOtp({
         email: email.trim(),
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`
+          shouldCreateUser: true
         }
       });
 
@@ -134,23 +202,17 @@ const Landing = () => {
       }
 
       toast({
-        title: "Magic link resent! ✅",
+        title: "Code resent! ✅",
         description: "Check your inbox again.",
       });
     } catch (error) {
-      console.error('Error resending magic link:', error);
+      console.error('Error resending OTP:', error);
       toast({
         title: "Failed to resend",
         description: "Please try again.",
         variant: "destructive",
       });
     }
-  };
-
-  const handleChangeEmail = () => {
-    setEmail("");
-    setEmailError("");
-    setShowEmailSentModal(false);
   };
 
   // Legacy login handler
@@ -223,70 +285,6 @@ const Landing = () => {
     }
   };
 
-  // OTP Test handler
-  const handleOtpTest = async () => {
-    setIsLoadingOtpTest(true);
-    
-    // Validate email before sending
-    const trimmedEmail = email.trim();
-
-    if (!trimmedEmail) {
-      toast({
-        title: "Email required",
-        description: "Please enter your email address in the input field above",
-        variant: "destructive",
-      });
-      setIsLoadingOtpTest(false);
-      return;
-    }
-
-    try {
-      emailSchema.parse(trimmedEmail);
-    } catch (validationError) {
-      toast({
-        title: "Invalid email",
-        description: "Please enter a valid email address",
-        variant: "destructive",
-      });
-      setIsLoadingOtpTest(false);
-      return;
-    }
-    
-    try {
-      console.log('[OTP Test] Sending OTP to:', trimmedEmail);
-      
-      const { data, error } = await supabase.auth.signInWithOtp({
-        email: trimmedEmail,
-        options: { 
-          shouldCreateUser: true 
-        }
-      });
-
-      if (error) {
-        console.error('[OTP Test] OTP send failed:', error.message);
-        toast({
-          title: "Failed to send OTP",
-          description: error.message,
-          variant: "destructive",
-        });
-      } else {
-        console.log('[OTP Test] OTP email sent:', data);
-        toast({
-          title: "✅ OTP email sent successfully!",
-          description: "Check your inbox for the 6-digit code. Refresh Supabase dashboard to see the Email OTP template.",
-        });
-      }
-    } catch (error: any) {
-      console.error('[OTP Test] Error:', error);
-      toast({
-        title: "An error occurred",
-        description: "Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoadingOtpTest(false);
-    }
-  };
 
   const onboardingSlides = [
     {
@@ -389,7 +387,7 @@ const Landing = () => {
             </h3>
           </div>
           
-          {/* Magic Link Login (Default) */}
+          {/* OTP Login (Default) */}
           {!showLegacyLogin && (
             <div className="space-y-4">
               <div>
@@ -406,7 +404,7 @@ const Landing = () => {
                   }`}
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
-                      handleMagicLinkSubmit();
+                      handleRequestOtp();
                     }
                   }}
                 />
@@ -416,17 +414,17 @@ const Landing = () => {
               </div>
               
               <Button
-                onClick={handleMagicLinkSubmit}
-                disabled={isLoadingMagicLink}
+                onClick={handleRequestOtp}
+                disabled={isRequestingOtp}
                 className="w-full h-12 bg-brand hover:bg-brand-hover text-white font-semibold text-lg rounded-xl transition-colors"
               >
-                {isLoadingMagicLink ? (
+                {isRequestingOtp ? (
                   <div className="flex items-center gap-2">
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                     Sending...
                   </div>
                 ) : (
-                  "Send Magic Link"
+                  "Continue with Email"
                 )}
               </Button>
 
@@ -473,58 +471,27 @@ const Landing = () => {
                 )}
               </Button>
 
-              {/* Back to Magic Link */}
+              {/* Back to Email Login */}
               <div className="text-center mt-4">
                 <button
                   onClick={() => setShowLegacyLogin(false)}
                   className="text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300 underline"
                 >
-                  ← Back to magic link login
+                  ← Back to email login
                 </button>
               </div>
             </div>
           )}
         </div>
 
-        {/* 🧪 TEMPORARY: OTP Test Button - Remove after verifying Email OTP template */}
-        <div className="w-full max-w-md mt-12 pt-8 border-t border-zinc-200 dark:border-zinc-800">
-          <div className="text-center mb-4">
-            <p className="text-xs text-zinc-400 dark:text-zinc-500 mb-2">
-              🧪 Developer Test (Temporary)
-            </p>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
-              Click to trigger Supabase Email OTP flow
-            </p>
-          </div>
-          
-          <Button
-            onClick={handleOtpTest}
-            disabled={isLoadingOtpTest}
-            variant="outline"
-            className="w-full h-10 border-2 border-purple-300 dark:border-purple-700 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950 font-medium text-sm rounded-xl transition-colors"
-          >
-            {isLoadingOtpTest ? (
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 border-2 border-purple-600 dark:border-purple-400 border-t-transparent rounded-full animate-spin"></div>
-                Sending OTP...
-              </div>
-            ) : (
-              "🧪 Send OTP Test"
-            )}
-          </Button>
-          
-          <p className="text-xs text-zinc-400 dark:text-zinc-500 text-center mt-3">
-            This will send a 6-digit code to your test email and activate the Email OTP template in Supabase
-          </p>
-        </div>
-
-        {/* Email Sent Modal */}
-        <EmailSentModal
-          isOpen={showEmailSentModal}
-          onClose={() => setShowEmailSentModal(false)}
+        {/* OTP Input Modal */}
+        <OTPInputModal
           email={email}
-          onResend={handleResendMagicLink}
-          onChangeEmail={handleChangeEmail}
+          isOpen={showOtpModal}
+          onVerify={handleVerifyOtp}
+          onResend={handleResendOtp}
+          onClose={() => setShowOtpModal(false)}
+          isVerifying={isVerifyingOtp}
         />
       </div>
     </div>

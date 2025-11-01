@@ -5,7 +5,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { PlayerProvider } from "@/context/PlayerContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Landing from "./pages/Landing";
-import AuthCallback from "./pages/AuthCallback";
 import Register from "./pages/Register";
 import Index from "./pages/Index";
 import LogGame from "./pages/LogGame";
@@ -24,7 +23,6 @@ function App() {
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Landing />} />
-              <Route path="/auth/callback" element={<AuthCallback />} />
               <Route path="/register" element={<Register />} />
               <Route
                 path="/dashboard"
