@@ -37,9 +37,10 @@ const Landing = () => {
   const { toast } = useToast();
   const { session, player, isLoading, setPlayer } = usePlayerContext();
 
-  // Auto-redirect if already authenticated
+  // Auto-redirect if already authenticated (Session Persistence)
   useEffect(() => {
     if (!isLoading && (session || player)) {
+      console.log('[Landing] ✅ Active session found, redirecting to dashboard');
       navigate('/dashboard', { replace: true });
     }
   }, [session, player, isLoading, navigate]);
@@ -146,12 +147,27 @@ const Landing = () => {
         console.error('[OTP] Verification failed:', error);
         setIsVerifyingOtp(false);
         
-        // Return error message to be displayed in modal
-        throw new Error(
-          error.message.includes('expired') || error.message.includes('invalid')
-            ? "Invalid or expired code. Please try again or request a new code."
-            : error.message
-        );
+        // Handle specific error types
+        let errorMessage = "Please try again.";
+        
+        // Check for expired token
+        if (error.message.includes('expired') || error.message.includes('Token has expired')) {
+          errorMessage = "That code has expired — request a new one.";
+        }
+        // Check for already used token
+        else if (error.message.includes('already been used') || error.message.includes('invalid_grant')) {
+          errorMessage = "You've already used this code — request a new one to log in.";
+        }
+        // Check for invalid token
+        else if (error.message.includes('invalid') || error.message.includes('Token is invalid')) {
+          errorMessage = "Invalid code. Please check and try again.";
+        }
+        // Fallback to error message from Supabase
+        else {
+          errorMessage = error.message;
+        }
+        
+        throw new Error(errorMessage);
       }
 
       // OTP verified successfully - now do post-auth logic
@@ -177,6 +193,7 @@ const Landing = () => {
       if (existingPlayer) {
         // Existing player found - redirect to dashboard
         setPlayer(existingPlayer);
+        console.log('[OTP] ✅ Session persisted, user will stay signed in');
         toast({
           title: "Welcome back! 🎮",
           description: `Logged in as ${existingPlayer.name}`,
@@ -185,6 +202,7 @@ const Landing = () => {
         window.location.href = '/dashboard';
       } else {
         // New player - redirect to registration
+        console.log('[OTP] ✅ New user session persisted');
         toast({
           title: "Welcome! 👋",
           description: "Let's set up your profile.",
@@ -212,9 +230,23 @@ const Landing = () => {
       });
 
       if (error) {
+        console.error('[OTP] Resend failed:', error);
+        
+        // Handle rate limiting specifically
+        let errorMessage = error.message;
+        let errorTitle = "Failed to resend";
+        
+        if (error.message.includes('rate limit') || error.message.includes('too many requests')) {
+          errorTitle = "Too many requests";
+          errorMessage = "Please wait a moment before requesting another code.";
+        } else if (error.message.includes('Email rate limit exceeded')) {
+          errorTitle = "Rate limit exceeded";
+          errorMessage = "You've requested too many codes. Please wait a few minutes.";
+        }
+        
         toast({
-          title: "Failed to resend",
-          description: error.message,
+          title: errorTitle,
+          description: errorMessage,
           variant: "destructive",
         });
         return;
@@ -224,11 +256,11 @@ const Landing = () => {
         title: "Code resent! ✅",
         description: "Check your inbox again.",
       });
-    } catch (error) {
-      console.error('Error resending OTP:', error);
+    } catch (error: any) {
+      console.error('[OTP] Error resending:', error);
       toast({
         title: "Failed to resend",
-        description: "Please try again.",
+        description: error?.message || "Please try again later.",
         variant: "destructive",
       });
     }
