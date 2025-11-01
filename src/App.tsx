@@ -1,3 +1,4 @@
+import React from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -12,7 +13,14 @@ import TrackGames from "./pages/TrackGames";
 import Collections from "./pages/Collections";
 import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
+// Initialize QueryClient for React Query
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 function App() {
   return (
