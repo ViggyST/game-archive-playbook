@@ -25,6 +25,7 @@ export function OTPInputModal({
   const [resendCooldown, setResendCooldown] = useState(60);
   const [isResending, setIsResending] = useState(false);
   const [canResend, setCanResend] = useState(false);
+  const [expirationTime, setExpirationTime] = useState(300); // 5 minutes in seconds
 
   // Countdown timer for resend
   useEffect(() => {
@@ -38,6 +39,16 @@ export function OTPInputModal({
     }
   }, [isOpen, resendCooldown]);
 
+  // Countdown timer for OTP expiration
+  useEffect(() => {
+    if (isOpen && expirationTime > 0) {
+      const timer = setTimeout(() => {
+        setExpirationTime(expirationTime - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen, expirationTime]);
+
   // Reset state when modal opens
   useEffect(() => {
     if (isOpen) {
@@ -45,6 +56,7 @@ export function OTPInputModal({
       setError("");
       setResendCooldown(60);
       setCanResend(false);
+      setExpirationTime(300); // Reset to 5 minutes
     }
   }, [isOpen]);
 
@@ -76,7 +88,15 @@ export function OTPInputModal({
     await onResend();
     setResendCooldown(60);
     setCanResend(false);
+    setExpirationTime(300); // Reset expiration timer
     setIsResending(false);
+  };
+
+  // Format time as MM:SS
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   return (
@@ -89,9 +109,19 @@ export function OTPInputModal({
           <DialogTitle className="text-2xl font-poppins text-center">
             Enter Verification Code
           </DialogTitle>
-          <DialogDescription className="text-center pt-2">
-            We've sent a 6-digit code to<br />
-            <span className="font-semibold text-zinc-900 dark:text-zinc-100">{email}</span>
+          <DialogDescription className="text-center pt-2 space-y-2">
+            <div>
+              We've sent a 6-digit code to<br />
+              <span className="font-semibold text-zinc-900 dark:text-zinc-100">{email}</span>
+            </div>
+            <div className="flex items-center justify-center gap-2 text-sm">
+              <span className={expirationTime < 60 ? "text-red-500 font-semibold" : "text-zinc-500 dark:text-zinc-400"}>
+                Code expires in {formatTime(expirationTime)}
+              </span>
+              {expirationTime === 0 && (
+                <span className="text-red-500 font-semibold ml-2">⏱️ Expired</span>
+              )}
+            </div>
           </DialogDescription>
         </DialogHeader>
 

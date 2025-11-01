@@ -19,6 +19,14 @@ const Landing = () => {
   const [isRequestingOtp, setIsRequestingOtp] = useState(false);
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+
+  // Load saved email from localStorage on mount
+  useEffect(() => {
+    const savedEmail = localStorage.getItem('lastUsedEmail');
+    if (savedEmail) {
+      setEmail(savedEmail);
+    }
+  }, []);
   
   // Legacy login state
   const [playerName, setPlayerName] = useState("");
@@ -77,10 +85,11 @@ const Landing = () => {
     setIsRequestingOtp(true);
 
     try {
-      console.log('[OTP] Requesting OTP for:', email.trim());
+      const trimmedEmail = email.trim();
+      console.log('[OTP] Requesting OTP for:', trimmedEmail);
       
       const { error } = await supabase.auth.signInWithOtp({
-        email: email.trim(),
+        email: trimmedEmail,
         options: {
           shouldCreateUser: true
         }
@@ -96,6 +105,9 @@ const Landing = () => {
         setIsRequestingOtp(false);
         return;
       }
+
+      // Save email to localStorage for next time
+      localStorage.setItem('lastUsedEmail', trimmedEmail);
 
       // Success: show OTP modal
       console.log('[OTP] Code sent successfully, opening modal');
