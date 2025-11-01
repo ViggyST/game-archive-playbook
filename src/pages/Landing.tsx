@@ -105,11 +105,7 @@ const Landing = () => {
         description: "A 6-digit code has been sent to your email.",
       });
 
-      // Ensure modal opens after state update
-      setTimeout(() => {
-        setShowOtpModal(true);
-        setIsRequestingOtp(false);
-      }, 100);
+      setShowOtpModal(true);
 
     } catch (error) {
       console.error('[OTP] Error sending OTP:', error);
@@ -118,6 +114,7 @@ const Landing = () => {
         description: "Please try again.",
         variant: "destructive",
       });
+    } finally {
       setIsRequestingOtp(false);
     }
   };
